@@ -19,6 +19,7 @@ const work = defineCollection({
       metrics: z.array(z.string()).default([]),
       order: z.number().default(100),
       note: z.string().optional(),
+      researchSlug: z.string().optional(),
     }),
 });
 
@@ -46,6 +47,7 @@ const research = defineCollection({
     tags: z.array(z.string()),
     link: z.string().url().optional(),
     status: z.enum(['complete', 'in-progress']),
+    kind: z.string().default('Study'),
     supervisor: z.string().optional(),
     site: z.string().optional(),
   }),

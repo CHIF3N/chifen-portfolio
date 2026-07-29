@@ -1,17 +1,30 @@
 ---
 import { getCollection, render } from 'astro:content';
-import Base from '../layouts/Base.astro';
+import Base from '../../layouts/Base.astro';
+import { withBase } from '../../lib/url';
 
-const entries = await getCollection('research');
-const study = entries[0];
-const { Content } = await render(study);
-const { title, summary, institution, year, supervisor, site: studySite, tags } = study.data;
+export async function getStaticPaths() {
+  const entries = await getCollection('research');
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, summary, institution, year, supervisor, site: studySite, tags } = entry.data;
 ---
 
-<Base title="Research" description={summary}>
+<Base title={title} description={summary}>
   <header class="border-b border-ink/10 bg-ink text-paper">
-    <div class="mx-auto max-w-4xl px-5 pt-14 pb-16 sm:px-8 sm:pt-20">
-      <p class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
+    <div class="mx-auto max-w-4xl px-5 pt-12 pb-16 sm:px-8 sm:pt-16">
+      <a
+        href={withBase('/research')}
+        class="group inline-flex items-center gap-1.5 text-sm text-paper/60 transition-colors hover:text-amber"
+      >
+        <span class="transition-transform duration-200 group-hover:-translate-x-0.5">&larr;</span>
+        All research
+      </a>
+
+      <p class="mt-7 font-display text-xs font-semibold tracking-widest text-amber uppercase">
         Research
       </p>
       <h1 class="mt-5 font-display text-3xl leading-tight font-semibold sm:text-[2.75rem]">

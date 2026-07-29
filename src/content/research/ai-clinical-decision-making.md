@@ -5,6 +5,7 @@ institution: Gracious Higher Institute of Excellence, Buea
 year: 2026
 tags: ['AI', 'clinical decision support', 'digital health', 'health systems']
 status: complete
+kind: Dissertation
 supervisor: Mr Boris Eko
 site: Buea Regional Hospital
 ---

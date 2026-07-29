@@ -2,7 +2,7 @@
 title: Abortion safety georegistry
 summary: A working dashboard for mapping post-abortion care complications across Buea, built to show what an observatory could look like before anyone collects a single real record.
 role: Developer
-tags: ['health-tech', 'data', 'web']
+tags: ['health-tech', 'data', 'web', 'research']
 status: concept
 year: 2026
 featured: false

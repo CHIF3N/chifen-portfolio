@@ -7,7 +7,7 @@ To resolve one: replace the whole `{{VERIFY: ...}}` token with the real value,
 then run `npm run build`. This file regenerates itself.
 
 Last generated: 2026-07-29
-Outstanding: **3**
+Outstanding: **5**
 
 ---
 
@@ -21,4 +21,11 @@ Outstanding: **3**
 ## `src/content/work/inkwave.md`
 
 - [ ] **Line 26** — Inkwave client projects that are cleared to show publicly
+
+---
+
+## `src/content/work/lifedrop.md`
+
+- [ ] **Line 11** — LifeDrop WhatsApp pilot — registered donors
+- [ ] **Line 11** — LifeDrop WhatsApp pilot — completed matches
 
