@@ -1,0 +1,65 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import readingTime from 'reading-time';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog')).filter((post) => !post.data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const { title, description, pubDate, updated, tags } = post.data;
+
+const minutes = Math.max(1, Math.round(readingTime(post.body ?? '').minutes));
+
+const dateFormat = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<Base title={title} description={description}>
+  <article class="mx-auto max-w-3xl px-5 pt-12 pb-16 sm:px-8 sm:pt-16">
+    <a
+      href="/blog"
+      class="group inline-flex items-center gap-1.5 text-sm text-slate transition-colors hover:text-amber"
+    >
+      <span class="transition-transform duration-200 group-hover:-translate-x-0.5">&larr;</span>
+      All writing
+    </a>
+
+    <header class="mt-8 border-b border-ink/10 pb-8">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs tracking-wider text-slate-light uppercase">
+        <time datetime={pubDate.toISOString()}>{dateFormat.format(pubDate)}</time>
+        <span aria-hidden="true">&middot;</span>
+        <span>{minutes} min read</span>
+      </div>
+
+      <h1 class="mt-4 font-display text-3xl leading-tight font-semibold sm:text-[2.6rem]">
+        {title}
+      </h1>
+      <p class="mt-4 text-lg leading-relaxed text-slate">{description}</p>
+
+      {
+        updated && (
+          <p class="mt-4 text-sm text-slate-light">
+            Updated {dateFormat.format(updated)}
+          </p>
+        )
+      }
+    </header>
+
+    <div class="prose-body mt-10">
+      <Content />
+    </div>
+
+    <footer class="mt-14 border-t border-ink/10 pt-8">
+      <ul class="flex flex-wrap gap-2">
+        {tags.map((tag) => <li class="rounded-full bg-ink/5 px-3 py-1 text-sm text-slate">{tag}</li>)}
+      </ul>
+    </footer>
+  </article>
+</Base>

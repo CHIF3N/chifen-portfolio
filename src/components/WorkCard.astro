@@ -1,0 +1,94 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import VerifyText from './VerifyText.astro';
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+  delay?: number;
+}
+
+const { entry, delay = 0 } = Astro.props;
+const { title, summary, tags, status, year, liveUrl, metrics, role } = entry.data;
+
+const statusLabel: Record<string, string> = {
+  live: 'Live',
+  shipped: 'Shipped',
+  'in-progress': 'Building',
+  concept: 'Concept',
+};
+---
+
+<article
+  data-reveal
+  style={`--reveal-delay:${delay}ms`}
+  class="group relative flex flex-col rounded-2xl border border-ink/10 bg-white/60 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-amber/50 hover:shadow-[0_16px_40px_-24px_rgba(10,42,51,0.5)] sm:p-7"
+>
+  <div class="flex items-center gap-3">
+    <span
+      class:list={[
+        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
+        status === 'live'
+          ? 'bg-amber/15 text-ink'
+          : status === 'in-progress'
+            ? 'bg-ink/8 text-slate'
+            : 'bg-ink/5 text-slate',
+      ]}
+    >
+      {
+        status === 'live' && (
+          <span class="relative flex h-1.5 w-1.5">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber opacity-70" />
+            <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber" />
+          </span>
+        )
+      }
+      {statusLabel[status]}
+    </span>
+    <span class="text-xs text-slate-light">{year}</span>
+  </div>
+
+  <h3 class="mt-4 font-display text-2xl font-semibold">
+    <a href={`/work/${entry.id}`} class="after:absolute after:inset-0">
+      {title}
+    </a>
+  </h3>
+
+  <p class="mt-1 text-sm text-slate-light">{role}</p>
+  <p class="mt-3 grow text-[0.95rem] leading-relaxed text-slate">{summary}</p>
+
+  {
+    metrics.length > 0 && (
+      <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-ink/8 pt-4">
+        {metrics.slice(0, 3).map((metric) => (
+          <li class="font-display text-sm font-medium text-ink">
+            <VerifyText text={metric} />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  <div class="mt-5 flex items-center justify-between">
+    <ul class="flex flex-wrap gap-1.5">
+      {
+        tags.slice(0, 3).map((tag) => (
+          <li class="rounded-full bg-ink/5 px-2.5 py-1 text-xs text-slate">{tag}</li>
+        ))
+      }
+    </ul>
+    {
+      liveUrl && (
+        <span class="relative z-10 text-xs font-medium text-slate-light">
+          <a
+            href={liveUrl}
+            target="_blank"
+            rel="noopener"
+            class="underline-offset-4 transition-colors hover:text-amber hover:underline"
+          >
+            Visit site
+          </a>
+        </span>
+      )
+    }
+  </div>
+</article>

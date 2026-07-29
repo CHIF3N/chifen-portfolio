@@ -1,0 +1,52 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+const entries = await getCollection('research');
+const study = entries[0];
+const { Content } = await render(study);
+const { title, summary, institution, year, supervisor, site: studySite, tags } = study.data;
+---
+
+<Base title="Research" description={summary}>
+  <header class="border-b border-ink/10 bg-ink text-paper">
+    <div class="mx-auto max-w-4xl px-5 pt-14 pb-16 sm:px-8 sm:pt-20">
+      <p class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
+        Research
+      </p>
+      <h1 class="mt-5 font-display text-3xl leading-tight font-semibold sm:text-[2.75rem]">
+        {title}
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-paper/70">{summary}</p>
+
+      <dl class="mt-10 grid gap-x-8 gap-y-5 border-t border-paper/15 pt-8 sm:grid-cols-2">
+        <div>
+          <dt class="text-xs tracking-wider text-paper/45 uppercase">Institution</dt>
+          <dd class="mt-1 font-display font-medium">{institution}</dd>
+        </div>
+        <div>
+          <dt class="text-xs tracking-wider text-paper/45 uppercase">Study site</dt>
+          <dd class="mt-1 font-display font-medium">{studySite}</dd>
+        </div>
+        <div>
+          <dt class="text-xs tracking-wider text-paper/45 uppercase">Supervisor</dt>
+          <dd class="mt-1 font-display font-medium">{supervisor}</dd>
+        </div>
+        <div>
+          <dt class="text-xs tracking-wider text-paper/45 uppercase">Completed</dt>
+          <dd class="mt-1 font-display font-medium">{year}</dd>
+        </div>
+      </dl>
+    </div>
+  </header>
+
+  <div class="mx-auto max-w-4xl px-5 py-14 sm:px-8">
+    <div class="prose-body">
+      <Content />
+    </div>
+
+    <div class="mt-14 flex flex-wrap gap-2 border-t border-ink/10 pt-8">
+      {tags.map((tag) => <span class="rounded-full bg-ink/5 px-3 py-1 text-sm text-slate">{tag}</span>)}
+    </div>
+  </div>
+</Base>

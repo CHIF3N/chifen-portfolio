@@ -1,17 +1,144 @@
 ---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { site } from '../lib/site';
 
+const featured = (await getCollection('work'))
+  .filter((entry) => entry.data.featured)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const posts = (await getCollection('blog'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 1);
+
+const dateFormat = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base>
+  <Hero />
+
+  <section class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
+    <div class="flex flex-wrap items-end justify-between gap-4" data-reveal>
+      <div>
+        <h2 class="font-display text-3xl font-semibold sm:text-4xl">Selected work</h2>
+        <p class="mt-2 max-w-md text-slate">
+          Four projects that carry the argument. The rest are on the work page.
+        </p>
+      </div>
+      <a
+        href="/work"
+        class="group inline-flex items-center gap-1.5 text-sm font-medium text-ink underline-offset-4 hover:text-amber hover:underline"
+      >
+        All work
+        <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
+      </a>
+    </div>
+
+    <div class="mt-10 grid gap-5 sm:grid-cols-2">
+      {featured.map((entry, i) => <WorkCard entry={entry} delay={i * 70} />)}
+    </div>
+  </section>
+
+  <section class="border-y border-ink/10 bg-paper-dim/60">
+    <div class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
+      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+        <div data-reveal>
+          <h2 class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
+            What I am aiming at
+          </h2>
+          <p class="mt-5 font-display text-2xl leading-snug font-medium sm:text-3xl">
+            {site.vision}
+          </p>
+        </div>
+        <div
+          class="space-y-4 text-lg leading-relaxed text-slate"
+          data-reveal
+          style="--reveal-delay:80ms"
+        >
+          <p>
+            The future of healthcare sits where medicine, technology, and human-centred design
+            meet. I am less interested in tools that work in a well-funded demo than in ones that
+            survive a real ward on a bad day.
+          </p>
+          <p>
+            That means building for the constraints people actually have. Low data. Unreliable
+            power. A phone rather than a computer. A language a government form does not offer.
+            Solutions that empower health workers and hold up in underserved communities, or they
+            do not count.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {
+    posts.length > 0 && (
+      <section class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
+        <div class="flex flex-wrap items-end justify-between gap-4" data-reveal>
+          <h2 class="font-display text-3xl font-semibold sm:text-4xl">Latest writing</h2>
+          <a
+            href="/blog"
+            class="group inline-flex items-center gap-1.5 text-sm font-medium text-ink underline-offset-4 hover:text-amber hover:underline"
+          >
+            All posts
+            <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
+          </a>
+        </div>
+
+        {posts.map((post) => (
+          <a
+            href={`/blog/${post.id}`}
+            data-reveal
+            class="group mt-8 block rounded-2xl border border-ink/10 bg-white/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber/50 hover:shadow-[0_16px_40px_-24px_rgba(10,42,51,0.5)] sm:p-9"
+          >
+            <p class="text-xs tracking-wider text-slate-light uppercase">
+              {dateFormat.format(post.data.pubDate)}
+            </p>
+            <h3 class="mt-3 font-display text-2xl font-semibold sm:text-3xl">{post.data.title}</h3>
+            <p class="mt-3 max-w-2xl leading-relaxed text-slate">{post.data.description}</p>
+            <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-amber">
+              Read it
+              <span class="transition-transform duration-200 group-hover:translate-x-0.5">
+                &rarr;
+              </span>
+            </span>
+          </a>
+        ))}
+      </section>
+    )
+  }
+
+  <section class="mx-auto max-w-6xl px-5 pb-8 sm:px-8">
+    <div
+      class="rounded-3xl border border-ink/10 bg-white/70 px-7 py-12 text-center sm:px-12 sm:py-16"
+      data-reveal
+    >
+      <h2 class="font-display text-3xl font-semibold sm:text-4xl">Working on something?</h2>
+      <p class="mx-auto mt-3 max-w-lg text-slate">
+        Health, data, WhatsApp automation, or a build that needs someone who has actually worked a
+        ward. WhatsApp gets the fastest reply.
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a
+          href={site.whatsapp[0].href}
+          class="rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform duration-200 hover:-translate-y-0.5"
+        >
+          Message on WhatsApp
+        </a>
+        <a
+          href={`mailto:${site.emails[0]}`}
+          class="rounded-full border border-ink/20 px-6 py-3 font-medium transition-colors hover:border-amber hover:text-amber"
+        >
+          Send an email
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>

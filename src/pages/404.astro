@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found" description="This page could not be found.">
+  <section class="mx-auto flex max-w-2xl flex-col items-center px-5 py-24 text-center sm:px-8 sm:py-32">
+    <p class="font-display text-7xl font-semibold text-amber sm:text-8xl">404</p>
+    <h1 class="mt-6 font-display text-3xl font-semibold sm:text-4xl">
+      This one never made it to triage
+    </h1>
+    <p class="mt-4 max-w-md text-lg leading-relaxed text-slate">
+      The page is not here. It was either moved, renamed, or it never existed and something linked
+      to it optimistically.
+    </p>
+    <div class="mt-9 flex flex-wrap justify-center gap-3">
+      <a
+        href="/"
+        class="rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform duration-200 hover:-translate-y-0.5"
+      >
+        Back to the start
+      </a>
+      <a
+        href="/work"
+        class="rounded-full border border-ink/20 px-6 py-3 font-medium transition-colors hover:border-amber hover:text-amber"
+      >
+        See the work instead
+      </a>
+    </div>
+  </section>
+</Base>

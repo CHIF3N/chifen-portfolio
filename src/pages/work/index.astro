@@ -1,0 +1,102 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import WorkCard from '../../components/WorkCard.astro';
+
+const entries = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+
+const tags = [...new Set(entries.flatMap((entry) => entry.data.tags))].sort();
+---
+
+<Base
+  title="Work"
+  description="Projects by Chifen Sama N. across health technology, WhatsApp automation, AI in clinical decision support, and data."
+>
+  <section class="mx-auto max-w-6xl px-5 pt-14 pb-6 sm:px-8 sm:pt-20">
+    <h1 class="font-display text-4xl font-semibold sm:text-5xl">Work</h1>
+    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-slate">
+      Blood logistics, health chatbots, clinical research, and a few things built because the
+      problem annoyed me. Some are live, some are prototypes, and the difference is labelled.
+    </p>
+
+    <div class="mt-9 flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        data-filter="all"
+        aria-pressed="true"
+        class="filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-sm font-medium transition-colors"
+      >
+        Everything
+      </button>
+      {
+        tags.map((tag) => (
+          <button
+            type="button"
+            data-filter={tag}
+            aria-pressed="false"
+            class="filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-sm font-medium transition-colors"
+          >
+            {tag}
+          </button>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-5 pb-16 sm:px-8">
+    <div id="work-grid" class="grid gap-5 sm:grid-cols-2">
+      {
+        entries.map((entry, i) => (
+          <div data-tags={entry.data.tags.join('|')} class="contents-item">
+            <WorkCard entry={entry} delay={Math.min(i, 5) * 60} />
+          </div>
+        ))
+      }
+    </div>
+
+    <p id="work-empty" hidden class="py-16 text-center text-slate">
+      Nothing under that tag yet. Try another one.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .filter-chip[aria-pressed='true'] {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    border-color: var(--color-ink);
+  }
+  .filter-chip[aria-pressed='false']:hover {
+    border-color: var(--color-amber);
+    color: var(--color-amber);
+  }
+  .contents-item {
+    display: contents;
+  }
+  .contents-item[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  const chips = document.querySelectorAll<HTMLButtonElement>('.filter-chip');
+  const items = document.querySelectorAll<HTMLElement>('#work-grid .contents-item');
+  const empty = document.getElementById('work-empty');
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const filter = chip.dataset.filter;
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+
+      let visible = 0;
+      items.forEach((item) => {
+        const tags = (item.dataset.tags ?? '').split('|');
+        const show = filter === 'all' || tags.includes(filter ?? '');
+        item.hidden = !show;
+        if (show) visible += 1;
+      });
+
+      if (empty) empty.hidden = visible > 0;
+    });
+  });
+</script>

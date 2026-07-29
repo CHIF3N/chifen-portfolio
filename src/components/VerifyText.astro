@@ -1,0 +1,22 @@
+---
+import { splitVerify } from '../lib/verify';
+
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+const segments = splitVerify(text);
+---
+
+{
+  segments.map((segment) =>
+    segment.verify ? (
+      <mark class="verify-token" title="Unconfirmed figure, pending verification">
+        {segment.text}
+      </mark>
+    ) : (
+      <Fragment>{segment.text}</Fragment>
+    )
+  )
+}
