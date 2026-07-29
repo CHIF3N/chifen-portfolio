@@ -67,11 +67,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       Skip to content
     </a>
 
-    <Header />
-    <main id="main">
+    <div data-pagefind-ignore>
+      <Header />
+    </div>
+    <main id="main" data-pagefind-body data-pagefind-meta={`title:${title ?? site.name}`}>
       <slot />
     </main>
-    <Footer />
+    <div data-pagefind-ignore>
+      <Footer />
+    </div>
 
     <script>
       const items = document.querySelectorAll('[data-reveal]');

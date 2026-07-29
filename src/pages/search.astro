@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Search" description="Search the projects, research, and writing on this site.">
+  <section class="mx-auto max-w-3xl px-5 pt-14 pb-20 sm:px-8 sm:pt-20" data-pagefind-ignore>
+    <h1 class="font-display text-4xl font-semibold sm:text-5xl">Search</h1>
+    <p class="mt-4 text-lg leading-relaxed text-slate">
+      Across the projects, the research, and the writing.
+    </p>
+
+    <div class="mt-9">
+      <label for="q" class="sr-only">Search this site</label>
+      <input
+        id="q"
+        type="search"
+        autocomplete="off"
+        placeholder="Try WhatsApp, blood, or attitude"
+        class="w-full rounded-full border border-ink/15 bg-white/70 px-6 py-4 text-lg outline-none transition-colors placeholder:text-slate-light focus:border-amber"
+      />
+    </div>
+
+    <p id="status" class="mt-6 text-sm text-slate-light" role="status" aria-live="polite"></p>
+    <ul id="results" class="mt-4 divide-y divide-ink/10"></ul>
+  </section>
+</Base>
+
+<script>
+  const input = document.getElementById('q') as HTMLInputElement;
+  const results = document.getElementById('results') as HTMLUListElement;
+  const status = document.getElementById('status') as HTMLParagraphElement;
+
+  let pagefind: any = null;
+  let loadFailed = false;
+
+  async function ensureIndex() {
+    if (pagefind || loadFailed) return;
+    try {
+      // Built by pagefind after `astro build`, so it must stay opaque to the
+      // bundler. A literal specifier gets wrapped in Vite's preload helper and
+      // breaks at runtime.
+      const load = new Function('url', 'return import(url)') as (u: string) => Promise<any>;
+      pagefind = await load('/pagefind/pagefind.js');
+      await pagefind.options({ excerptLength: 24 });
+    } catch (error) {
+      loadFailed = true;
+      console.error('Pagefind index failed to load', error);
+      status.textContent =
+        'Search is unavailable right now. The index is generated at build time, so it does not run under npm run dev.';
+    }
+  }
+
+  function escapeHtml(value: string) {
+    return value.replace(/[&<>"]/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string
+    );
+  }
+
+  let token = 0;
+
+  async function run(query: string) {
+    const current = ++token;
+    results.innerHTML = '';
+
+    if (!query.trim()) {
+      status.textContent = '';
+      return;
+    }
+
+    await ensureIndex();
+    if (!pagefind) return;
+
+    status.textContent = 'Searching';
+    const search = await pagefind.search(query);
+    if (current !== token) return;
+
+    const items = await Promise.all(search.results.slice(0, 12).map((r: any) => r.data()));
+    if (current !== token) return;
+
+    if (items.length === 0) {
+      status.textContent = `Nothing matches "${query}". Try a different word.`;
+      return;
+    }
+
+    status.textContent = `${items.length} result${items.length === 1 ? '' : 's'}`;
+    results.innerHTML = items
+      .map(
+        (item: any) => `
+        <li>
+          <a href="${item.url}" class="group block py-6">
+            <h2 class="font-display text-xl font-semibold transition-colors group-hover:text-amber">
+              ${escapeHtml(item.meta?.title ?? item.url)}
+            </h2>
+            <p class="mt-2 text-sm leading-relaxed text-slate">${item.excerpt}</p>
+          </a>
+        </li>`
+      )
+      .join('');
+  }
+
+  let timer: number;
+  input.addEventListener('input', () => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => run(input.value), 160);
+  });
+
+  const initial = new URLSearchParams(location.search).get('q');
+  if (initial) {
+    input.value = initial;
+    run(initial);
+  }
+</script>

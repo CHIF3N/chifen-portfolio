@@ -54,12 +54,24 @@ const year = new Date().getFullYear();
               ))
             }
           </ul>
-          <a
-            href={site.github}
-            class="mt-4 inline-block text-sm text-paper/80 underline-offset-4 transition-colors hover:text-amber hover:underline"
-          >
-            GitHub
-          </a>
+          <ul class="mt-4 space-y-1.5">
+            <li>
+              <a
+                href={site.github}
+                class="text-sm text-paper/80 underline-offset-4 transition-colors hover:text-amber hover:underline"
+              >
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a
+                href={site.linkedin}
+                class="text-sm text-paper/80 underline-offset-4 transition-colors hover:text-amber hover:underline"
+              >
+                LinkedIn
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -68,7 +80,15 @@ const year = new Date().getFullYear();
       class="mt-12 flex flex-col gap-2 border-t border-paper/15 pt-6 text-xs text-paper/50 sm:flex-row sm:items-center sm:justify-between"
     >
       <p>&copy; {year} Chifen Sama N. Built in {site.location}.</p>
-      <p>Astro, hand-written CSS, no template.</p>
+      <p class="flex items-center gap-4">
+        <a href="/search" class="underline-offset-4 transition-colors hover:text-amber hover:underline">
+          Search
+        </a>
+        <a href="/rss.xml" class="underline-offset-4 transition-colors hover:text-amber hover:underline">
+          RSS
+        </a>
+        <span>Astro, hand-written CSS, no template.</span>
+      </p>
     </div>
   </div>
 </footer>

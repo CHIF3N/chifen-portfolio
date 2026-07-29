@@ -13,6 +13,7 @@ export const site = {
     { label: '+237 682 333 905', href: 'https://wa.me/237682333905' },
   ],
   github: 'https://github.com/chifensama01-coder',
+  linkedin: 'https://www.linkedin.com/in/chif3n/',
   nav: [
     { label: 'Work', href: '/work' },
     { label: 'Research', href: '/research' },
