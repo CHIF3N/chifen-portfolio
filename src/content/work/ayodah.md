@@ -5,7 +5,7 @@ role: Co-founder
 tags: ['health-tech', 'product', 'community']
 status: shipped
 year: 2020
-featured: true
+featured: false
 order: 2
 metrics: ['400+ registered donors', '310 donations', '3 partner hospitals', '5+ NGO partners', 'Winner, Silicon Mountain Challenge 2022']
 ---

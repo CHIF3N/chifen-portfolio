@@ -6,7 +6,7 @@ tags: ['web', 'climate', 'health-tech']
 status: live
 year: 2025
 liveUrl: https://coastclear-web.web.app
-featured: false
+featured: true
 order: 5
 metrics: ['3 languages: English, French, Pidgin', '3 role-based dashboards']
 ---
