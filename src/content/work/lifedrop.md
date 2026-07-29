@@ -8,7 +8,7 @@ year: 2026
 liveUrl: https://lifedropcam.netlify.app/
 featured: true
 order: 1
-metrics: ['400+ registered donors', '310 donations', '3 partner hospitals', '3rd place, MTN YaMo Season 4']
+metrics: ['{{VERIFY: LifeDrop WhatsApp pilot — registered donors}}', '{{VERIFY: LifeDrop WhatsApp pilot — completed matches}}', '3rd place, MTN YaMo Season 4', 'Inherits the Ayodah network: 3 partner hospitals']
 ---
 
 ## The problem is not supply

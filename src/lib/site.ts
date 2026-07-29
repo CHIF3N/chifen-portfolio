@@ -7,11 +7,8 @@ export const site = {
     'Nurse and self-taught developer building health technology in Cameroon. Blood donor coordination, WhatsApp health services, and AI in clinical decision-making.',
   vision:
     'To build technologies that make quality healthcare more accessible, intelligent, and equitable across Africa.',
-  emails: ['chifensama0@gmail.com', 'chifensam@gmail.com'],
-  whatsapp: [
-    { label: '+237 672 835 132', href: 'https://wa.me/237672835132' },
-    { label: '+237 682 333 905', href: 'https://wa.me/237682333905' },
-  ],
+  emails: ['chifensama0@gmail.com'],
+  whatsapp: [{ label: '+237 672 835 132', href: 'https://wa.me/237672835132' }],
   github: 'https://github.com/chifensama01-coder',
   linkedin: 'https://www.linkedin.com/in/chif3n/',
   nav: [
