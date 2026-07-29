@@ -26,6 +26,8 @@ import Base from '../layouts/Base.astro';
 </Base>
 
 <script>
+  import { withBase } from '../lib/url';
+
   const input = document.getElementById('q') as HTMLInputElement;
   const results = document.getElementById('results') as HTMLUListElement;
   const status = document.getElementById('status') as HTMLParagraphElement;
@@ -40,7 +42,7 @@ import Base from '../layouts/Base.astro';
       // bundler. A literal specifier gets wrapped in Vite's preload helper and
       // breaks at runtime.
       const load = new Function('url', 'return import(url)') as (u: string) => Promise<any>;
-      pagefind = await load('/pagefind/pagefind.js');
+      pagefind = await load(withBase('/pagefind/pagefind.js'));
       await pagefind.options({ excerptLength: 24 });
     } catch (error) {
       loadFailed = true;
@@ -83,6 +85,8 @@ import Base from '../layouts/Base.astro';
     }
 
     status.textContent = `${items.length} result${items.length === 1 ? '' : 's'}`;
+    // item.url already carries the base path: pagefind infers the site root from
+    // where pagefind.js itself was loaded, which we fetch through withBase() above.
     results.innerHTML = items
       .map(
         (item: any) => `

@@ -38,4 +38,4 @@ The staff at Buea Regional Hospital are not resistant to AI. They are under-trai
 
 That changes the local problem from persuasion to provision. Attitude turned out not to be a fixed trait either: positive attitude climbed from 1.8% among those with poor knowledge to 57.1% among those with good knowledge. Exposure raises knowledge, knowledge raises attitude. It can be moved.
 
-Read the fuller write-up on the [research page](/research).
+Read the fuller write-up on the [research page](/chifen-portfolio/research).

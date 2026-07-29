@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import readingTime from 'reading-time';
+import { withBase } from '../../lib/url';
 
 export async function getStaticPaths() {
   const posts = (await getCollection('blog')).filter((post) => !post.data.draft);
@@ -24,7 +25,7 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
 <Base title={title} description={description}>
   <article class="mx-auto max-w-3xl px-5 pt-12 pb-16 sm:px-8 sm:pt-16">
     <a
-      href="/blog"
+      href={withBase('/blog')}
       class="group inline-flex items-center gap-1.5 text-sm text-slate transition-colors hover:text-amber"
     >
       <span class="transition-transform duration-200 group-hover:-translate-x-0.5">&larr;</span>

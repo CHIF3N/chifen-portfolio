@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import portrait from '../assets/photos/chifen-signature.jpg';
 import { site } from '../lib/site';
+import { withBase } from '../lib/url';
 ---
 
 <section class="relative overflow-hidden bg-ink text-paper">
@@ -57,14 +58,14 @@ import { site } from '../lib/site';
 
         <div class="hero-line mt-9 flex flex-wrap items-center gap-3" style="--i:3">
           <a
-            href="/work"
+            href={withBase('/work')}
             class="group inline-flex items-center gap-2 rounded-full bg-amber px-6 py-3 font-medium text-ink transition-transform duration-200 hover:-translate-y-0.5"
           >
             See the work
             <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
           </a>
           <a
-            href="/research"
+            href={withBase('/research')}
             class="inline-flex items-center rounded-full border border-paper/25 px-6 py-3 font-medium text-paper transition-colors hover:border-amber hover:text-amber"
           >
             Read the research

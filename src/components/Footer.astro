@@ -1,5 +1,6 @@
 ---
 import { site } from '../lib/site';
+import { withBase } from '../lib/url';
 
 const year = new Date().getFullYear();
 ---
@@ -81,10 +82,10 @@ const year = new Date().getFullYear();
     >
       <p>&copy; {year} Chifen Sama N. Built in {site.location}.</p>
       <p class="flex items-center gap-4">
-        <a href="/search" class="underline-offset-4 transition-colors hover:text-amber hover:underline">
+        <a href={withBase('/search')} class="underline-offset-4 transition-colors hover:text-amber hover:underline">
           Search
         </a>
-        <a href="/rss.xml" class="underline-offset-4 transition-colors hover:text-amber hover:underline">
+        <a href={withBase('/rss.xml')} class="underline-offset-4 transition-colors hover:text-amber hover:underline">
           RSS
         </a>
         <span>Astro, hand-written CSS, no template.</span>

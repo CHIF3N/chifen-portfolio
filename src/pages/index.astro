@@ -4,6 +4,7 @@ import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { site } from '../lib/site';
+import { withBase } from '../lib/url';
 
 const featured = (await getCollection('work'))
   .filter((entry) => entry.data.featured)
@@ -33,7 +34,7 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
         </p>
       </div>
       <a
-        href="/work"
+        href={withBase('/work')}
         class="group inline-flex items-center gap-1.5 text-sm font-medium text-ink underline-offset-4 hover:text-amber hover:underline"
       >
         All work
@@ -84,7 +85,7 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
         <div class="flex flex-wrap items-end justify-between gap-4" data-reveal>
           <h2 class="font-display text-3xl font-semibold sm:text-4xl">Latest writing</h2>
           <a
-            href="/blog"
+            href={withBase('/blog')}
             class="group inline-flex items-center gap-1.5 text-sm font-medium text-ink underline-offset-4 hover:text-amber hover:underline"
           >
             All posts
@@ -94,7 +95,7 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
 
         {posts.map((post) => (
           <a
-            href={`/blog/${post.id}`}
+            href={withBase(`/blog/${post.id}`)}
             data-reveal
             class="group mt-8 block rounded-2xl border border-ink/10 bg-white/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber/50 hover:shadow-[0_16px_40px_-24px_rgba(10,42,51,0.5)] sm:p-9"
           >

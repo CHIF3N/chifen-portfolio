@@ -1,14 +1,18 @@
 ---
 import { site } from '../lib/site';
+import { withBase } from '../lib/url';
 
 const path = Astro.url.pathname;
-const isActive = (href: string) => path === href || path.startsWith(href + '/');
+const isActive = (href: string) => {
+  const target = withBase(href);
+  return path === target || path.startsWith(target + '/');
+};
 ---
 
 <header class="sticky top-0 z-50 border-b border-ink/8 bg-paper/85 backdrop-blur-md">
   <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
     <a
-      href="/"
+      href={withBase('/')}
       class="font-display text-lg font-semibold whitespace-nowrap transition-colors hover:text-amber"
     >
       <span class="sm:hidden">CHIF<span class="text-amber">3</span>N</span>
@@ -21,7 +25,7 @@ const isActive = (href: string) => path === href || path.startsWith(href + '/');
           site.nav.map((item) => (
             <li>
               <a
-                href={item.href}
+                href={withBase(item.href)}
                 aria-current={isActive(item.href) ? 'page' : undefined}
                 class:list={[
                   'relative block rounded-full px-2 py-2 text-[0.8125rem] font-medium whitespace-nowrap transition-colors sm:px-4 sm:text-sm',
