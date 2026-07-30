@@ -10,6 +10,14 @@
 - Voice: no em-dashes, no forced triplets, varied rhythm, plain language, no filler AI vocabulary. It should read like him talking.
 - Before marking a page done, load it at mobile and desktop and check it actually looks intentional.
 - New posts default to `draft: true`.
+- Case study spine: every project page in `src/content/work/` should work through Problem, Why it matters,
+  My role, Stack, Challenges, Screenshots, Architecture, Outcome, Lessons learned, as `##` headings in that
+  order. Use `{{VERIFY: ...}}` for any section with no real content yet (stack, screenshots, architecture are
+  the ones most likely to be unconfirmed) rather than skipping the heading or inventing detail.
+- Research entries in `src/content/research/` use a `kind` enum: Dissertation, Published article, Ongoing
+  work, Conference presentation, Poster, Literature review. Optional `pdfUrl` and `abstractUrl` render as
+  PDF/Abstract links on the card and the deep page; omit them rather than linking to something that doesn't
+  exist yet.
 
 ## Where things are
 

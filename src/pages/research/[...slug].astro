@@ -10,7 +10,19 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const { title, summary, institution, year, supervisor, site: studySite, tags } = entry.data;
+const {
+  title,
+  summary,
+  institution,
+  year,
+  status,
+  kind,
+  supervisor,
+  site: studySite,
+  tags,
+  pdfUrl,
+  abstractUrl,
+} = entry.data;
 ---
 
 <Base title={title} description={summary}>
@@ -24,13 +36,35 @@ const { title, summary, institution, year, supervisor, site: studySite, tags } =
         All research
       </a>
 
-      <p class="mt-7 font-display text-xs font-semibold tracking-widest text-amber uppercase">
-        Research
-      </p>
-      <h1 class="mt-5 font-display text-3xl leading-tight font-semibold sm:text-[2.75rem]">
+      <div class="mt-7 flex flex-wrap items-center gap-3">
+        <span class="rounded-full bg-amber/20 px-3 py-1 text-xs font-medium text-amber">{kind}</span>
+        {status === 'in-progress' && (
+          <span class="rounded-full bg-paper/10 px-3 py-1 text-xs font-medium text-paper/70">
+            In progress
+          </span>
+        )}
+      </div>
+      <h1 class="mt-4 font-display text-3xl leading-tight font-semibold sm:text-[2.75rem]">
         {title}
       </h1>
       <p class="mt-6 max-w-2xl text-lg leading-relaxed text-paper/70">{summary}</p>
+
+      {
+        (pdfUrl || abstractUrl) && (
+          <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
+            {pdfUrl && (
+              <a href={pdfUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-amber hover:text-paper">
+                PDF &rarr;
+              </a>
+            )}
+            {abstractUrl && (
+              <a href={abstractUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-paper/70 hover:text-amber">
+                Abstract
+              </a>
+            )}
+          </div>
+        )
+      }
 
       <dl class="mt-10 grid gap-x-8 gap-y-5 border-t border-paper/15 pt-8 sm:grid-cols-2">
         <div>
