@@ -45,7 +45,7 @@ Outstanding: **10**
 
 ## `src/content/work/lockedin.md`
 
-- [ ] **Line 34** — LockedIn screenshots — the quest, focus session, and stat progression screens
+- [ ] **Line 39** — LockedIn v2 screenshots — the quest, focus session, and stat progression screens
 
 ---
 

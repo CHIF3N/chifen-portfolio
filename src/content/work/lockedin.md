@@ -23,7 +23,7 @@ Developer. I am building it solo.
 
 ## Stack
 
-Expo and React Native in TypeScript, with Supabase underneath for Postgres, auth, and row-level security.
+LockedIn has shipped twice. v1 ran on Expo and React Native in JavaScript, with Firebase for auth and Firestore for data. v2, the version described in the rest of this page, is a full rewrite on Expo and React Native in TypeScript, with Supabase underneath for Postgres, auth, and row-level security.
 
 ## Challenges
 
@@ -31,15 +31,20 @@ Verifying that a focus session actually happened, rather than trusting a self-re
 
 ## Screenshots
 
-{{VERIFY: LockedIn screenshots — the quest, focus session, and stat progression screens}}
+These are from v1, a simpler Forest-style focus timer with Firebase behind it. It shipped, then got retired in favour of the quest-and-stats rebuild described on the rest of this page.
+
+![LockedIn v1 home screen, with the Start Focus button](/chifen-portfolio/work/lockedin/v1-home.jpg)
+![LockedIn v1 timer screen, mid focus session](/chifen-portfolio/work/lockedin/v1-timer.jpg)
+
+{{VERIFY: LockedIn v2 screenshots — the quest, focus session, and stat progression screens}}
 
 ## Architecture
 
-You set real goals, LockedIn breaks them into daily quests, focus sessions earn experience that is verified rather than self-reported, four stats level up, and a companion evolves as you go.
+v2's design: you set real goals, LockedIn breaks them into daily quests, focus sessions earn experience that is verified rather than self-reported, four stats level up, and a companion evolves as you go. v1 was simpler, a single timer with no quest or stat system.
 
 ## Outcome
 
-In active development, currently at phase one. Not released.
+v1 shipped as a working focus timer and has since been retired. v2, the quest and stats rebuild, is in active development, currently at phase one. Not released.
 
 ## Lessons learned
 
