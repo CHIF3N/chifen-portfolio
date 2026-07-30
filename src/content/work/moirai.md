@@ -5,6 +5,7 @@ role: Developer, through Inkwave
 tags: ['web', 'client work', 'e-commerce']
 status: shipped
 year: 2026
+liveUrl: https://moirai-official.vercel.app
 featured: false
 order: 6
 metrics: ['9 page types', 'Client-editable CMS', 'Runs at zero hosting cost']

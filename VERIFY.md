@@ -7,7 +7,7 @@ To resolve one: replace the whole `{{VERIFY: ...}}` token with the real value,
 then run `npm run build`. This file regenerates itself.
 
 Last generated: 2026-07-30
-Outstanding: **11**
+Outstanding: **10**
 
 ---
 
@@ -20,7 +20,7 @@ Outstanding: **11**
 ## `src/content/work/ayodah.md`
 
 - [ ] **Line 27** — outsourced developer or agency name
-- [ ] **Line 41** — Ayodah screenshots or documentary photos — written consent needed for any recognisable face
+- [ ] **Line 44** — additional Ayodah documentary photos (team, donor drives, ward visits) — written consent needed for any recognisable face before publishing
 
 ---
 
@@ -34,7 +34,6 @@ Outstanding: **11**
 
 - [ ] **Line 30** — a specific Inkwave engagement challenge worth telling
 - [ ] **Line 34** — Inkwave work samples cleared to show publicly
-- [ ] **Line 42** — Inkwave client projects that are cleared to show publicly
 
 ---
 
@@ -52,7 +51,7 @@ Outstanding: **11**
 
 ## `src/content/work/moirai.md`
 
-- [ ] **Line 35** — Moirai screenshots — the storefront and the /studio admin panel
+- [ ] **Line 36** — Moirai screenshots — the storefront and the /studio admin panel
 
 ---
 

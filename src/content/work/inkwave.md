@@ -39,7 +39,7 @@ Engagements are scoped as short terms of reference rather than open-ended retain
 
 ## Outcome
 
-{{VERIFY: Inkwave client projects that are cleared to show publicly}}
+Clients have included Youthpawa (Kenya), Tech Chantier, and DELC Foundation. The Tech Chantier and DELC Foundation work is content writing, published under the client's own byline rather than mine, credited here by agreement rather than by public attribution.
 
 ## Lessons learned
 

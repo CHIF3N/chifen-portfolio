@@ -38,7 +38,10 @@ That is not a rejection of the service. That is people telling you exactly where
 
 ## Screenshots
 
-{{VERIFY: Ayodah screenshots or documentary photos — written consent needed for any recognisable face}}
+![The Ayodah website open on a phone, showing the donor search screen](/chifen-portfolio/work/ayodah/ayodah-website.jpg)
+![The Ayodah app icon on a phone home screen, next to Facebook and LinkedIn](/chifen-portfolio/work/ayodah/ayodah-home-screen.jpg)
+
+{{VERIFY: additional Ayodah documentary photos (team, donor drives, ward visits) — written consent needed for any recognisable face before publishing}}
 
 ## Architecture
 
