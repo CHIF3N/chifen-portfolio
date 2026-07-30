@@ -19,22 +19,22 @@ const isActive = (href: string) => {
       <span class="hidden sm:inline">Chifen Sama <span class="text-amber">N.</span></span>
     </a>
 
-    <nav aria-label="Main" class="min-w-0">
-      <ul class="nav-scroll flex items-center gap-0 overflow-x-auto sm:gap-2">
+    <nav aria-label="Main" class="hidden min-w-0 sm:block">
+      <ul class="flex items-center gap-2">
         {
           site.nav.map((item) => (
-            <li class="shrink-0">
+            <li>
               <a
                 href={withBase(item.href)}
                 aria-current={isActive(item.href) ? 'page' : undefined}
                 class:list={[
-                  'relative block rounded-full px-1.5 py-2 text-[0.75rem] font-medium whitespace-nowrap transition-colors sm:px-4 sm:text-sm',
+                  'relative block rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors',
                   isActive(item.href) ? 'text-ink' : 'text-slate hover:text-ink',
                 ]}
               >
                 {item.label}
                 {isActive(item.href) && (
-                  <span class="absolute inset-x-1.5 -bottom-px h-0.5 rounded-full bg-amber sm:inset-x-4" />
+                  <span class="absolute inset-x-4 -bottom-px h-0.5 rounded-full bg-amber" />
                 )}
               </a>
             </li>
@@ -42,14 +42,113 @@ const isActive = (href: string) => {
         }
       </ul>
     </nav>
+
+    <button
+      id="menu-toggle"
+      type="button"
+      class="relative h-9 w-9 shrink-0 sm:hidden"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span class="menu-icon-bar top-[13px]"></span>
+      <span class="menu-icon-bar top-[18px]"></span>
+      <span class="menu-icon-bar top-[23px]"></span>
+    </button>
   </div>
+
+  <div id="menu-backdrop" class="fixed inset-0 z-40 hidden bg-ink/40 sm:hidden"></div>
+
+  <nav
+    id="mobile-menu"
+    aria-label="Mobile"
+    class="fixed inset-y-0 right-0 z-40 w-72 max-w-[80vw] translate-x-full bg-paper shadow-2xl transition-transform duration-300 ease-out sm:hidden"
+  >
+    <ul class="mt-20 flex flex-col px-3">
+      {
+        site.nav.map((item) => (
+          <li>
+            <a
+              href={withBase(item.href)}
+              aria-current={isActive(item.href) ? 'page' : undefined}
+              class:list={[
+                'block rounded-xl px-4 py-3.5 text-lg font-medium transition-colors',
+                isActive(item.href) ? 'bg-amber/10 text-ink' : 'text-slate hover:bg-ink/5 hover:text-ink',
+              ]}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
 </header>
 
 <style>
-  .nav-scroll {
-    scrollbar-width: none;
+  .menu-icon-bar {
+    position: absolute;
+    left: 6px;
+    width: 24px;
+    height: 2px;
+    background-color: var(--color-ink);
+    border-radius: 1px;
+    transition:
+      transform 0.25s ease,
+      opacity 0.2s ease,
+      top 0.25s ease;
   }
-  .nav-scroll::-webkit-scrollbar {
-    display: none;
+  html.menu-open .menu-icon-bar:nth-child(1) {
+    top: 18px;
+    transform: rotate(45deg);
+  }
+  html.menu-open .menu-icon-bar:nth-child(2) {
+    opacity: 0;
+  }
+  html.menu-open .menu-icon-bar:nth-child(3) {
+    top: 18px;
+    transform: rotate(-45deg);
+  }
+  html.menu-open #mobile-menu {
+    transform: translateX(0);
+  }
+  html.menu-open #menu-backdrop {
+    display: block;
+  }
+  html.menu-open {
+    overflow: hidden;
   }
 </style>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const backdrop = document.getElementById('menu-backdrop');
+  const menu = document.getElementById('mobile-menu');
+  const root = document.documentElement;
+
+  function closeMenu() {
+    root.classList.remove('menu-open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    toggle?.setAttribute('aria-label', 'Open menu');
+  }
+
+  function openMenu() {
+    root.classList.add('menu-open');
+    toggle?.setAttribute('aria-expanded', 'true');
+    toggle?.setAttribute('aria-label', 'Close menu');
+  }
+
+  toggle?.addEventListener('click', () => {
+    root.classList.contains('menu-open') ? closeMenu() : openMenu();
+  });
+
+  backdrop?.addEventListener('click', closeMenu);
+
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+</script>

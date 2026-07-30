@@ -124,20 +124,15 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
       <h2 class="font-display text-3xl font-semibold sm:text-4xl">Working on something?</h2>
       <p class="mx-auto mt-3 max-w-lg text-slate">
         Health, data, WhatsApp automation, or a build that needs someone who has actually worked a
-        ward. WhatsApp gets the fastest reply.
+        ward.
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <a
-          href={site.whatsapp[0].href}
-          class="rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform duration-200 hover:-translate-y-0.5"
+          href={withBase('/contact')}
+          class="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform duration-200 hover:-translate-y-0.5"
         >
-          Message on WhatsApp
-        </a>
-        <a
-          href={`mailto:${site.emails[0]}`}
-          class="rounded-full border border-ink/20 px-6 py-3 font-medium transition-colors hover:border-amber hover:text-amber"
-        >
-          Send an email
+          Get in touch
+          <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
         </a>
       </div>
     </div>

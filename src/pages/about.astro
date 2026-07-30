@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import portrait from '../assets/photos/chifen-portrait.jpg';
 import { site } from '../lib/site';
+import { withBase } from '../lib/url';
 
 const journey = [
   {
@@ -28,7 +29,7 @@ const journey = [
   {
     year: '2026',
     title: 'BSc Nursing, and LifeDrop',
-    body: 'Finished the AI clinical decision-making research at Buea Regional Hospital, launched LifeDrop, and placed third in the MTN YaMo Pitch Season 4.',
+    body: 'Top-up BSc through Gracious Higher Institute of Excellence, mentored by the University of Bamenda. Finished the AI clinical decision-making research at Buea Regional Hospital, launched LifeDrop, and placed third in the MTN YaMo Pitch Season 4.',
   },
   {
     year: 'Next',
@@ -43,6 +44,15 @@ const awards = [
   'Innovative Excellence Award',
   'Best Creative Thinker',
   'Proactive Student Award',
+];
+
+const certifications = [
+  { name: 'Certificate of Training Completion', issuer: 'The Tony Elumelu Foundation' },
+  { name: 'Certificate of Business Management Training', issuer: 'The Tony Elumelu Foundation' },
+  { name: 'UNLEASH Hack Talent, Certificate of Participation', issuer: 'UNLEASH' },
+  { name: 'Medical Abortion Course for Providers', issuer: 'International Planned Parenthood Federation' },
+  { name: 'Teaching English as a Foreign Language (TEFL)', issuer: 'Teacher Record' },
+  { name: 'Advancing the Role of Women in Politics', issuer: 'Regional Leadership Center East Africa' },
 ];
 
 const skills = [
@@ -193,6 +203,26 @@ const skills = [
 
   <section class="border-t border-ink/10 bg-paper-dim/60">
     <div class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
+      <h2 class="font-display text-3xl font-semibold sm:text-4xl" data-reveal>Certifications</h2>
+      <ul class="mt-8 grid gap-3 sm:grid-cols-2">
+        {
+          certifications.map((cert, i) => (
+            <li
+              class="rounded-xl border border-ink/10 bg-white/60 px-5 py-4"
+              data-reveal
+              style={`--reveal-delay:${i * 50}ms`}
+            >
+              <p class="font-display font-medium">{cert.name}</p>
+              <p class="mt-1 text-sm text-slate-light">{cert.issuer}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="border-t border-ink/10">
+    <div class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
       <h2 class="font-display text-3xl font-semibold sm:text-4xl" data-reveal>What I work with</h2>
       <div class="mt-10 grid gap-9 sm:grid-cols-2">
         {
@@ -215,76 +245,18 @@ const skills = [
     </div>
   </section>
 
-  <section class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
+  <section class="mx-auto max-w-4xl px-5 py-16 text-center sm:px-8 sm:py-20">
     <h2 class="font-display text-3xl font-semibold sm:text-4xl" data-reveal>Get in touch</h2>
-    <p class="mt-3 max-w-lg text-slate" data-reveal>
-      WhatsApp is fastest. Email works too, and I do read all of it.
+    <p class="mx-auto mt-3 max-w-lg text-slate" data-reveal>
+      WhatsApp is fastest, or send a message straight through and I'll get it by email.
     </p>
-
-    <div class="mt-8 grid gap-4 sm:grid-cols-2" data-reveal>
-      <div class="rounded-xl border border-ink/10 bg-white/60 p-6">
-        <h3 class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
-          WhatsApp
-        </h3>
-        <ul class="mt-3 space-y-2">
-          {
-            site.whatsapp.map((n) => (
-              <li>
-                <a
-                  href={n.href}
-                  class="font-display font-medium underline-offset-4 hover:text-amber hover:underline"
-                >
-                  {n.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-
-      <div class="rounded-xl border border-ink/10 bg-white/60 p-6">
-        <h3 class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
-          Email
-        </h3>
-        <ul class="mt-3 space-y-2">
-          {
-            site.emails.map((email) => (
-              <li>
-                <a
-                  href={`mailto:${email}`}
-                  class="font-display font-medium break-all underline-offset-4 hover:text-amber hover:underline"
-                >
-                  {email}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-
-      <div class="rounded-xl border border-ink/10 bg-white/60 p-6 sm:col-span-2">
-        <h3 class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
-          Elsewhere
-        </h3>
-        <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-2">
-          <li>
-            <a
-              href={site.linkedin}
-              class="font-display font-medium underline-offset-4 hover:text-amber hover:underline"
-            >
-              LinkedIn
-            </a>
-          </li>
-          <li>
-            <a
-              href={site.github}
-              class="font-display font-medium underline-offset-4 hover:text-amber hover:underline"
-            >
-              GitHub
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
+    <a
+      href={withBase('/contact')}
+      class="group mt-7 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform duration-200 hover:-translate-y-0.5"
+      data-reveal
+    >
+      Get in touch
+      <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
+    </a>
   </section>
 </Base>
