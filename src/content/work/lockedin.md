@@ -36,7 +36,7 @@ These are from v1, a simpler Forest-style focus timer with Firebase behind it. I
 ![LockedIn v1 home screen, with the Start Focus button](/chifen-portfolio/work/lockedin/v1-home.jpg)
 ![LockedIn v1 timer screen, mid focus session](/chifen-portfolio/work/lockedin/v1-timer.jpg)
 
-{{VERIFY: LockedIn v2 screenshots — the quest, focus session, and stat progression screens}}
+v2 has no screenshots yet. It is not released, so there is nothing built to show.
 
 ## Architecture
 

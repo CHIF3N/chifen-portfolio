@@ -33,7 +33,7 @@ Building genuinely trilingual software is harder than adding a language toggle. 
 
 ## Screenshots
 
-{{VERIFY: CoastClear screenshots — the reporter, cleanup crew, and NGO dashboards}}
+No gallery here. It is live and free to click through: [coastclear-web.web.app](https://coastclear-web.web.app).
 
 ## Architecture
 

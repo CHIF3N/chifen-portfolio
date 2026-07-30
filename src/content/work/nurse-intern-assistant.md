@@ -32,7 +32,7 @@ Hospital wifi in this region is not something you build a clinical tool on top o
 
 ## Screenshots
 
-{{VERIFY: Nurse Intern Assistant screenshots — drug reference, report generation, shift screen}}
+No public build yet, so no link to hand you either. It is Android-only and not published anywhere, in-progress rather than shippable.
 
 ## Architecture
 

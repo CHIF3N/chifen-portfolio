@@ -35,9 +35,7 @@ We spent a year arguing with our own users about where they should ask for help.
 
 ## Screenshots
 
-{{VERIFY: LifeDrop product screenshots — donor flow, ward confirmation, WhatsApp match message}}
-
-The donor flow on the website is live and walkable today, not a mockup: [lifedropcam.netlify.app](https://lifedropcam.netlify.app/).
+No gallery here. The donor flow on the website is live and walkable today, not a mockup: [lifedropcam.netlify.app](https://lifedropcam.netlify.app/).
 
 ## Architecture
 

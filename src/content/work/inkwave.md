@@ -27,11 +27,11 @@ Varies by engagement. Web builds typically run on Next.js with a CMS such as San
 
 ## Challenges
 
-{{VERIFY: a specific Inkwave engagement challenge worth telling}}
+Ghostwriting is a specific discipline: matching a client's voice well enough that nobody notices it isn't theirs, across clients as different as an NGO writing grant copy and a tech blog writing for search.
 
 ## Screenshots
 
-{{VERIFY: Inkwave work samples cleared to show publicly}}
+No gallery here. [Tech Chantier's blog](https://techchantier.com/blog) and [Moirai](https://moirai-official.vercel.app) are both visible, live output from this work.
 
 ## Architecture
 

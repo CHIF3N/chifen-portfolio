@@ -33,7 +33,7 @@ Nine page types had to share one coherent system: homepage, shop with category f
 
 ## Screenshots
 
-{{VERIFY: Moirai screenshots — the storefront and the /studio admin panel}}
+No gallery here. It is live and free to click through: [moirai-official.vercel.app](https://moirai-official.vercel.app).
 
 ## Architecture
 

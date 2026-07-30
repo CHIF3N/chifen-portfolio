@@ -33,7 +33,7 @@ Demonstrating the value of an observatory without collecting a single real, sens
 
 ## Screenshots
 
-{{VERIFY: Abortion safety georegistry screenshots — map view and chart dashboard}}
+No hosted demo to link to. It is local-first by design, the whole point is that it never leaves the machine it runs on, so there is nothing to deploy and screenshot.
 
 ## Architecture
 
