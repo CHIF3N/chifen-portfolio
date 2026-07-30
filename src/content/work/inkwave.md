@@ -9,18 +9,38 @@ featured: false
 order: 10
 ---
 
-## What it is
+## Problem
 
-Inkwave supports impact-driven organisations through content development, storytelling, and media built for social, environmental, and development work.
+NGOs and small businesses need a communications function, someone who can write, build, and maintain their public presence, without hiring a full-time person for it.
 
-In practice that covers written content and storytelling, social media and campaign communications, video, graphics, reports and newsletters, alongside website builds, WhatsApp automation, and CV and academic document work.
+## Why it matters
 
-## How it runs
+Most organisations in this position end up with a site nobody can update after the developer leaves, or content that never gets written because nobody owns it. A short, defined engagement fixes both without locking the client into a retainer they cannot justify.
 
-Most clients here are NGOs and small businesses who need a communications function without hiring one, or need a site they can actually maintain after the developer leaves. Engagements are scoped as short terms of reference rather than open-ended retainers, typically around three months.
+## My role
 
-The Moirai build is a representative piece of the web side of this work.
+Founder. I scope, deliver, and hand off every engagement myself.
 
-## Current client work
+## Stack
+
+Varies by engagement. Web builds typically run on Next.js with a CMS such as Sanity, matching the approach used for Moirai. WhatsApp automation and content work use whatever tools fit the client's existing setup.
+
+## Challenges
+
+{{VERIFY: a specific Inkwave engagement challenge worth telling}}
+
+## Screenshots
+
+{{VERIFY: Inkwave work samples cleared to show publicly}}
+
+## Architecture
+
+Engagements are scoped as short terms of reference rather than open-ended retainers, typically around three months. In practice that covers written content and storytelling, social media and campaign communications, video, graphics, reports and newsletters, alongside website builds, WhatsApp automation, and CV and academic document work.
+
+## Outcome
 
 {{VERIFY: Inkwave client projects that are cleared to show publicly}}
+
+## Lessons learned
+
+The Moirai build is a representative piece of the web side of this work: a short, scoped engagement that ends with the client able to run the result without me.

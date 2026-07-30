@@ -11,24 +11,38 @@ order: 5
 metrics: ['3 languages: English, French, Pidgin', '3 role-based dashboards']
 ---
 
-## Coastal problem, coastal kid
+## Problem
 
-I grew up on this coast. Waste on a beach is not only an environmental story, it is a public health one: standing water, cuts from buried glass, contaminated fishing grounds feeding people who have no alternative.
+Waste on a beach is not only an environmental story, it is a public health one: standing water, cuts from buried glass, contaminated fishing grounds feeding people who have no alternative. A polluted site had nowhere organised to go, and cleanup crews and NGOs had no shared view of what was happening across an area rather than one beach at a time.
 
-CoastClear coordinates the response. Somebody reports a polluted site with a photo, cleanup crews pick up the work, and NGOs see what is happening across an area rather than one beach at a time.
+## Why it matters
 
-## Build
+I grew up on this coast, so the gap was not abstract. A report that reaches the right crew and gets logged for the NGOs tracking the coastline is the difference between a one-off cleanup and a response an area can actually plan around.
 
-React with Firebase underneath for authentication, Firestore, and storage. Three role-based dashboards, one each for reporters, cleanup crews, and NGOs, because those three groups need completely different things from the same data.
+## My role
 
-Photo reports run through AI vision analysis rather than making a volunteer classify waste manually from a dropdown.
+Developer, working with {{VERIFY: CoastClear collaborator name and organisation}}. I built the platform end to end: the three role-based dashboards, the photo analysis pipeline, and the trilingual flow.
 
-## Trilingual by default, not as a feature
+## Stack
 
-English, French, and Pidgin, chosen at the auth screen before anything else happens.
+React, with Firebase underneath for authentication, Firestore, and storage. Photo reports run through AI vision analysis rather than making a volunteer classify waste manually from a dropdown.
 
-Pidgin matters here and it usually gets left out. It is what people on this coast actually speak. A tool that makes a fisherman navigate a French government-register interface to report a dirty beach is a tool that will not get used. The Pidgin option says "make we go for Pidgin", because that is how you would actually say it.
+## Challenges
 
-## Context to confirm
+Building genuinely trilingual software is harder than adding a language toggle. Pidgin especially gets left out of most systems, even though it is what people on this coast actually speak. A tool that makes a fisherman navigate a French government-register interface to report a dirty beach is a tool that will not get used.
 
-Built for {{VERIFY: CoastClear hackathon name and year}} with {{VERIFY: CoastClear collaborator name and organisation}}.
+## Screenshots
+
+{{VERIFY: CoastClear screenshots — the reporter, cleanup crew, and NGO dashboards}}
+
+## Architecture
+
+Three role-based dashboards, one each for reporters, cleanup crews, and NGOs, because those three groups need completely different things from the same data. Language is chosen at the auth screen, English, French, or Pidgin, before anything else happens. The Pidgin option says "make we go for Pidgin", because that is how you would actually say it.
+
+## Outcome
+
+Live at [coastclear-web.web.app](https://coastclear-web.web.app). Built for {{VERIFY: CoastClear hackathon name and year}}.
+
+## Lessons learned
+
+Language choice is a product decision, not a translation task tacked onto the end. Offering Pidgin at the same level as English and French, right at the auth screen, is what actually makes the tool usable for the people who need it most.
