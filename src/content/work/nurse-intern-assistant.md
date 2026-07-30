@@ -10,26 +10,38 @@ order: 7
 metrics: ['Works fully offline', 'No backend, no account required']
 ---
 
-## Who it is for
+## Problem
 
-Nurse interns, on the ward, on an Android phone, on a shift where nobody has time to answer their question.
+Nurse interns need clinical reference information on the ward, on a phone, on a shift where nobody has time to answer their question. I was that intern. The gap is not knowledge in the abstract, it is knowledge at 3am, holding a drug you have not given before, when the person who could confirm the dose is in theatre.
 
-I was that intern. The gap is not knowledge in the abstract, it is knowledge at 3am when you are holding a drug you have not given before and the person who could confirm the dose is in theatre.
+## Why it matters
 
-## What it does
+A wrong or delayed dose decision at that moment is a patient safety issue, not an inconvenience. Interns need an answer they can trust immediately, not a search that depends on hospital wifi holding up.
 
-- A drug reference covering fifteen medications, the ones interns actually reach for
-- SOAP and narrative report generation, with voice to text and PDF export
-- Shift management and medication reminders
+## My role
 
-Written in Flutter, Android first.
+Developer. I am building it alone, drawing on what was hardest during my own internship.
 
-## Offline is the whole point
+## Stack
 
-No Firebase. No backend. No account. Everything lives on the device.
+Flutter, Android first.
 
-Hospital wifi in this region is not something you build a clinical tool on top of. A drug reference that needs a connection is a drug reference that fails exactly when the ward is busiest and the network is worst. If it cannot answer a dosage question in airplane mode in a basement, it is not finished.
+## Challenges
 
-## Status
+Hospital wifi in this region is not something you build a clinical tool on top of. A drug reference that needs a connection is a drug reference that fails exactly when the ward is busiest and the network is worst.
 
-Working and in active development. AI-assisted report writing is the next piece, and it is not built yet, so I am not claiming it.
+## Screenshots
+
+No public build yet, so no link to hand you either. It is Android-only and not published anywhere, in-progress rather than shippable.
+
+## Architecture
+
+No Firebase, no backend, no account. Everything lives on the device. The app covers a drug reference for fifteen medications, the ones interns actually reach for, SOAP and narrative report generation with voice to text and PDF export, and shift management with medication reminders.
+
+## Outcome
+
+Working and in active development. If it cannot answer a dosage question in airplane mode in a basement, it is not finished, and that is the bar it is held to.
+
+## Lessons learned
+
+AI-assisted report writing is the obvious next feature, and it is not built yet, so I am not claiming it. Offline-first is not a checkbox, it is the constraint that should shape every other decision in a clinical tool built for this setting.

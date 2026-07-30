@@ -10,7 +10,7 @@ const isActive = (href: string) => {
 ---
 
 <header class="sticky top-0 z-50 border-b border-ink/8 bg-paper/85 backdrop-blur-md">
-  <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-2 px-5 py-4 sm:gap-3 sm:px-8">
     <a
       href={withBase('/')}
       class="font-display text-lg font-semibold whitespace-nowrap transition-colors hover:text-amber"
@@ -19,22 +19,22 @@ const isActive = (href: string) => {
       <span class="hidden sm:inline">Chifen Sama <span class="text-amber">N.</span></span>
     </a>
 
-    <nav aria-label="Main">
-      <ul class="flex items-center gap-0.5 sm:gap-2">
+    <nav aria-label="Main" class="min-w-0">
+      <ul class="nav-scroll flex items-center gap-0 overflow-x-auto sm:gap-2">
         {
           site.nav.map((item) => (
-            <li>
+            <li class="shrink-0">
               <a
                 href={withBase(item.href)}
                 aria-current={isActive(item.href) ? 'page' : undefined}
                 class:list={[
-                  'relative block rounded-full px-2 py-2 text-[0.8125rem] font-medium whitespace-nowrap transition-colors sm:px-4 sm:text-sm',
+                  'relative block rounded-full px-1.5 py-2 text-[0.75rem] font-medium whitespace-nowrap transition-colors sm:px-4 sm:text-sm',
                   isActive(item.href) ? 'text-ink' : 'text-slate hover:text-ink',
                 ]}
               >
                 {item.label}
                 {isActive(item.href) && (
-                  <span class="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-amber sm:inset-x-4" />
+                  <span class="absolute inset-x-1.5 -bottom-px h-0.5 rounded-full bg-amber sm:inset-x-4" />
                 )}
               </a>
             </li>
@@ -44,3 +44,12 @@ const isActive = (href: string) => {
     </nav>
   </div>
 </header>
+
+<style>
+  .nav-scroll {
+    scrollbar-width: none;
+  }
+  .nav-scroll::-webkit-scrollbar {
+    display: none;
+  }
+</style>

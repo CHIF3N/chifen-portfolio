@@ -1,0 +1,99 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('research');
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const {
+  title,
+  summary,
+  institution,
+  year,
+  status,
+  kind,
+  supervisor,
+  site: studySite,
+  tags,
+  pdfUrl,
+  abstractUrl,
+} = entry.data;
+---
+
+<Base title={title} description={summary}>
+  <header class="border-b border-ink/10 bg-ink text-paper">
+    <div class="mx-auto max-w-4xl px-5 pt-12 pb-16 sm:px-8 sm:pt-16">
+      <a
+        href={withBase('/research')}
+        class="group inline-flex items-center gap-1.5 text-sm text-paper/60 transition-colors hover:text-amber"
+      >
+        <span class="transition-transform duration-200 group-hover:-translate-x-0.5">&larr;</span>
+        All research
+      </a>
+
+      <div class="mt-7 flex flex-wrap items-center gap-3">
+        <span class="rounded-full bg-amber/20 px-3 py-1 text-xs font-medium text-amber">{kind}</span>
+        {status === 'in-progress' && (
+          <span class="rounded-full bg-paper/10 px-3 py-1 text-xs font-medium text-paper/70">
+            In progress
+          </span>
+        )}
+      </div>
+      <h1 class="mt-4 font-display text-3xl leading-tight font-semibold sm:text-[2.75rem]">
+        {title}
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-paper/70">{summary}</p>
+
+      {
+        (pdfUrl || abstractUrl) && (
+          <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
+            {pdfUrl && (
+              <a href={pdfUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-amber hover:text-paper">
+                PDF &rarr;
+              </a>
+            )}
+            {abstractUrl && (
+              <a href={abstractUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-paper/70 hover:text-amber">
+                Abstract
+              </a>
+            )}
+          </div>
+        )
+      }
+
+      <dl class="mt-10 grid gap-x-8 gap-y-5 border-t border-paper/15 pt-8 sm:grid-cols-2">
+        <div>
+          <dt class="text-xs tracking-wider text-paper/45 uppercase">Institution</dt>
+          <dd class="mt-1 font-display font-medium">{institution}</dd>
+        </div>
+        <div>
+          <dt class="text-xs tracking-wider text-paper/45 uppercase">Study site</dt>
+          <dd class="mt-1 font-display font-medium">{studySite}</dd>
+        </div>
+        <div>
+          <dt class="text-xs tracking-wider text-paper/45 uppercase">Supervisor</dt>
+          <dd class="mt-1 font-display font-medium">{supervisor}</dd>
+        </div>
+        <div>
+          <dt class="text-xs tracking-wider text-paper/45 uppercase">Completed</dt>
+          <dd class="mt-1 font-display font-medium">{year}</dd>
+        </div>
+      </dl>
+    </div>
+  </header>
+
+  <div class="mx-auto max-w-4xl px-5 py-14 sm:px-8">
+    <div class="prose-body">
+      <Content />
+    </div>
+
+    <div class="mt-14 flex flex-wrap gap-2 border-t border-ink/10 pt-8">
+      {tags.map((tag) => <span class="rounded-full bg-ink/5 px-3 py-1 text-sm text-slate">{tag}</span>)}
+    </div>
+  </div>
+</Base>

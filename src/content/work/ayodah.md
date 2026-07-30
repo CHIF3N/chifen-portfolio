@@ -5,18 +5,28 @@ role: Co-founder
 tags: ['health-tech', 'product', 'community']
 status: shipped
 year: 2020
-featured: true
+featured: false
 order: 2
 metrics: ['400+ registered donors', '310 donations', '3 partner hospitals', '5+ NGO partners', 'Winner, Silicon Mountain Challenge 2022']
 ---
 
-## What it was
+## Problem
 
-Ayodah connected patients in urgent need of blood with voluntary donors, and pushed a culture of voluntary donation across Cameroon. It was a real platform with a real network behind it, not a pitch deck. It won the Silicon Mountain Challenge in 2022.
+Patients in urgent need of blood in Cameroon had no coordinated way to reach voluntary donors. A request for a specific blood type moved by word of mouth, phone calls, and hospital corridors, with no network connecting the people who needed blood to the people willing to give it.
 
-Over its run it supported 310 donations through a network of more than 400 registered donors, working with three partner hospitals and five or more NGO partners.
+## Why it matters
 
-## The failure worth talking about
+A city can have enough blood somewhere in it while a specific patient still does not get it in time, because nobody connects supply to a request fast enough. Closing that gap, not manufacturing more blood, is what a donor network is for.
+
+## My role
+
+Co-founder. I helped build and run the donor network, and I carried what it taught me directly into LifeDrop.
+
+## Stack
+
+The website ran on HTML, CSS, and WordPress. The mobile app version was outsourced to a third-party developer.
+
+## Challenges
 
 Ayodah died at the install screen.
 
@@ -26,6 +36,21 @@ I know the app failed because the requests never stopped. They just came somewhe
 
 That is not a rejection of the service. That is people telling you exactly where they want it to live.
 
-## What it became
+## Screenshots
+
+![The Ayodah website open on a phone, showing the donor search screen](/chifen-portfolio/work/ayodah/ayodah-website.jpg)
+![The Ayodah app icon on a phone home screen, next to Facebook and LinkedIn](/chifen-portfolio/work/ayodah/ayodah-home-screen.jpg)
+
+## Architecture
+
+Donor and blood-type matching ran on a database lookup. Hospital coordination was mostly manual, handled directly by the team rather than automated.
+
+## Outcome
+
+Ayodah connected patients in urgent need of blood with voluntary donors, and pushed a culture of voluntary donation across Cameroon. It was a real platform with a real network behind it, not a pitch deck. It won the Silicon Mountain Challenge in 2022.
+
+Over its run it supported 310 donations through a network of more than 400 registered donors, working with three partner hospitals and five or more NGO partners.
+
+## Lessons learned
 
 Ayodah is the reason LifeDrop is a WhatsApp product rather than an app. The network carried over. The hospitals carried over. The lesson cost a year and it was worth it.

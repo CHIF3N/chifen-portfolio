@@ -201,6 +201,18 @@
 .prose-body em {
   color: var(--color-slate);
 }
+.prose-body img {
+  display: inline-block;
+  vertical-align: top;
+  width: auto;
+  max-width: min(320px, 100%);
+  height: auto;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+  margin: 0.35em 0.6em 0.35em 0;
+}
 
 /* Scroll reveal. Elements start hidden only when JS and motion are both available. */
 @media (prefers-reduced-motion: no-preference) {
