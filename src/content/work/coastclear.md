@@ -21,7 +21,7 @@ I grew up on this coast, so the gap was not abstract. A report that reaches the 
 
 ## My role
 
-Developer, working with {{VERIFY: CoastClear collaborator name and organisation}}. I built the platform end to end: the three role-based dashboards, the photo analysis pipeline, and the trilingual flow.
+Developer, built for Ocean Hack 2025 alongside NatGeo and The Nature Conservancy. I built the platform end to end: the three role-based dashboards, the photo analysis pipeline, and the trilingual flow.
 
 ## Stack
 
@@ -41,7 +41,7 @@ Three role-based dashboards, one each for reporters, cleanup crews, and NGOs, be
 
 ## Outcome
 
-Live at [coastclear-web.web.app](https://coastclear-web.web.app). Built for {{VERIFY: CoastClear hackathon name and year}}.
+Live at [coastclear-web.web.app](https://coastclear-web.web.app). Built for Ocean Hack 2025.
 
 ## Lessons learned
 

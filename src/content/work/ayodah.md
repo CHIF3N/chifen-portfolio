@@ -24,7 +24,7 @@ Co-founder. I helped build and run the donor network, and I carried what it taug
 
 ## Stack
 
-{{VERIFY: Ayodah technical stack — the app framework and backend used}}
+The website ran on HTML, CSS, and WordPress. The mobile app version was outsourced to {{VERIFY: outsourced developer or agency name}}.
 
 ## Challenges
 
@@ -42,7 +42,7 @@ That is not a rejection of the service. That is people telling you exactly where
 
 ## Architecture
 
-{{VERIFY: Ayodah architecture — how donor matching and hospital coordination worked technically}}
+Donor and blood-type matching ran on a database lookup. Hospital coordination was mostly manual, handled directly by the team rather than automated.
 
 ## Outcome
 

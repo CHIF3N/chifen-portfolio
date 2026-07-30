@@ -7,7 +7,7 @@ To resolve one: replace the whole `{{VERIFY: ...}}` token with the real value,
 then run `npm run build`. This file regenerates itself.
 
 Last generated: 2026-07-30
-Outstanding: **19**
+Outstanding: **11**
 
 ---
 
@@ -17,25 +17,16 @@ Outstanding: **19**
 
 ---
 
-## `src/content/work/ai-clinical-decision-research.md`
-
-- [ ] **Line 28** — data collection tool used — paper questionnaires or a digital tool such as KoboCollect
-
----
-
 ## `src/content/work/ayodah.md`
 
-- [ ] **Line 27** — Ayodah technical stack — the app framework and backend used
+- [ ] **Line 27** — outsourced developer or agency name
 - [ ] **Line 41** — Ayodah screenshots or documentary photos — written consent needed for any recognisable face
-- [ ] **Line 45** — Ayodah architecture — how donor matching and hospital coordination worked technically
 
 ---
 
 ## `src/content/work/coastclear.md`
 
-- [ ] **Line 24** — CoastClear collaborator name and organisation
 - [ ] **Line 36** — CoastClear screenshots — the reporter, cleanup crew, and NGO dashboards
-- [ ] **Line 44** — CoastClear hackathon name and year
 
 ---
 
@@ -49,9 +40,6 @@ Outstanding: **19**
 
 ## `src/content/work/lifedrop.md`
 
-- [ ] **Line 11** — LifeDrop WhatsApp pilot — registered donors
-- [ ] **Line 11** — LifeDrop WhatsApp pilot — completed matches
-- [ ] **Line 28** — LifeDrop technical stack — frontend, WhatsApp integration, and how the MoMo payment flow is implemented
 - [ ] **Line 38** — LifeDrop product screenshots — donor flow, ward confirmation, WhatsApp match message
 
 ---
@@ -59,12 +47,6 @@ Outstanding: **19**
 ## `src/content/work/lockedin.md`
 
 - [ ] **Line 34** — LockedIn screenshots — the quest, focus session, and stat progression screens
-
----
-
-## `src/content/work/maternal-health-risk.md`
-
-- [ ] **Line 27** — statistical software used for the analysis — SPSS, R, or Python
 
 ---
 

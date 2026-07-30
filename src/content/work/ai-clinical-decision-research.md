@@ -25,7 +25,7 @@ Principal investigator, for my BSc nursing research at Gracious Higher Institute
 
 ## Stack
 
-SPSS for statistical analysis. {{VERIFY: data collection tool used — paper questionnaires or a digital tool such as KoboCollect}}
+KoboToolbox for data collection. SPSS for statistical analysis.
 
 ## Challenges
 

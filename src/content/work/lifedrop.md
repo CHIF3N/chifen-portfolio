@@ -8,7 +8,7 @@ year: 2026
 liveUrl: https://lifedropcam.netlify.app/
 featured: true
 order: 1
-metrics: ['{{VERIFY: LifeDrop WhatsApp pilot — registered donors}}', '{{VERIFY: LifeDrop WhatsApp pilot — completed matches}}', '3rd place, MTN YaMo Season 4', 'Inherits the Ayodah network: 3 partner hospitals']
+metrics: ['3rd place, MTN YaMo Season 4', 'Buea pilot target: 1,000 donors, 200 matches', 'Inherits the Ayodah network: 3 partner hospitals']
 ---
 
 ## Problem
@@ -25,7 +25,7 @@ Founder and CEO. I built the product and run the WhatsApp side of the operation 
 
 ## Stack
 
-{{VERIFY: LifeDrop technical stack — frontend, WhatsApp integration, and how the MoMo payment flow is implemented}}
+Hand-written HTML5 and CSS (custom properties, `clamp()`, grid and flex), with vanilla JS for the hero animation and scroll reveals. No framework, no React. The WhatsApp bot and MTN MoMo integration are the pilot-stage prototype pieces, not yet a deployed backend.
 
 ## Challenges
 
@@ -52,7 +52,7 @@ Payment runs on MTN MoMo, on the requester's own PIN, receipted and traceable. D
 
 ## Outcome
 
-The website is live and the donor flow is walkable today. The production WhatsApp bot is a working prototype, not a deployed service. It ships with the Buea pilot. I would rather show you the real stage than claim something that is not running yet.
+The website is live and the donor flow is walkable today. The production WhatsApp bot is a working prototype, not a deployed service. It ships with the Buea pilot. The 1,000 donors and 200 matches figure is the pilot's six-month target from the MTN YaMo funding ask, not a number already reached. I would rather show you the real stage than claim something that is not running yet.
 
 ## Lessons learned
 

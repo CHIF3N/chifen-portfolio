@@ -24,7 +24,7 @@ Analyst and author. I ran the statistical analysis and wrote up the findings.
 
 ## Stack
 
-{{VERIFY: statistical software used for the analysis — SPSS, R, or Python}}
+IBM SPSS Statistics for the descriptive and inferential analysis (ANOVA, chi-square, correlation), with Python and matplotlib for the supplementary visualisations.
 
 ## Challenges
 
