@@ -9,9 +9,11 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  /** Per-page accent. Defaults to the site cyan. */
+  accent?: string;
 }
 
-const { title, description = site.description, ogImage } = Astro.props;
+const { title, description = site.description, ogImage, accent } = Astro.props;
 
 const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.role}`;
 // Astro.url.pathname already reflects the deployed base path.
@@ -19,7 +21,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
-<html lang="en">
+<!--
+  The accent is set on <html> rather than <body>: `@theme inline` resolves
+  --color-accent against :root, so an override further down the tree would be
+  ignored and every child would inherit the already-computed default.
+-->
+<html lang="en" style={accent ? `--accent:${accent}` : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -39,14 +46,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     <link
       rel="preload"
-      href={withBase('/fonts/clash-display-600.woff2')}
+      href={withBase('/fonts/big-shoulders-600.woff2')}
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href={withBase('/fonts/general-sans-400.woff2')}
+      href={withBase('/fonts/inter-500.woff2')}
       as="font"
       type="font/woff2"
       crossorigin
@@ -54,6 +61,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     <script is:inline>
       document.documentElement.classList.add('js');
+      // Runs before first paint so a stored dark choice never flashes light.
+      try {
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark' || stored === 'light') {
+          document.documentElement.dataset.theme = stored;
+        }
+      } catch (e) {}
     </script>
   </head>
 

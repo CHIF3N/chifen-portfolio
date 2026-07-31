@@ -30,14 +30,14 @@ const {
     <div class="mx-auto max-w-4xl px-5 pt-12 pb-16 sm:px-8 sm:pt-16">
       <a
         href={withBase('/research')}
-        class="group inline-flex items-center gap-1.5 text-sm text-paper/60 transition-colors hover:text-amber"
+        class="group inline-flex items-center gap-1.5 text-sm text-paper/60 transition-colors hover:text-accent"
       >
         <span class="transition-transform duration-200 group-hover:-translate-x-0.5">&larr;</span>
         All research
       </a>
 
       <div class="mt-7 flex flex-wrap items-center gap-3">
-        <span class="rounded-full bg-amber/20 px-3 py-1 text-xs font-medium text-amber">{kind}</span>
+        <span class="rounded-full bg-accent/20 px-3 py-1 text-xs font-medium text-accent">{kind}</span>
         {status === 'in-progress' && (
           <span class="rounded-full bg-paper/10 px-3 py-1 text-xs font-medium text-paper/70">
             In progress
@@ -53,12 +53,12 @@ const {
         (pdfUrl || abstractUrl) && (
           <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
             {pdfUrl && (
-              <a href={pdfUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-amber hover:text-paper">
+              <a href={pdfUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-accent hover:text-paper">
                 PDF &rarr;
               </a>
             )}
             {abstractUrl && (
-              <a href={abstractUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-paper/70 hover:text-amber">
+              <a href={abstractUrl} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-paper/70 hover:text-accent">
                 Abstract
               </a>
             )}

@@ -5,6 +5,7 @@ role: Analyst and author
 tags: ['data', 'research', 'health-tech']
 status: shipped
 year: 2026
+cover: ../../assets/covers/maternal-health-risk.png
 featured: false
 order: 8
 metrics: ['808 records analysed', '40.8% classified high risk']

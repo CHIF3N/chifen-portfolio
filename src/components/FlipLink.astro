@@ -1,0 +1,28 @@
+---
+/**
+ * A label whose characters slide up one at a time on hover, revealing an
+ * identical copy underneath. Pure CSS: each character carries its own
+ * transition-delay so the reset ripples left to right.
+ *
+ * Rendered inside an <a> by the caller, so the hover target is the link.
+ */
+interface Props {
+  text: string;
+  /** Milliseconds between each character. */
+  step?: number;
+}
+
+const { text, step = 22 } = Astro.props;
+const chars = [...text];
+---
+
+<span class="flip" aria-hidden="true">
+  {
+    chars.map((char, i) => (
+      <span class="flip-char" data-char={char} style={`--flip-delay:${i * step}ms`}>
+        {char === ' ' ? ' ' : char}
+      </span>
+    ))
+  }
+</span>
+<span class="sr-only">{text}</span>

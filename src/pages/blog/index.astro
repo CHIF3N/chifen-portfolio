@@ -1,4 +1,4 @@
----
+﻿---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { withBase } from '../../lib/url';
@@ -35,7 +35,7 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
               <p class="text-xs tracking-wider text-slate-light uppercase">
                 {dateFormat.format(post.data.pubDate)}
               </p>
-              <h2 class="mt-2.5 font-display text-2xl font-semibold transition-colors group-hover:text-amber sm:text-3xl">
+              <h2 class="mt-2.5 font-display text-2xl font-semibold transition-colors group-hover:text-accent sm:text-3xl">
                 {post.data.title}
               </h2>
               <p class="mt-2.5 leading-relaxed text-slate">{post.data.description}</p>
@@ -59,27 +59,27 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
     </p>
     <ul class="mt-8 grid gap-4 sm:grid-cols-2">
       <li class="rounded-xl border border-ink/10 bg-white/60 p-5" data-reveal>
-        <p class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
+        <p class="font-display text-xs font-semibold tracking-widest text-accent uppercase">
           Tech Chantier
         </p>
         <a
           href="https://techchantier.com/blog"
           target="_blank"
           rel="noopener"
-          class="mt-2 block font-display font-medium underline-offset-4 hover:text-amber hover:underline"
+          class="mt-2 block font-display font-medium underline-offset-4 hover:text-accent hover:underline"
         >
           Blog, under my own byline &rarr;
         </a>
       </li>
       <li class="rounded-xl border border-ink/10 bg-white/60 p-5" data-reveal style="--reveal-delay:60ms">
-        <p class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
+        <p class="font-display text-xs font-semibold tracking-widest text-accent uppercase">
           DELC Foundation
         </p>
         <a
           href="https://delcfoundation.org/blog/"
           target="_blank"
           rel="noopener"
-          class="mt-2 block font-display font-medium underline-offset-4 hover:text-amber hover:underline"
+          class="mt-2 block font-display font-medium underline-offset-4 hover:text-accent hover:underline"
         >
           Blog, ghostwritten &rarr;
         </a>

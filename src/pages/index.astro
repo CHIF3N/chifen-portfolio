@@ -3,10 +3,21 @@ import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import WorkCard from '../components/WorkCard.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Marquee from '../components/Marquee.astro';
+import Faq from '../components/Faq.astro';
+import Scene3D from '../components/Scene3D.astro';
+import Booking from '../components/Booking.astro';
+import ChipMarquee from '../components/ChipMarquee.astro';
+import SocialIcon from '../components/SocialIcon.astro';
+import VerifyText from '../components/VerifyText.astro';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
+import { hasVerify } from '../lib/verify';
 
-const featured = (await getCollection('work'))
+const allWork = await getCollection('work');
+
+const featured = allWork
   .filter((entry) => entry.data.featured)
   .sort((a, b) => a.data.order - b.data.order);
 
@@ -20,95 +31,367 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
   month: 'long',
   year: 'numeric',
 });
+
+/* Counted from the work collection, so it cannot drift out of date. */
+const projectCount = allWork.length;
+
+/* Only figures confirmed in CLAUDE.md go in unmarked. Anything else is a
+   {{VERIFY: ...}} token and renders highlighted until it is confirmed. */
+const stats = [
+  { value: '4', suffix: '', label: 'Years in tech' },
+  { value: '2', suffix: '', label: 'Years in health tech' },
+  { value: `${projectCount}`, suffix: '', label: 'Projects shipped' },
+  { value: '400', suffix: '+', label: 'LifeDrop registered donors' },
+  { value: '310', suffix: '', label: 'Donations coordinated' },
+  { value: '387', suffix: '', label: 'Research respondents' },
+];
+
+const stack = [
+  { name: 'Python', use: 'Data and modelling' },
+  { name: 'JavaScript', use: 'Web and app builds' },
+  { name: 'Astro', use: 'This site' },
+  { name: 'Expo', use: 'React Native apps' },
+  { name: 'WhatsApp Cloud API', use: 'Health services' },
+  { name: 'scikit-learn', use: 'Clinical risk models' },
+];
+
+const experience = [
+  {
+    role: '{{VERIFY: current role title}}',
+    org: '{{VERIFY: organisation}}',
+    period: '{{VERIFY: start year}} - Now',
+  },
+  {
+    role: '{{VERIFY: previous role title}}',
+    org: '{{VERIFY: organisation}}',
+    period: '{{VERIFY: years}}',
+  },
+  {
+    role: '{{VERIFY: earlier role title}}',
+    org: '{{VERIFY: organisation}}',
+    period: '{{VERIFY: years}}',
+  },
+];
+
+const testimonial = {
+  quote: '{{VERIFY: a real quote from a colleague, partner hospital, or client}}',
+  name: '{{VERIFY: their name}}',
+  attribution: '{{VERIFY: their role and organisation}}',
+};
+
+/**
+ * A section only renders once nothing in it is still a VERIFY token, per the
+ * project rule that empty sections do not ship. Fill the real values in and the
+ * section reappears on its own; no markup change needed.
+ */
+const showExperience = experience.every(
+  (job) => !hasVerify(job.role) && !hasVerify(job.org) && !hasVerify(job.period)
+);
+const showTestimonial = !Object.values(testimonial).some(hasVerify);
+
+const services = [
+  {
+    title: 'Health product builds',
+    body: 'Apps and services for clinics, donors, and health workers, designed for low data and unreliable power.',
+  },
+  {
+    title: 'WhatsApp automation',
+    body: 'Bilingual bots and health services on the channel people in Cameroon already use every day.',
+  },
+  {
+    title: 'Clinical data and ML',
+    body: 'Risk models, dashboards, and analysis built on real clinical data rather than tidy demo sets.',
+  },
+  {
+    title: 'Research and writing',
+    body: 'Study design, survey work, and writing up findings so they hold up to scrutiny.',
+  },
+];
+
+const process = [
+  {
+    title: "Let's talk",
+    body: 'We start with the actual problem and the constraints around it. Who uses this, on what phone, with what connection.',
+  },
+  {
+    title: 'Build and test',
+    body: 'I build the smallest thing that proves the idea, then put it in front of real users and fix what breaks.',
+  },
+  {
+    title: 'Ship and support',
+    body: 'You get the code, the documentation, and someone who stays reachable after launch.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'What kind of work do you take on?',
+    a: 'Health technology mostly. Blood and donor logistics, WhatsApp health services, clinical data and risk models, and research support. If it touches care delivery in a low-resource setting, it is probably a fit. If it does not, I will say so rather than take the work.',
+  },
+  {
+    q: 'Are you a nurse or a developer?',
+    a: 'Both, and that is the point. I trained and worked as a registered nurse before I learned to code, so I build from inside the workflow instead of guessing at it. It means I ask about the ward round and the network before I ask about the tech stack.',
+  },
+  {
+    q: 'How long does a project take?',
+    a: 'It depends on what it is. A WhatsApp bot with a handful of flows is a matter of weeks. A platform with dashboards, roles, and real users behind it runs into months. I would rather give you a real timeline after one conversation than a comfortable one before it.',
+  },
+  {
+    q: 'What does it cost?',
+    a: 'I price per project, not per hour, and the number comes from scope: how many flows, how many user types, whether there is existing data to work with, and how much support you want after launch. Rates are set for the Cameroonian market and I am straight about what fits a given budget. Book a call and we settle on a figure together.',
+  },
+  {
+    q: 'Do you work with people outside Cameroon?',
+    a: 'Yes. Most of the work is grounded here, and that constraint is usually the useful part. I work in English and French.',
+  },
+  {
+    q: 'What do you need from me to start?',
+    a: 'The problem, who it affects, and what they are using now. Screenshots of the current process help more than a specification does. If there is data already, tell me what shape it is in honestly, including if it is messy.',
+  },
+];
 ---
 
 <Base>
   <Hero />
 
-  <section class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
-    <div class="flex flex-wrap items-end justify-between gap-4" data-reveal>
-      <div>
-        <h2 class="font-display text-3xl font-semibold sm:text-4xl">Selected work</h2>
-        <p class="mt-2 max-w-md text-slate">
-          Four projects that carry the argument. The rest are on the work page.
-        </p>
-      </div>
-      <a
-        href={withBase('/work')}
-        class="group inline-flex items-center gap-1.5 text-sm font-medium text-ink underline-offset-4 hover:text-amber hover:underline"
-      >
-        All work
-        <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
-      </a>
-    </div>
+  <Marquee items={['Health tech', 'Clinical data', 'WhatsApp services', 'Built in Buea']} />
 
-    <div class="mt-10 grid gap-5 sm:grid-cols-2">
-      {featured.map((entry, i) => <WorkCard entry={entry} delay={i * 70} />)}
+  <div class="shell mt-10">
+    <ChipMarquee
+      items={[
+        'Nurse first, developer second',
+        'Built for low bandwidth',
+        'Real users, not demos',
+        'Bilingual by default',
+        'Numbers you can check',
+      ]}
+    />
+  </div>
+
+  <!-- Projects -->
+  <section class="shell band">
+    <SectionHead
+      label="Selected work"
+      title="Projects"
+      linkHref={withBase('/work')}
+      linkLabel="View all projects"
+    />
+    <div class="mt-12 grid gap-5 sm:grid-cols-2">
+      {featured.map((entry, i) => <WorkCard entry={entry} index={i} delay={i * 70} />)}
     </div>
   </section>
 
-  <section class="border-y border-ink/10 bg-paper-dim/60">
-    <div class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
-      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+  <!-- Stats. Each cell is column-reversed so the number reads above its label
+       while the markup keeps <dt> before <dd>. -->
+  <section class="border-y border-line bg-paper-dim">
+    <div class="shell py-14">
+      <dl class="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-6">
+        {
+          stats.map((stat, i) => (
+            <div
+              class="flex flex-col-reverse"
+              data-reveal
+              style={`--reveal-delay:${i * 60}ms`}
+            >
+              <dt class="eyebrow mt-3">{stat.label}</dt>
+              <dd
+                class:list={[
+                  'font-display leading-none font-bold',
+                  /^\d+$/.test(stat.value) ? 'text-5xl sm:text-6xl' : 'text-base',
+                ]}
+              >
+                <span data-count-to={/^\d+$/.test(stat.value) ? stat.value : undefined}>
+                  <VerifyText text={stat.value} />
+                  {stat.suffix}
+                </span>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- Stack -->
+  <section class="shell band">
+    <SectionHead label="What I build with" title="My stack" />
+    <ul class="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        stack.map((tool, i) => (
+          <li
+            class="card-flat flex items-baseline justify-between gap-4 p-6"
+            data-reveal
+            style={`--reveal-delay:${i * 50}ms`}
+          >
+            <span class="display-card">{tool.name}</span>
+            <span class="body-sm text-right">{tool.use}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- About -->
+  <section class="border-t border-line">
+    <div class="shell band">
+      <SectionHead label="Let me introduce myself" title="About me" />
+      <div class="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
         <div data-reveal>
-          <h2 class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
-            What I am aiming at
-          </h2>
-          <p class="mt-5 font-display text-2xl leading-snug font-medium sm:text-3xl">
+          <Scene3D
+            src="/scenes/scene-about.mp4" class="w-full max-w-sm lg:max-w-none"
+            bubble="Let me introduce myself"
+            label="Animated 3D illustration"
+          />
+          <p class="mt-8 font-display text-3xl leading-tight font-medium uppercase sm:text-4xl">
             {site.vision}
           </p>
         </div>
-        <div
-          class="space-y-4 text-lg leading-relaxed text-slate"
-          data-reveal
-          style="--reveal-delay:80ms"
-        >
+        <div class="lede space-y-4" data-reveal style="--reveal-delay:80ms">
           <p>
-            The future of healthcare sits where medicine, technology, and human-centred design
-            meet. I am less interested in tools that work in a well-funded demo than in ones that
-            survive a real ward on a bad day.
+            The future of healthcare sits where medicine, technology, and human-centred design meet.
+            I am less interested in tools that work in a well-funded demo than in ones that survive a
+            real ward on a bad day.
           </p>
           <p>
             That means building for the constraints people actually have. Low data. Unreliable
             power. A phone rather than a computer. A language a government form does not offer.
-            Solutions that empower health workers and hold up in underserved communities, or they
-            do not count.
+            Solutions that empower health workers and hold up in underserved communities, or they do
+            not count.
           </p>
+          <a href={withBase('/about')} class="btn btn-ghost btn-sm mt-2">
+            More about me
+            <span aria-hidden="true">&rarr;</span>
+          </a>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- Experience. Hidden until every row is real. -->
+  {
+    showExperience && (
+      <section class="shell band band-line">
+        <SectionHead label="Where I have worked" title="Experience" />
+        <ul class="mt-12">
+          {experience.map((job, i) => (
+          <li
+            class="grid gap-2 border-b border-line py-7 sm:grid-cols-[1.4fr_1fr_auto] sm:items-baseline sm:gap-8"
+            data-reveal
+            style={`--reveal-delay:${i * 60}ms`}
+          >
+            <span class="display-card">
+              <VerifyText text={job.role} />
+            </span>
+            <span class="body-sm">
+              <VerifyText text={job.org} />
+            </span>
+            <span class="ordinal sm:text-right">
+              <VerifyText text={job.period} />
+            </span>
+          </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <Marquee items={['Services', 'What I offer']} tone="paper" />
+
+  <!-- Services -->
+  <section class="shell band">
+    <div class="grid items-center gap-10 lg:grid-cols-[1.3fr_0.7fr]">
+      <SectionHead label="What I offer" title="Services" />
+      <div data-reveal>
+        <Scene3D
+          src="/scenes/scene-services.mp4"
+          bubble="What I bring"
+          label="Animated 3D illustration"
+        />
+      </div>
+    </div>
+    <ul class="mt-12">
+      {
+        services.map((service, i) => (
+          <li
+            class="group grid gap-3 border-b border-line py-8 sm:grid-cols-[auto_1fr_1.2fr] sm:items-baseline sm:gap-8"
+            data-reveal
+            style={`--reveal-delay:${i * 60}ms`}
+          >
+            <span class="ordinal">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="display-card transition-colors group-hover:text-accent">{service.title}</h3>
+            <p class="body-sm">{service.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Process -->
+  <section class="shell band band-line">
+    <SectionHead label="How it goes" title="Process" />
+    <ol class="mt-12 grid gap-5 md:grid-cols-3">
+      {
+        process.map((step, i) => (
+          <li class="card-flat p-7" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <span class="ordinal">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="display-card mt-4">{step.title}</h3>
+            <p class="body-sm mt-3">{step.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="mt-5 grid items-center gap-8 md:grid-cols-2" data-reveal>
+      <div class="rounded-[var(--radius-card)] bg-ink p-8 text-paper sm:p-10">
+        <h3 class="display-card">Ready to get started?</h3>
+        <p class="body-sm mt-2 text-paper/70">
+          Tell me about the problem and who it affects. I read every message.
+        </p>
+        <a href={withBase('/contact')} class="btn btn-accent mt-6">
+          Start a conversation
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+      <Scene3D src="/scenes/scene-cta.mp4" class="w-full max-w-sm lg:max-w-none" label="Animated 3D illustration" />
+    </div>
+  </section>
+
+  <!-- Testimonial. Hidden until there is a real quote from a real person. -->
+  {
+    showTestimonial && (
+      <section class="shell band band-line">
+        <SectionHead label="In their words" title="Testimonial" />
+        <figure class="mt-12" data-reveal>
+          <blockquote class="font-display text-3xl leading-tight font-medium uppercase sm:text-4xl">
+            {testimonial.quote}
+          </blockquote>
+          <figcaption class="mt-6">
+            <span class="display-card block">{testimonial.name}</span>
+            <span class="body-sm">{testimonial.attribution}</span>
+          </figcaption>
+        </figure>
+      </section>
+    )
+  }
+
+  <!-- Writing -->
   {
     posts.length > 0 && (
-      <section class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
-        <div class="flex flex-wrap items-end justify-between gap-4" data-reveal>
-          <h2 class="font-display text-3xl font-semibold sm:text-4xl">Latest writing</h2>
-          <a
-            href={withBase('/blog')}
-            class="group inline-flex items-center gap-1.5 text-sm font-medium text-ink underline-offset-4 hover:text-amber hover:underline"
-          >
-            All posts
-            <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
-          </a>
-        </div>
-
+      <section class="shell band band-line">
+        <SectionHead
+          label="Latest writing"
+          title="Journal"
+          linkHref={withBase('/blog')}
+          linkLabel="All posts"
+        />
         {posts.map((post) => (
-          <a
-            href={withBase(`/blog/${post.id}`)}
-            data-reveal
-            class="group mt-8 block rounded-2xl border border-ink/10 bg-white/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber/50 hover:shadow-[0_16px_40px_-24px_rgba(10,42,51,0.5)] sm:p-9"
-          >
-            <p class="text-xs tracking-wider text-slate-light uppercase">
-              {dateFormat.format(post.data.pubDate)}
-            </p>
-            <h3 class="mt-3 font-display text-2xl font-semibold sm:text-3xl">{post.data.title}</h3>
-            <p class="mt-3 max-w-2xl leading-relaxed text-slate">{post.data.description}</p>
-            <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-amber">
+          <a href={withBase(`/blog/${post.id}`)} data-reveal class="card-flat mt-12 block p-8 sm:p-10">
+            <p class="ordinal">{dateFormat.format(post.data.pubDate)}</p>
+            <h3 class="display-card mt-3 text-3xl sm:text-4xl">{post.data.title}</h3>
+            <p class="lede mt-3 max-w-2xl">{post.data.description}</p>
+            <span class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
               Read it
-              <span class="transition-transform duration-200 group-hover:translate-x-0.5">
-                &rarr;
-              </span>
+              <span aria-hidden="true">&rarr;</span>
             </span>
           </a>
         ))}
@@ -116,25 +399,153 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
     )
   }
 
-  <section class="mx-auto max-w-6xl px-5 pb-8 sm:px-8">
-    <div
-      class="rounded-3xl border border-ink/10 bg-white/70 px-7 py-12 text-center sm:px-12 sm:py-16"
-      data-reveal
-    >
-      <h2 class="font-display text-3xl font-semibold sm:text-4xl">Working on something?</h2>
-      <p class="mx-auto mt-3 max-w-lg text-slate">
-        Health, data, WhatsApp automation, or a build that needs someone who has actually worked a
-        ward.
-      </p>
-      <div class="mt-8 flex flex-wrap justify-center gap-3">
-        <a
-          href={withBase('/contact')}
-          class="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform duration-200 hover:-translate-y-0.5"
-        >
-          Get in touch
-          <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
-        </a>
+  <!-- FAQ -->
+  <section class="shell band band-line">
+    <SectionHead label="Before you ask" title="FAQ" />
+    <div class="mt-12 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+      <div data-reveal>
+        <Scene3D
+          src="/scenes/scene-faq.mp4" class="w-full max-w-sm lg:max-w-none"
+          bubble="Frequently asked"
+          bubbleSide="left"
+          label="Animated 3D illustration"
+        />
       </div>
+      <Faq items={faqs} />
     </div>
   </section>
+
+  <!-- Contact -->
+  <section class="shell band band-line">
+    <SectionHead label="Let's work together" title="Contact me" />
+    <div class="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-16">
+      <div data-reveal>
+        <Scene3D
+          src="/scenes/scene-contact.mp4" class="w-full max-w-sm lg:max-w-none"
+          bubble="Reach out to me"
+          label="Animated 3D illustration"
+        />
+        <p class="lede mt-8 max-w-md">
+          Working on something in health, data, or WhatsApp automation? Tell me what the problem is
+          and who it affects, and I will get back to you.
+        </p>
+      </div>
+
+      <dl class="grid gap-8 sm:grid-cols-2" data-reveal style="--reveal-delay:80ms">
+        <div>
+          <dt class="eyebrow">Email</dt>
+          {site.emails.map((email) => (
+            <dd class="display-card mt-2">
+              <a href={`mailto:${email}`} class="transition-colors hover:text-accent">
+                {email}
+              </a>
+            </dd>
+          ))}
+        </div>
+        <div>
+          <dt class="eyebrow">WhatsApp</dt>
+          {site.whatsapp.map((n) => (
+            <dd class="display-card mt-2">
+              <a href={n.href} class="transition-colors hover:text-accent">
+                {n.label}
+              </a>
+            </dd>
+          ))}
+        </div>
+        <div class="sm:col-span-2">
+          <dt class="eyebrow">Socials</dt>
+          <dd class="mt-3 flex flex-wrap gap-2">
+            {
+              site.socials.map((social) => (
+                <a
+                  href={social.href}
+                  rel={social.label === 'Signal' ? 'nofollow noopener' : undefined}
+                  class="inline-flex items-center gap-2 rounded-full border border-line px-3.5 py-2 text-sm font-semibold transition-colors hover:border-ink hover:text-accent"
+                >
+                  <SocialIcon label={social.label} />
+                  {social.label}
+                </a>
+              ))
+            }
+          </dd>
+        </div>
+        <div>
+          <dt class="eyebrow">Based in</dt>
+          <dd class="display-card mt-2">{site.location}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <a href={withBase('/contact')} class="btn btn-ink mt-12" data-reveal>
+      Get in touch
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+
+    <div class="mt-12">
+      <Booking />
+    </div>
+
+  </section>
+
+  <!-- Full-bleed call to action strip, as on the reference. -->
+  <a href={withBase('/contact')} class="block bg-ink py-8 text-paper">
+    <div class="marquee">
+      {
+        [0, 1].map((copy) => (
+          <div class="marquee-track" aria-hidden={copy === 1 ? 'true' : undefined}>
+            {[0, 1, 2].map(() => (
+              <>
+                <span class="font-display text-6xl font-bold whitespace-nowrap uppercase sm:text-8xl">
+                  Start a project
+                </span>
+                <span
+                  class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-paper text-2xl text-ink sm:h-20 sm:w-20"
+                  aria-hidden="true"
+                >
+                  &#8599;
+                </span>
+              </>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </a>
 </Base>
+
+<script>
+  // Count-up on the stats bar. The final value is already in the DOM, so this
+  // only ever animates toward text that is correct without JS.
+  const targets = document.querySelectorAll<HTMLElement>('[data-count-to]');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (targets.length && !reduced) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          observer.unobserve(el);
+
+          const final = Number(el.dataset.countTo);
+          if (!Number.isFinite(final)) continue;
+
+          const suffix = el.textContent?.replace(/[\d\s]/g, '') ?? '';
+          const duration = 1100;
+          const start = performance.now();
+
+          const tick = (now: number) => {
+            const t = Math.min((now - start) / duration, 1);
+            // easeOutCubic, so it decelerates into the real number
+            const eased = 1 - Math.pow(1 - t, 3);
+            el.textContent = Math.round(final * eased) + suffix;
+            if (t < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+      },
+      { threshold: 0.4 }
+    );
+    targets.forEach((el) => observer.observe(el));
+  }
+</script>

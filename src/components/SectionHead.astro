@@ -1,0 +1,30 @@
+---
+/**
+ * The oversized uppercase section heading, with an optional small label and a
+ * link sitting on the baseline to its right.
+ */
+interface Props {
+  title: string;
+  label?: string;
+  linkHref?: string;
+  linkLabel?: string;
+}
+
+const { title, label, linkHref, linkLabel } = Astro.props;
+---
+
+<div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4" data-reveal>
+  <div>
+    {label && <p class="eyebrow mb-3">{label}</p>}
+    <h2 class="display-section">{title}</h2>
+  </div>
+
+  {
+    linkHref && linkLabel && (
+      <a href={linkHref} class="btn btn-ghost btn-sm">
+        {linkLabel}
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+    )
+  }
+</div>

@@ -1,23 +1,49 @@
----
+﻿---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import WorkCard from '../../components/WorkCard.astro';
+import Scene3D from '../../components/Scene3D.astro';
+import ChipMarquee from '../../components/ChipMarquee.astro';
+import { site } from '../../lib/site';
 
 const entries = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 
 const tags = [...new Set(entries.flatMap((entry) => entry.data.tags))].sort();
+
+const chips = [
+  'Live in production',
+  'Real users',
+  'Built in Cameroon',
+  'Prototypes labelled as prototypes',
+  'Numbers you can check',
+];
 ---
 
 <Base
   title="Work"
   description="Projects by Chifen Sama N. across health technology, WhatsApp automation, AI in clinical decision support, and data."
+  accent={site.accents.work}
 >
-  <section class="mx-auto max-w-6xl px-5 pt-14 pb-6 sm:px-8 sm:pt-20">
-    <h1 class="font-display text-4xl font-semibold sm:text-5xl">Work</h1>
-    <p class="mt-4 max-w-2xl text-lg leading-relaxed text-slate">
-      Blood logistics, health chatbots, clinical research, and a few things built because the
-      problem annoyed me. Some are live, some are prototypes, and the difference is labelled.
-    </p>
+  <section class="shell pt-14 pb-6 sm:pt-20">
+    <div class="grid items-center gap-10 lg:grid-cols-[1.3fr_0.7fr]">
+      <div>
+        <h1 class="display-section">Work</h1>
+        <p class="lede mt-5 max-w-2xl">
+          Blood logistics, health chatbots, clinical research, and a few things built because the
+          problem annoyed me. Some are live, some are prototypes, and the difference is labelled.
+        </p>
+      </div>
+      <Scene3D
+        src="/scenes/scene-projects.mp4"
+        bubble="Take a look"
+        label="Animated 3D illustration"
+        class="w-full max-w-xs lg:max-w-none"
+      />
+    </div>
+
+    <div class="mt-12">
+      <ChipMarquee items={chips} />
+    </div>
 
     <div class="mt-9 flex flex-wrap items-center gap-2">
       <button
@@ -67,8 +93,8 @@ const tags = [...new Set(entries.flatMap((entry) => entry.data.tags))].sort();
     border-color: var(--color-ink);
   }
   .filter-chip[aria-pressed='false']:hover {
-    border-color: var(--color-amber);
-    color: var(--color-amber);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
   }
   .contents-item {
     display: contents;

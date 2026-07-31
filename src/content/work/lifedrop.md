@@ -6,6 +6,7 @@ tags: ['WhatsApp', 'AI', 'health-tech', 'product']
 status: live
 year: 2026
 liveUrl: https://lifedropcam.netlify.app/
+cover: ../../assets/covers/lifedrop.png
 featured: true
 order: 1
 metrics: ['3rd place, MTN YaMo Season 4', 'Buea pilot target: 1,000 donors, 200 matches', 'Inherits the Ayodah network: 3 partner hospitals']

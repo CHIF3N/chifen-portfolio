@@ -5,6 +5,7 @@ role: Developer
 tags: ['mobile', 'product']
 status: in-progress
 year: 2026
+cover: ../../assets/covers/lockedin.jpg
 featured: false
 order: 11
 ---

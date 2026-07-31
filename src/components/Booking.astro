@@ -1,0 +1,118 @@
+---
+import { site } from '../lib/site';
+
+/**
+ * Cal.com booking, styled to match the rest of the site.
+ *
+ * The embed script is third-party, so it is not loaded on page view. Picking a
+ * call type is what pulls it in, which keeps the initial load free of it.
+ * Without JS the buttons are still plain links to the same Cal.com pages.
+ *
+ * Renders nothing at all when `site.booking.username` is empty, so the section
+ * can never ship pointing at a calendar that does not exist.
+ */
+const { username, events } = site.booking;
+const enabled = username.length > 0;
+---
+
+{
+  enabled && (
+    <div class="rounded-[var(--radius-card)] bg-paper-dim p-8 sm:p-10" data-reveal>
+      <p class="eyebrow">Book a time</p>
+      <h3 class="display-card mt-3">Prefer to talk it through?</h3>
+      <p class="lede mt-2 max-w-md">
+        Pick a call type and a slot that works for you. Thirty minutes, no charge.
+      </p>
+
+      <div class="mt-6 flex flex-wrap gap-2" role="group" aria-label="Call type">
+        {events.map((event, i) => (
+          <a
+            class:list={['btn btn-sm cal-option', i === 0 ? 'btn-ink' : 'btn-ghost']}
+            href={`https://cal.com/${username}/${event.slug}`}
+            data-cal-link={`${username}/${event.slug}`}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+          >
+            {event.label}
+            <span class="opacity-60">{event.duration}</span>
+          </a>
+        ))}
+      </div>
+
+      {/* The embed mounts here once a call type is chosen. */}
+      <div id="cal-inline" class="mt-8 min-h-0 overflow-hidden rounded-[var(--radius-card)]" />
+    </div>
+  )
+}
+
+{
+  enabled && (
+    <script is:inline define:vars={{ firstLink: `${username}/${events[0].slug}` }}>
+      (() => {
+        const options = document.querySelectorAll('.cal-option');
+        const mount = document.getElementById('cal-inline');
+        if (!options.length || !mount) return;
+
+        let loaded = false;
+
+        function loadCal() {
+          if (loaded) return Promise.resolve();
+          loaded = true;
+          return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://app.cal.com/embed/embed.js';
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+
+        async function show(calLink, button) {
+          options.forEach((o) => {
+            o.setAttribute('aria-pressed', String(o === button));
+            o.classList.toggle('btn-ink', o === button);
+            o.classList.toggle('btn-ghost', o !== button);
+          });
+
+          try {
+            await loadCal();
+          } catch {
+            // Embed blocked or offline. The links still work on their own.
+            return;
+          }
+
+          mount.innerHTML = '';
+          window.Cal('init', { origin: 'https://cal.com' });
+          window.Cal('inline', {
+            elementOrSelector: '#cal-inline',
+            calLink,
+            layout: 'month_view',
+          });
+          window.Cal('ui', {
+            theme: 'light',
+            cssVarsPerTheme: { light: { 'cal-brand': '#08b9d4' } },
+            hideEventTypeDetails: false,
+          });
+        }
+
+        options.forEach((option) => {
+          option.addEventListener('click', (event) => {
+            event.preventDefault();
+            show(option.dataset.calLink, option);
+          });
+        });
+
+        // Nothing loads until the section is actually reached.
+        const observer = new IntersectionObserver(
+          (entries) => {
+            if (!entries.some((e) => e.isIntersecting)) return;
+            observer.disconnect();
+            show(firstLink, options[0]);
+          },
+          { rootMargin: '200px' }
+        );
+        observer.observe(mount);
+      })();
+    </script>
+  )
+}

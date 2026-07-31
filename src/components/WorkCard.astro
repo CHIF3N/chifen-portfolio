@@ -1,15 +1,18 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
 import VerifyText from './VerifyText.astro';
 import { withBase } from '../lib/url';
 
 interface Props {
   entry: CollectionEntry<'work'>;
   delay?: number;
+  /** Position in the grid, rendered as the 01 / 02 ordinal. */
+  index?: number;
 }
 
-const { entry, delay = 0 } = Astro.props;
-const { title, summary, tags, status, year, liveUrl, metrics, role } = entry.data;
+const { entry, delay = 0, index } = Astro.props;
+const { title, summary, tags, status, year, liveUrl, metrics, role, cover } = entry.data;
 
 const statusLabel: Record<string, string> = {
   live: 'Live',
@@ -17,79 +20,102 @@ const statusLabel: Record<string, string> = {
   'in-progress': 'Building',
   concept: 'Concept',
 };
+
+const ordinal = index === undefined ? null : String(index + 1).padStart(2, '0');
 ---
 
 <article
   data-reveal
   style={`--reveal-delay:${delay}ms`}
-  class="group relative flex flex-col rounded-2xl border border-ink/10 bg-white/60 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-amber/50 hover:shadow-[0_16px_40px_-24px_rgba(10,42,51,0.5)] sm:p-7"
+  class="card-dark group"
 >
-  <div class="flex items-center gap-3">
-    <span
-      class:list={[
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
-        status === 'live'
-          ? 'bg-amber/15 text-ink'
-          : status === 'in-progress'
-            ? 'bg-ink/8 text-slate'
-            : 'bg-ink/5 text-slate',
-      ]}
-    >
-      {
-        status === 'live' && (
-          <span class="relative flex h-1.5 w-1.5">
-            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber opacity-70" />
-            <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber" />
-          </span>
-        )
-      }
-      {statusLabel[status]}
-    </span>
-    <span class="text-xs text-slate-light">{year}</span>
-  </div>
-
-  <h3 class="mt-4 font-display text-2xl font-semibold">
-    <a href={withBase(`/work/${entry.id}`)} class="after:absolute after:inset-0">
-      {title}
-    </a>
-  </h3>
-
-  <p class="mt-1 text-sm text-slate-light">{role}</p>
-  <p class="mt-3 grow text-[0.95rem] leading-relaxed text-slate">{summary}</p>
-
   {
-    metrics.length > 0 && (
-      <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-ink/8 pt-4">
-        {metrics.slice(0, 3).map((metric) => (
-          <li class="font-display text-sm font-medium text-ink">
-            <VerifyText text={metric} />
-          </li>
-        ))}
-      </ul>
+    cover ? (
+      <div class="relative aspect-[16/10] overflow-hidden">
+        <Image
+          src={cover}
+          alt=""
+          widths={[400, 700, 1000]}
+          sizes="(max-width: 640px) 92vw, 44vw"
+          class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+      </div>
+    ) : (
+      /* No cover art yet, so the panel carries the project name instead of an
+         empty image box. */
+      <div class="relative flex aspect-[16/10] items-end overflow-hidden bg-ink-700 p-6">
+        <span
+          class="font-display text-6xl leading-none font-bold text-paper/12 uppercase sm:text-7xl"
+          aria-hidden="true"
+        >
+          {title}
+        </span>
+      </div>
     )
   }
 
-  <div class="mt-5 flex items-center justify-between">
-    <ul class="flex flex-wrap gap-1.5">
-      {
-        tags.slice(0, 3).map((tag) => (
-          <li class="rounded-full bg-ink/5 px-2.5 py-1 text-xs text-slate">{tag}</li>
-        ))
-      }
-    </ul>
+  <div class="flex grow flex-col p-6 sm:p-7">
+    <div class="flex items-center gap-3">
+      {ordinal && <span class="ordinal text-paper/40">{ordinal}</span>}
+      <span
+        class:list={[
+          'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
+          status === 'live' ? 'bg-accent text-ink' : 'bg-paper/10 text-paper/70',
+        ]}
+      >
+        {
+          status === 'live' && (
+            <span class="relative flex h-1.5 w-1.5">
+              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-ink opacity-60" />
+              <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-ink" />
+            </span>
+          )
+        }
+        {statusLabel[status]}
+      </span>
+      <span class="ordinal ml-auto text-paper/40">{year}</span>
+    </div>
+
+    <h3 class="display-card mt-4 text-paper">
+      <a href={withBase(`/work/${entry.id}`)} class="after:absolute after:inset-0">
+        {title}
+      </a>
+    </h3>
+
+    <p class="body-sm mt-1 text-paper/50">{role}</p>
+    <p class="body-sm mt-3 grow text-paper/70">{summary}</p>
+
     {
-      liveUrl && (
-        <span class="relative z-10 text-xs font-medium text-slate-light">
-          <a
-            href={liveUrl}
-            target="_blank"
-            rel="noopener"
-            class="underline-offset-4 transition-colors hover:text-amber hover:underline"
-          >
-            Visit site
-          </a>
-        </span>
+      metrics.length > 0 && (
+        <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-paper/15 pt-4">
+          {metrics.slice(0, 3).map((metric) => (
+            <li class="font-display text-base font-medium text-paper uppercase">
+              <VerifyText text={metric} />
+            </li>
+          ))}
+        </ul>
       )
     }
+
+    <div class="mt-5 flex items-center justify-between gap-4">
+      <ul class="flex flex-wrap gap-1.5">
+        {
+          tags.slice(0, 3).map((tag) => (
+            <li class="rounded-full border border-paper/20 px-2.5 py-1 text-xs font-medium text-paper/60">
+              {tag}
+            </li>
+          ))
+        }
+      </ul>
+      {
+        liveUrl && (
+          <span class="relative z-10 shrink-0 text-xs font-semibold text-accent">
+            <a href={liveUrl} target="_blank" rel="noopener" class="underline-offset-4 hover:underline">
+              Visit site
+            </a>
+          </span>
+        )
+      }
+    </div>
   </div>
 </article>

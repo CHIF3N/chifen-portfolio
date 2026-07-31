@@ -1,0 +1,33 @@
+---
+/**
+ * Thin scrolling strip of capability chips, each with a tick. Sits directly
+ * under a page hero, framed by hairlines and corner marks.
+ */
+interface Props {
+  items: string[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="framed">
+  <span class="corner-tr" aria-hidden="true">✦</span>
+  <span class="corner-bl" aria-hidden="true">✦</span>
+
+  <div class="marquee py-4">
+    {
+      [0, 1].map((copy) => (
+        <div class="marquee-track" aria-hidden={copy === 1 ? 'true' : undefined}>
+          {items.map((item) => (
+            <span class="chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              {item}
+            </span>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>

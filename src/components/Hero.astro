@@ -1,120 +1,48 @@
 ---
-import { Image } from 'astro:assets';
-import portrait from '../assets/photos/chifen-signature.jpg';
+import Scene3D from './Scene3D.astro';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
 ---
 
-<section class="relative overflow-hidden bg-ink text-paper">
-  <div
-    class="pointer-events-none absolute -top-40 -right-32 h-[32rem] w-[32rem] rounded-full bg-amber/10 blur-3xl"
-    aria-hidden="true"
-  >
-  </div>
+<section class="shell pt-10 pb-16 sm:pt-16 sm:pb-24">
+  <p class="hero-line eyebrow flex items-center gap-2.5" style="--i:0">
+    <span class="relative flex h-2 w-2">
+      <span
+        class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-70"
+      ></span>
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+    </span>
+    Hi, I'm Chifen &mdash; {site.location}
+  </p>
 
-  <div class="relative mx-auto max-w-6xl px-5 pt-16 pb-20 sm:px-8 sm:pt-24 sm:pb-28">
-    <div class="grid items-center gap-12 lg:grid-cols-[1.3fr_0.7fr] lg:gap-14">
-      <div>
-        <p class="hero-line flex items-center gap-2.5 text-sm text-paper/60" style="--i:0">
-          <span class="relative flex h-2 w-2">
-            <span
-              class="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber opacity-70"
-            ></span>
-            <span class="relative inline-flex h-2 w-2 rounded-full bg-amber"></span>
-          </span>
-          {site.location}
-        </p>
+  <h1 class="mt-6">
+    <span class="hero-line display-hero block" style="--i:1">Nurse</span>
 
-        <h1
-          class="hero-line mt-6 font-display text-[2.4rem] leading-[1.06] font-semibold tracking-tight sm:text-5xl lg:text-[3.4rem]"
-          style="--i:1"
-        >
-          I am a nurse who got tired of watching good care fail on{' '}
-          <span class="relative inline-block">
-            <span class="relative z-10">bad logistics</span>
-            <svg
-              class="hero-stroke absolute -bottom-1 left-0 w-full"
-              height="14"
-              viewBox="0 0 300 14"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M2 9.5C48 4.5 120 2.5 180 5.5C224 7.7 268 8.5 298 6"
-                stroke="var(--color-amber)"
-                stroke-width="4"
-                stroke-linecap="round"
-                fill="none"></path>
-            </svg>
-          </span>
-          , so I started building the fix.
-        </h1>
+    <!-- The middle band sits between the two hero words: portrait on the left,
+         the pitch and call to action on the right. -->
+    <span
+      class="hero-line my-4 flex flex-col gap-6 normal-case sm:my-6 md:flex-row md:items-end"
+      style="--i:2"
+    >
+      <!-- Sits between the two hero words, square-cornered, same as the reference. -->
+      <span class="block w-44 shrink-0 sm:w-56">
+        <Scene3D src="/scenes/scene-hero.mp4" rounded={false} label="Animated 3D illustration" />
+      </span>
 
-        <p class="hero-line mt-7 max-w-xl text-lg leading-relaxed text-paper/70" style="--i:2">
-          Blood that exists but can't be found in time. That's the kind of problem I build for:
-          real wards, real constraints, not demo conditions.
-        </p>
+      <span class="flex flex-col items-start gap-6">
+        <span class="lede block max-w-md">
+          From Buea, I build health technology that survives a real ward on a bad day. Blood donor
+          coordination, WhatsApp health services, and AI in clinical decision-making.
+        </span>
+        <a href={withBase('/work')} class="btn btn-accent">
+          See the work
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+      </span>
+    </span>
 
-        <div class="hero-line mt-9 flex flex-wrap items-center gap-3" style="--i:3">
-          <a
-            href={withBase('/work')}
-            class="group inline-flex items-center gap-2 rounded-full bg-amber px-6 py-3 font-medium text-ink transition-transform duration-200 hover:-translate-y-0.5"
-          >
-            See the work
-            <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
-          </a>
-          <a
-            href={withBase('/research')}
-            class="inline-flex items-center rounded-full border border-paper/25 px-6 py-3 font-medium text-paper transition-colors hover:border-amber hover:text-amber"
-          >
-            Read the research
-          </a>
-        </div>
-
-        <dl
-          class="hero-line mt-12 grid max-w-lg grid-cols-2 gap-x-6 gap-y-5 border-t border-paper/15 pt-7 sm:grid-cols-3"
-          style="--i:4"
-        >
-          <div>
-            <dt class="text-xs tracking-wider text-paper/45 uppercase">Currently</dt>
-            <dd class="mt-1 font-display text-base font-medium">Piloting LifeDrop in Buea</dd>
-          </div>
-          <div>
-            <dt class="text-xs tracking-wider text-paper/45 uppercase">Trained as</dt>
-            <dd class="mt-1 font-display text-base font-medium">Registered nurse, BSc</dd>
-          </div>
-          <div>
-            <dt class="text-xs tracking-wider text-paper/45 uppercase">Also</dt>
-            <dd class="mt-1 font-display text-base font-medium">Self-taught developer</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div class="hero-portrait relative mx-auto w-full max-w-sm lg:max-w-none">
-        <div class="relative overflow-hidden rounded-2xl">
-          <Image
-            src={portrait}
-            alt="Chifen Sama N."
-            widths={[400, 700, 900]}
-            sizes="(max-width: 1024px) 90vw, 34vw"
-            class="max-h-[34rem] w-full object-cover object-top"
-            loading="eager"
-            fetchpriority="high"
-          />
-          <div
-            class="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent"
-            aria-hidden="true"
-          >
-          </div>
-        </div>
-        <div
-          class="pointer-events-none absolute -inset-3 -z-10 rounded-3xl bg-amber/12 blur-2xl"
-          aria-hidden="true"
-        >
-        </div>
-      </div>
-    </div>
-  </div>
+    <span class="hero-line display-hero block" style="--i:3">Developer</span>
+  </h1>
 </section>
 
 <style>
@@ -122,88 +50,18 @@ import { withBase } from '../lib/url';
     :global(html.js) .hero-line {
       opacity: 0;
       animation: hero-rise 0.75s var(--ease-out-soft) forwards;
-      animation-delay: calc(var(--i) * 90ms + 60ms);
-    }
-
-    :global(html.js) .hero-portrait {
-      opacity: 0;
-      animation: hero-fade 1s var(--ease-out-soft) forwards;
-      animation-delay: 220ms;
-    }
-
-    /* The signature in the photo is real neon, so it lights up rather than fades in. */
-    :global(html.js) .hero-portrait::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 1rem;
-      background: radial-gradient(
-        60% 42% at 26% 40%,
-        rgba(242, 193, 121, 0.55),
-        transparent 70%
-      );
-      mix-blend-mode: screen;
-      opacity: 0;
-      animation: neon-flicker 2.4s var(--ease-out-soft) 0.5s forwards;
-      pointer-events: none;
-    }
-
-    .hero-stroke path {
-      stroke-dasharray: 320;
-      stroke-dashoffset: 320;
-      animation: draw-stroke 0.9s var(--ease-out-soft) 0.55s forwards;
+      animation-delay: calc(var(--i) * 110ms + 60ms);
     }
   }
 
   @keyframes hero-rise {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(24px);
     }
     to {
       opacity: 1;
       transform: none;
-    }
-  }
-
-  @keyframes hero-fade {
-    from {
-      opacity: 0;
-      transform: scale(1.03);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @keyframes neon-flicker {
-    0% {
-      opacity: 0;
-    }
-    12% {
-      opacity: 0.9;
-    }
-    18% {
-      opacity: 0.2;
-    }
-    26% {
-      opacity: 1;
-    }
-    34% {
-      opacity: 0.45;
-    }
-    46% {
-      opacity: 0.95;
-    }
-    100% {
-      opacity: 0.75;
-    }
-  }
-
-  @keyframes draw-stroke {
-    to {
-      stroke-dashoffset: 0;
     }
   }
 </style>

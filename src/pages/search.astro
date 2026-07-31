@@ -1,4 +1,4 @@
----
+﻿---
 import Base from '../layouts/Base.astro';
 ---
 
@@ -16,7 +16,7 @@ import Base from '../layouts/Base.astro';
         type="search"
         autocomplete="off"
         placeholder="Try WhatsApp, blood, or attitude"
-        class="w-full rounded-full border border-ink/15 bg-white/70 px-6 py-4 text-lg outline-none transition-colors placeholder:text-slate-light focus:border-amber"
+        class="w-full rounded-full border border-ink/15 bg-white/70 px-6 py-4 text-lg outline-none transition-colors placeholder:text-slate-light focus:border-accent"
       />
     </div>
 
@@ -92,7 +92,7 @@ import Base from '../layouts/Base.astro';
         (item: any) => `
         <li>
           <a href="${item.url}" class="group block py-6">
-            <h2 class="font-display text-xl font-semibold transition-colors group-hover:text-amber">
+            <h2 class="font-display text-xl font-semibold transition-colors group-hover:text-accent">
               ${escapeHtml(item.meta?.title ?? item.url)}
             </h2>
             <p class="mt-2 text-sm leading-relaxed text-slate">${item.excerpt}</p>

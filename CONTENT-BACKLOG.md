@@ -18,6 +18,8 @@ These have no real content yet, so their routes do not exist.
 - **Professional memberships** — nothing confirmed.
 - **Media and features** — nothing confirmed.
 - **Teaching and mentorship** — student mentorship and community training are mentioned in drafts but not documented anywhere with dates.
+- **Experience timeline** — the homepage section is built and hidden. It needs three real roles with organisation and years. Fill in the `experience` array in `src/pages/index.astro` and the section renders itself.
+- **Testimonial** — same, built and hidden. Needs one real quote with a real name, role, and organisation, from a colleague, partner hospital, or client. Fill in `testimonial` in `src/pages/index.astro`. There is also no 3D scene for this section yet.
 
 ## Projects held back
 

@@ -1,5 +1,6 @@
----
+﻿---
 import Base from '../layouts/Base.astro';
+import Booking from '../components/Booking.astro';
 import { site } from '../lib/site';
 ---
 
@@ -16,7 +17,7 @@ import { site } from '../lib/site';
 
     <div class="mt-12 grid gap-6 lg:grid-cols-2">
       <div class="rounded-2xl border border-ink/10 bg-white/60 p-6 sm:p-8" data-reveal>
-        <h2 class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
+        <h2 class="font-display text-xs font-semibold tracking-widest text-accent uppercase">
           Email
         </h2>
         <form id="email-form" class="mt-5 space-y-4">
@@ -27,7 +28,7 @@ import { site } from '../lib/site';
               name="name"
               type="text"
               required
-              class="mt-1.5 w-full rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-amber"
+              class="mt-1.5 w-full rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
             />
           </div>
           <div>
@@ -37,7 +38,7 @@ import { site } from '../lib/site';
               name="email"
               type="email"
               required
-              class="mt-1.5 w-full rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-amber"
+              class="mt-1.5 w-full rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
             />
           </div>
           <div>
@@ -48,7 +49,7 @@ import { site } from '../lib/site';
               type="text"
               placeholder="e.g. client work, research, saying hi"
               required
-              class="mt-1.5 w-full rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-amber"
+              class="mt-1.5 w-full rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
             />
           </div>
           <div>
@@ -58,7 +59,7 @@ import { site } from '../lib/site';
               name="message"
               rows="4"
               required
-              class="mt-1.5 w-full rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-amber"
+              class="mt-1.5 w-full rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
             ></textarea>
           </div>
           <button
@@ -71,7 +72,7 @@ import { site } from '../lib/site';
       </div>
 
       <div class="rounded-2xl border border-ink/10 bg-white/60 p-6 sm:p-8" data-reveal style="--reveal-delay:80ms">
-        <h2 class="font-display text-xs font-semibold tracking-widest text-amber uppercase">
+        <h2 class="font-display text-xs font-semibold tracking-widest text-accent uppercase">
           WhatsApp
         </h2>
         <p class="mt-3 text-sm text-slate">Fastest option. Type your message, it opens ready to send.</p>
@@ -81,12 +82,12 @@ import { site } from '../lib/site';
             id="wa-message"
             rows="8"
             placeholder="What's up?"
-            class="mt-1.5 w-full grow rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-amber"
+            class="mt-1.5 w-full grow rounded-lg border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
           ></textarea>
           <button
             id="wa-send"
             type="button"
-            class="mt-4 w-full rounded-full bg-amber px-6 py-3 font-medium text-ink transition-transform duration-200 hover:-translate-y-0.5"
+            class="mt-4 w-full rounded-full bg-accent px-6 py-3 font-medium text-ink transition-transform duration-200 hover:-translate-y-0.5"
           >
             Continue to WhatsApp
           </button>
@@ -94,18 +95,22 @@ import { site } from '../lib/site';
       </div>
     </div>
 
+    <div class="mt-8">
+      <Booking />
+    </div>
+
     <p class="mt-8 text-sm text-slate-light" data-reveal>
       Prefer to skip the form? Email directly at{' '}
       <a
         href={`mailto:${site.emails[0]}`}
-        class="font-medium text-ink underline-offset-4 hover:text-amber hover:underline"
+        class="font-medium text-ink underline-offset-4 hover:text-accent hover:underline"
       >
         {site.emails[0]}
       </a>{' '}
       or message{' '}
       <a
         href={site.whatsapp[0].href}
-        class="font-medium text-ink underline-offset-4 hover:text-amber hover:underline"
+        class="font-medium text-ink underline-offset-4 hover:text-accent hover:underline"
       >
         {site.whatsapp[0].label}
       </a>{' '}
@@ -123,7 +128,7 @@ import { site } from '../lib/site';
     const reason = document.getElementById('email-reason').value;
     const message = document.getElementById('email-message').value;
     const subject = `Portfolio contact: ${reason}`;
-    const body = `${message}\n\n— ${name} (${from})`;
+    const body = `${message}\n\nâ€” ${name} (${from})`;
     window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
 

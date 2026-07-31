@@ -1,0 +1,235 @@
+---
+/**
+ * The animated 3D slot.
+ *
+ * Pass `src` once real character art exists and it renders as an autoplaying,
+ * looping, muted video, which is how the reference site does it. Until then it
+ * falls back to a rendered SVG scene so the layout is never an empty box.
+ *
+ * Deliberately no third-party artwork: the fallback is drawn here, and `src`
+ * takes whatever Chifen commissions or renders himself.
+ */
+import { withBase } from '../lib/url';
+
+interface Props {
+  /** Path under /public, e.g. '/scenes/scene-hero.mp4'. Base path is applied here. */
+  src?: string;
+  /** Fallback scene to draw when there is no video yet. */
+  variant?: 'drop' | 'device' | 'orbit';
+  /** Describes the animation for screen readers. Decorative if omitted. */
+  label?: string;
+  /** CSS aspect-ratio for the frame. */
+  ratio?: string;
+  /** Corner rounding. The hero scene runs square-cornered, the rest are rounded. */
+  rounded?: boolean;
+  /** Speech bubble pinned to the top of the frame, as on the reference. */
+  bubble?: string;
+  /** Which side the bubble tail points from. */
+  bubbleSide?: 'left' | 'right';
+  class?: string;
+}
+
+const {
+  src,
+  variant = 'drop',
+  label,
+  ratio = '1 / 1',
+  rounded = true,
+  bubble,
+  bubbleSide = 'right',
+  class: className = '',
+} = Astro.props;
+---
+
+<div class:list={['relative', className]}>
+  {
+    bubble && (
+      <p
+        class:list={[
+          'bubble absolute -top-3 z-10 rounded-[18px] bg-ink px-5 py-3 font-display text-lg leading-none font-semibold text-paper uppercase',
+          bubbleSide === 'right' ? 'right-0 bubble-right' : 'left-0 bubble-left',
+        ]}
+      >
+        {bubble}
+      </p>
+    )
+  }
+
+  <div
+    class:list={['scene relative overflow-hidden bg-paper-dim', rounded && 'rounded-[30px]']}
+    style={`--scene-ratio:${ratio}`}
+    role={label ? 'img' : undefined}
+    aria-label={label}
+    aria-hidden={label ? undefined : 'true'}
+  >
+  {
+    src ? (
+      <video
+        class="h-full w-full object-cover"
+        src={withBase(src)}
+        autoplay
+        loop
+        muted
+        playsinline
+        preload="metadata"
+      />
+    ) : (
+      <svg class="h-full w-full" viewBox="0 0 400 400" fill="none">
+        <defs>
+          {/* Off-centre highlight fakes a single light source, which is what
+              sells the shapes as rendered rather than flat. */}
+          <radialGradient id={`glow-${variant}`} cx="34%" cy="26%" r="78%">
+            <stop offset="0%" stop-color="#8ef0ff" />
+            <stop offset="48%" stop-color="var(--color-accent)" />
+            <stop offset="100%" stop-color="#046b7d" />
+          </radialGradient>
+          <radialGradient id={`glow-dark-${variant}`} cx="36%" cy="24%" r="80%">
+            <stop offset="0%" stop-color="#4a4a4a" />
+            <stop offset="100%" stop-color="#0d0d0d" />
+          </radialGradient>
+          <radialGradient id={`sheen-${variant}`} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+          </radialGradient>
+          <filter id={`soft-${variant}`} x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="12" />
+          </filter>
+        </defs>
+
+        {/* Contact shadow on the floor, pulsing in time with the float. */}
+        <ellipse
+          class="scene-shadow"
+          cx="200"
+          cy="330"
+          rx="86"
+          ry="18"
+          fill="#000000"
+          opacity="0.16"
+          filter={`url(#soft-${variant})`}
+        />
+
+        {variant === 'drop' && (
+          <g class="scene-float">
+            {/* Droplet: circle with a drawn-up apex. */}
+            <path
+              d="M200 78c34 44 62 74 62 110a62 62 0 1 1-124 0c0-36 28-66 62-110z"
+              fill={`url(#glow-${variant})`}
+            />
+            <ellipse cx="176" cy="168" rx="24" ry="30" fill={`url(#sheen-${variant})`} />
+          </g>
+        )}
+
+        {variant === 'device' && (
+          <g class="scene-float">
+            <rect
+              x="140"
+              y="86"
+              width="120"
+              height="212"
+              rx="26"
+              fill={`url(#glow-dark-${variant})`}
+            />
+            <rect x="152" y="102" width="96" height="164" rx="14" fill={`url(#glow-${variant})`} />
+            <rect x="176" y="278" width="48" height="6" rx="3" fill="#ffffff" opacity="0.35" />
+            <ellipse cx="172" cy="132" rx="16" ry="22" fill={`url(#sheen-${variant})`} />
+          </g>
+        )}
+
+        {variant === 'orbit' && (
+          <g class="scene-float">
+            <circle cx="200" cy="196" r="74" fill={`url(#glow-${variant})`} />
+            <ellipse cx="176" cy="170" rx="22" ry="28" fill={`url(#sheen-${variant})`} />
+          </g>
+        )}
+
+        {/* Two satellites drifting on their own cycles, so the scene never
+            reads as a single looping bob. */}
+        <circle class="scene-orbit-a" cx="98" cy="120" r="17" fill="var(--color-ink)" />
+        <circle class="scene-orbit-b" cx="308" cy="248" r="12" fill="var(--color-accent)" />
+      </svg>
+    )
+  }
+  </div>
+</div>
+
+<style>
+  .scene {
+    aspect-ratio: var(--scene-ratio, 1 / 1);
+  }
+
+  /* Speech bubble tail, drawn as a rotated square tucked under the bubble. */
+  .bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    width: 16px;
+    height: 16px;
+    background-color: var(--color-ink);
+    transform: rotate(45deg);
+    border-radius: 3px;
+  }
+  .bubble-right::after {
+    right: 26px;
+  }
+  .bubble-left::after {
+    left: 26px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .scene-float {
+      animation: scene-bob 6s ease-in-out infinite;
+      transform-origin: 200px 200px;
+    }
+    .scene-shadow {
+      animation: scene-shadow 6s ease-in-out infinite;
+    }
+    .scene-orbit-a {
+      animation: scene-drift-a 9s ease-in-out infinite;
+    }
+    .scene-orbit-b {
+      animation: scene-drift-b 7s ease-in-out infinite;
+    }
+  }
+
+  @keyframes scene-bob {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-1.5deg);
+    }
+    50% {
+      transform: translateY(-18px) rotate(1.5deg);
+    }
+  }
+
+  @keyframes scene-shadow {
+    0%,
+    100% {
+      opacity: 0.16;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.09;
+      transform: scale(0.88);
+    }
+  }
+
+  @keyframes scene-drift-a {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(14px, -22px);
+    }
+  }
+
+  @keyframes scene-drift-b {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-18px, 16px);
+    }
+  }
+</style>
