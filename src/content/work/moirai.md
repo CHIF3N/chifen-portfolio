@@ -5,7 +5,9 @@ role: Developer, through Inkwave
 tags: ['web', 'client work', 'e-commerce']
 status: shipped
 year: 2026
-liveUrl: https://moirai-official.vercel.app
+# liveUrl removed 2026-07-31: https://moirai-official.vercel.app returns
+# DEPLOYMENT_NOT_FOUND from Vercel, so the deployment is gone rather than down.
+# Restore this line once the site is redeployed.
 featured: false
 order: 6
 metrics: ['9 page types', 'Client-editable CMS', 'Runs at zero hosting cost']

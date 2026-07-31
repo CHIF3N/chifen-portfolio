@@ -18,6 +18,7 @@ These have no real content yet, so their routes do not exist.
 - **Professional memberships** — nothing confirmed.
 - **Media and features** — nothing confirmed.
 - **Teaching and mentorship** — student mentorship and community training are mentioned in drafts but not documented anywhere with dates.
+- **Moirai live link** — `https://moirai-official.vercel.app` returns `DEPLOYMENT_NOT_FOUND`, so the Vercel deployment was removed. The `liveUrl` is commented out in `src/content/work/moirai.md`. Redeploy the site, then uncomment it and capture a cover image.
 - **Experience timeline** — the homepage section is built and hidden. It needs three real roles with organisation and years. Fill in the `experience` array in `src/pages/index.astro` and the section renders itself.
 - **Testimonial** — same, built and hidden. Needs one real quote with a real name, role, and organisation, from a colleague, partner hospital, or client. Fill in `testimonial` in `src/pages/index.astro`. There is also no 3D scene for this section yet.
 
