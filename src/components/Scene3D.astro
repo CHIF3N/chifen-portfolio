@@ -8,6 +8,12 @@
  *
  * Deliberately no third-party artwork: the fallback is drawn here, and `src`
  * takes whatever Chifen commissions or renders himself.
+ *
+ * The videos are by far the heaviest thing the site ships, so none of them go
+ * into the HTML as a real src. Every clip has a matching first-frame still at
+ * the same path with a .webp extension, which paints immediately; the script
+ * below attaches the video only when it is near the viewport, and never at all
+ * under 768px. Run `npm run posters` after adding or replacing a clip.
  */
 import { withBase } from '../lib/url';
 
@@ -26,6 +32,10 @@ interface Props {
   bubble?: string;
   /** Which side the bubble tail points from. */
   bubbleSide?: 'left' | 'right';
+  /** Still frame. Defaults to `src` with a .webp extension. */
+  poster?: string;
+  /** Attach the video on load instead of waiting for scroll. The hero uses it. */
+  eager?: boolean;
   class?: string;
 }
 
@@ -37,8 +47,14 @@ const {
   rounded = true,
   bubble,
   bubbleSide = 'right',
+  poster,
+  eager = false,
   class: className = '',
 } = Astro.props;
+
+// Derived rather than passed at every call site, because the stills are
+// generated from the clips themselves and always sit next to them.
+const posterSrc = src ? withBase(poster ?? src.replace(/\.mp4$/, '.webp')) : undefined;
 ---
 
 <div class:list={['relative', className]}>
@@ -64,15 +80,31 @@ const {
   >
   {
     src ? (
-      <video
-        class="h-full w-full object-cover"
-        src={withBase(src)}
-        autoplay
-        loop
-        muted
-        playsinline
-        preload="metadata"
-      />
+      <>
+        {/* The still is the clip's own first frame, so the video taking over is
+            not a visible swap. Below 768px this image is the whole scene. */}
+        <img
+          class="h-full w-full object-cover"
+          src={posterSrc}
+          alt=""
+          width="800"
+          height="450"
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+        <video
+          class="scene-video absolute inset-0 h-full w-full object-cover"
+          data-scene-video
+          data-src={withBase(src)}
+          data-eager={eager || undefined}
+          poster={posterSrc}
+          autoplay
+          loop
+          muted
+          playsinline
+          preload={eager ? 'auto' : 'none'}
+        />
+      </>
     ) : (
       <svg class="h-full w-full" viewBox="0 0 400 400" fill="none">
         <defs>
@@ -157,6 +189,15 @@ const {
     aspect-ratio: var(--scene-ratio, 1 / 1);
   }
 
+  /* Under 768px the still is the whole scene. The script never hands these a
+     src at that width, and hiding them as well means nothing already loaded can
+     flash back in if the viewport crosses under the breakpoint. */
+  @media (max-width: 767px) {
+    .scene-video {
+      display: none;
+    }
+  }
+
   /* Speech bubble tail, drawn as a rotated square tucked under the bubble. */
   .bubble::after {
     content: '';
@@ -233,3 +274,55 @@ const {
     }
   }
 </style>
+
+<script>
+  // Nothing here has a real src in the HTML, so a cold homepage downloads
+  // stills rather than several megabytes of video. The hero is attached as soon
+  // as this runs, everything else when it comes near the viewport, and none of
+  // it under 768px.
+  const desktop = window.matchMedia('(min-width: 768px)');
+  let observer = null;
+
+  function load(video) {
+    if (video.dataset.loaded || !video.dataset.src) return;
+    video.dataset.loaded = 'true';
+    video.src = video.dataset.src;
+    // The autoplay attribute does not fire for a source attached after parse,
+    // so ask directly. A browser that refuses just holds on the poster.
+    const started = video.play();
+    if (started) started.catch(() => {});
+  }
+
+  function start() {
+    if (!desktop.matches) return;
+    const videos = document.querySelectorAll('video[data-scene-video]');
+    if (!videos.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      videos.forEach(load);
+      return;
+    }
+
+    observer ??= new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          load(entry.target);
+          observer.unobserve(entry.target);
+        }
+      },
+      // Enough runway to buffer before the scene is actually on screen.
+      { rootMargin: '300px 0px' }
+    );
+
+    videos.forEach((video) => {
+      if (video.dataset.loaded) return;
+      if (video.dataset.eager) load(video);
+      else observer.observe(video);
+    });
+  }
+
+  start();
+  // A resize or rotation across the breakpoint picks up what now qualifies.
+  desktop.addEventListener('change', start);
+</script>

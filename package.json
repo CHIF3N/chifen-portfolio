@@ -12,7 +12,8 @@
     "astro": "astro",
     "new:post": "node scripts/new-post.mjs",
     "new:project": "node scripts/new-project.mjs",
-    "verify": "node scripts/collect-verify.mjs"
+    "verify": "node scripts/collect-verify.mjs",
+    "posters": "node scripts/make-posters.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",

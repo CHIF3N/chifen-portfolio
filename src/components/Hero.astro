@@ -26,7 +26,13 @@ import { withBase } from '../lib/url';
     >
       <!-- Sits between the two hero words, square-cornered, same as the reference. -->
       <span class="block w-44 shrink-0 sm:w-56">
-        <Scene3D src="/scenes/scene-hero.mp4" rounded={false} label="Animated 3D illustration" />
+        <!-- Above the fold, so it does not wait for the observer. -->
+        <Scene3D
+          src="/scenes/scene-hero.mp4"
+          rounded={false}
+          eager
+          label="Animated 3D illustration"
+        />
       </span>
 
       <span class="flex flex-col items-start gap-6">
