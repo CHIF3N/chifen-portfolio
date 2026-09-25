@@ -1,94 +1,141 @@
 ---
-title: Resolving Google Apps Script "This App Is Blocked" When Deploying Web Apps
-pubDate: 2026-09-25T17:27:00.000+01:00
-description: A step-by-step guide to bypassing Google's strict OAuth block by scoping manifests with @OnlyCurrentDoc and configuring container-bound scripts.
+title: "Bypassing the Feared 'This App is Blocked' Screen in Google Apps Script"
+description: "Fresh out of PyCon Cameroon, buzzing from Pedro's sessions on workspace automation, and trying to impress my boss with a slick web app—until Google slapped me with a wall of red security text."
+pubDate: 2026-09-22T14:00:00.000Z
 tags:
-  - bug-fix
   - google-apps-script
   - web-dev
   - troubleshooting
-cover: /images/blog/gemini-svg.svg
+  - pycon
+  - cameroon
 draft: false
 ---
 
-If you have ever built a Google Apps Script project, added an HTML frontend, and tried to deploy it as a Web App, chances are you've run headfirst into a red triangle and this message:
+PyCon Cameroon at the Giraffe Hotel in Yaoundé was three days of exactly the kind of energy that makes you want to go home and build something embarrassingly ambitious the same evening.
 
-> **"This app is blocked"**
+The Ndolé at the hotel restaurant was the kind of dish that feels like a hug to the heart — I had it twice. The sessions were sharp. And then there was Pedro Leão: very tall, very Brazilian, very insistent that we stop calling him Sir and stop shrinking in technical discussions like we needed permission to be in the room.
 
+Pedro's session on Google Workspace automation was the one that got me. He walked us through using Apps Script and AI to do things your boss currently does manually — daily reports, Sheets dashboards, automated summaries pushed to Gmail — and made it sound so easy that I was already planning my own version before he'd clicked to the next slide.
+
+The idea: a container-bound web app dashboard wired to a Google Sheet, pulling live project metrics, styled in dark mode, deployed as a Web App so anyone on the team could open it in a browser. Forty-eight hours after PyCon, I had something that looked the part. I clicked **Deploy → New deployment**. I copied the URL. I opened it.
+
+And Google handed me a wall of red text.
+
+> **This app is blocked.**  
 > *This app tried to access sensitive info in your Google Account. To keep your account safe, Google blocked this access.*
 
-Unlike the standard *"Google hasn't verified this app"* screen, there is no "Advanced" button to bypass this. You are completely locked out.
-
-Here is why this error occurs and how to fix it permanently.
+Not the usual *"Google hasn't verified this app"* screen where you can click Advanced and proceed like an adult. This was a full stop. No bypass button. No Advanced link. Just red, and a brick wall.
 
 ---
 
-### Why Does This Happen?
+## The Comedy of Errors That Followed
 
-Google triggers the outright block primarily due to three reasons:
+My first thought, I am not ashamed to say, was the internet connection. I am in Buea. MTN drops at least once a day. Camtel is what it is. Orange is technically there. I switched to hotspot. Same screen. I cleared my local DNS cache. Same screen. I tried a different browser. Same screen.
 
-1. **Overly Broad Scopes:** By default, Google Apps Script infers permissions. If you use services like `SpreadsheetApp`, it requests full read/write access across **all** files in your Google Drive. For unverified apps, Google's security policies block this automatically.
-2. **Standalone vs Container-Bound Scripts:** When a script is created as a standalone project (`script.google.com`) rather than bound directly to the sheet (`Extensions > Apps Script`), Google treats it as an untrusted third-party client.
-3. **Multi-Account Browser Collisions:** When logged into multiple Google accounts in one Chrome session, OAuth redirects frequently scramble project tokens.
+Then I remembered the multi-account issue Pedro had mentioned offhand — something about Chrome getting confused when you're logged into four Google accounts simultaneously and OAuth tokens start scrambling. Into Incognito I went, logged in with just one account.
+
+Same screen.
+
+I fiddled with the deployment settings. *Execute as: Me* versus *Execute as: User accessing the web app.* I tried both. I redeployed three times. I read the same Stack Overflow thread four times, each time hoping the answer would be different.
+
+It wasn't.
 
 ---
 
-### The Permanent Fix: 3 Files
+## Pedro Came Through on Discourse
 
-Here is the complete working setup — three files that together eliminate the block.
+I eventually posted in the PyCon Cameroon Discourse group, mildly embarrassed, describing the issue. Pedro replied within the hour. The message was short and surgically correct:
+
+> *"Your script is asking for too much. Apps Script reads your code, sees SpreadsheetApp, and requests full Drive-level permissions by default. Google blocks that for unverified apps. Use @OnlyCurrentDoc and lock your manifest scopes to .currentonly. Read the manifest. It's all in there."*
+
+That was the whole thing. Not a network issue. Not a multi-account collision. **Scope greed.**
+
+When Apps Script sees that you're using `SpreadsheetApp`, it requests `https://www.googleapis.com/auth/spreadsheets` — permission to read and write every spreadsheet in your entire Google account. For an unverified app (which is what yours is, unless you've gone through Google's OAuth verification process, which you haven't), that triggers an automated security block. Google doesn't even give you a chance to explain yourself.
+
+The fix is surgical: tell Apps Script exactly which document it's allowed to touch, and declare your scopes manually in the manifest instead of letting the compiler infer them.
+
+---
+
+## The Three-File Fix
+
+Here's the exact setup that went live. Three files, fully working.
 
 <CodeWorkbench
-  project="gas-webapp"
+  project="gas-dashboard"
   files={[
+    {
+      name: "appsscript.json",
+      lang: "json",
+      code: `{
+  "timeZone": "Africa/Douala",
+  "dependencies": {},
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "webapp": {
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE_ANONYMOUS"
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets.currentonly",
+    "https://www.googleapis.com/auth/script.container.ui"
+  ]
+}`
+    },
     {
       name: "Code.gs",
       lang: "javascript",
       code: `/**
  * @OnlyCurrentDoc
  *
- * The JSDoc tag above restricts Apps Script's OAuth scope to the
- * current spreadsheet only, instead of all Drive files.
- * This is the primary reason the "app is blocked" screen appears.
+ * This single annotation is the most important line in the file.
+ * It tells Apps Script's compiler to restrict all OAuth scope requests
+ * to the current document only — not the entire Google Drive.
+ * Without it, Google sees SpreadsheetApp and asks for god-mode.
  */
 
 function doGet() {
   return HtmlService.createTemplateFromFile('Index')
     .evaluate()
-    .setTitle('Dashboard')
+    .setTitle('Project Dashboard')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-// Called from the client via google.script.run
-function getSheetData() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet()
-    .getSheetByName('Data');
-  return sheet.getDataRange().getValues();
+/**
+ * Called from the client via google.script.run.
+ * Returns the first 50 rows of the 'Metrics' sheet as a 2D array.
+ */
+function getMetrics() {
+  const sheet = SpreadsheetApp
+    .getActiveSpreadsheet()
+    .getSheetByName('Metrics');
+
+  if (!sheet) {
+    return { error: 'Sheet "Metrics" not found.' };
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const rows = data.slice(1, 51); // cap at 50 rows
+
+  return {
+    headers: headers,
+    rows: rows,
+    updated: new Date().toISOString(),
+  };
 }
 
-function appendRow(rowData) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet()
-    .getSheetByName('Data');
-  sheet.appendRow(rowData);
-  return { ok: true, timestamp: new Date().toISOString() };
-}`
-    },
-    {
-      name: "appsscript.json",
-      lang: "json",
-      code: `{
-  "timeZone": "Africa/Lagos",
-  "dependencies": {},
-  "exceptionLogging": "STACKDRIVER",
-  "runtimeVersion": "V8",
-  "webapp": {
-    "executeAs": "USER_DEPLOYING",
-    "access": "MYSELF"
-  },
-  "oauthScopes": [
-    "https://www.googleapis.com/auth/spreadsheets.currentonly",
-    "https://www.googleapis.com/auth/script.container.ui"
-  ]
+/**
+ * Append a new row to the Metrics sheet.
+ * Called from the client when a user submits the form.
+ */
+function appendMetric(label, value) {
+  const sheet = SpreadsheetApp
+    .getActiveSpreadsheet()
+    .getSheetByName('Metrics');
+
+  sheet.appendRow([label, value, new Date().toISOString()]);
+  return { ok: true };
 }`
     },
     {
@@ -99,38 +146,170 @@ function appendRow(rowData) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard</title>
+  <title>Project Dashboard</title>
   <style>
-    body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 640px; margin: auto; }
-    #status { margin-top: 1rem; color: #555; font-size: 0.9rem; }
-    button  { padding: 0.5rem 1rem; cursor: pointer; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 680px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: #7d8590;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7d8590;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #58a6ff;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+    }
+    .status--ok  { background: rgba(40,200,64,0.15); color: #3fb950; }
+    .status--err { background: rgba(248,81,73,0.15);  color: #f85149; }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+      padding: 0.55rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: transparent;
+      color: #e6edf3;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    button:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.25); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #log {
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      color: #7d8590;
+      min-height: 1.2em;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.82rem; }
+    th { text-align: left; color: #7d8590; font-weight: 600; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    td { padding: 0.45rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    tr:last-child td { border-bottom: none; }
   </style>
 </head>
 <body>
-  <h1>Sheet Dashboard</h1>
-  <button onclick="loadData()">Load Data</button>
-  <div id="output"></div>
-  <p id="status"></p>
+  <div class="container">
+    <h1>Project Dashboard</h1>
+    <p class="subtitle">Live metrics from Google Sheets · Built after PyCon Cameroon</p>
+
+    <div class="card">
+      <p class="card-label">Connection status</p>
+      <span class="status status--ok" id="conn-status">
+        <span class="dot"></span> Connected
+      </span>
+    </div>
+
+    <div class="card">
+      <p class="card-label">Metrics</p>
+      <div id="table-wrap"><p style="color:#7d8590;font-size:.85rem;">Click Load to fetch data.</p></div>
+      <button id="load-btn" onclick="loadMetrics()">
+        ↻ Load metrics
+      </button>
+      <p id="log"></p>
+    </div>
+  </div>
 
   <script>
-    function loadData() {
-      document.getElementById('status').textContent = 'Loading…';
+    function loadMetrics() {
+      const btn = document.getElementById('load-btn');
+      const log = document.getElementById('log');
+      btn.disabled = true;
+      log.textContent = 'Fetching from sheet…';
 
-      // google.script.run executes server-side functions asynchronously.
       google.script.run
-        .withSuccessHandler(function (rows) {
-          const out = document.getElementById('output');
-          out.innerHTML = rows
-            .map(row => '<p>' + row.join(' | ') + '</p>')
-            .join('');
-          document.getElementById('status').textContent =
-            rows.length + ' rows loaded.';
+        .withSuccessHandler(function(result) {
+          btn.disabled = false;
+
+          if (result.error) {
+            log.textContent = 'Error: ' + result.error;
+            return;
+          }
+
+          const wrap = document.getElementById('table-wrap');
+          const table = document.createElement('table');
+
+          const thead = table.createTHead();
+          const hrow  = thead.insertRow();
+          result.headers.forEach(function(h) {
+            const th = document.createElement('th');
+            th.textContent = h;
+            hrow.appendChild(th);
+          });
+
+          const tbody = table.createTBody();
+          result.rows.forEach(function(row) {
+            const tr = tbody.insertRow();
+            row.forEach(function(cell) {
+              const td = tr.insertCell();
+              td.textContent = cell;
+            });
+          });
+
+          wrap.innerHTML = '';
+          wrap.appendChild(table);
+          log.textContent = 'Last updated: ' + new Date(result.updated).toLocaleTimeString();
         })
-        .withFailureHandler(function (err) {
-          document.getElementById('status').textContent =
-            'Error: ' + err.message;
+        .withFailureHandler(function(err) {
+          btn.disabled = false;
+          log.textContent = 'Failed: ' + err.message;
         })
-        .getSheetData();
+        .getMetrics();
     }
   </script>
 </body>
@@ -141,31 +320,38 @@ function appendRow(rowData) {
 
 ---
 
-### Step-by-Step Deployment
+## Making It Work: The Steps Nobody Puts First
 
-#### 1. Use a Container-Bound Script
+There are two things most tutorials bury at the bottom that actually need to happen first.
 
-Open your Google Sheet and go to **Extensions > Apps Script**. Do **not** create a new project at `script.google.com`. Scripts bound to the sheet inherit its trust context and avoid the block.
+**Show the manifest.** In the Apps Script editor, go to **Project Settings** and tick *"Show 'appsscript.json' manifest file in editor."* The manifest is hidden by default. You cannot edit what you cannot see.
 
-#### 2. Expose `appsscript.json` in the Editor
+**Create the script from inside the Sheet.** Go to **Extensions > Apps Script** from within your Google Sheet — not from `script.google.com`. A script created that way is container-bound. It inherits the Sheet's trust context. A standalone script is treated like an untrusted third-party client and gets blocked regardless of what's in the manifest.
 
-In the Apps Script editor, go to **Project Settings** and enable **"Show 'appsscript.json' manifest file in editor"**. Paste the JSON above, setting the two `oauthScopes` explicitly.
-
-#### 3. Deploy as a Web App
-
-Click **Deploy > New deployment**, choose **Web App**, set:
-- **Execute as:** Me
-- **Who has access:** Only myself (or your org)
-
-Copy the deployment URL and open it in a clean Incognito window logged into one Google account only.
+Once both are in place, deploy under **Execute as: Me**, paste the URL into a fresh Incognito tab, and the wall of red will be gone.
 
 ---
 
-### Quick Reference
+## The Live Version
 
-| Cause | Fix |
-|---|---|
-| Overly broad Drive scopes | Add `@OnlyCurrentDoc` to `Code.gs` |
-| Missing explicit scopes | Declare `oauthScopes` in `appsscript.json` |
-| Standalone script | Re-create as container-bound via `Extensions > Apps Script` |
-| Multi-account collision | Open deployment URL in Incognito with one account only |
+This isn't hypothetical. The dashboard is deployed and accessible here:
+
+**[→ Open the live App](https://script.google.com/macros/s/AKfycbyqavrCzXQ-UR2P3pGkDYmIjMnpgZakpUmS77OrVAEUowinbE-Gzw3ytJNWQH2PabtGVw/exec)**
+
+It pulls from a real Metrics sheet and the dark-mode interface took about two hours to build after PyCon, fuelled by Ndolé and a determination not to let a red screen win.
+
+---
+
+## What Pedro Was Actually Telling Us
+
+There's a broader point in all of this that Pedro made explicitly and I think about often.
+
+When the red screen appeared, my first instinct was to assume I'd done something wrong that I simply wasn't qualified to fix. That the error meant I didn't belong doing this kind of work. That I should close the tab and go back to whatever I was doing before.
+
+That is exactly what he told us not to do.
+
+*Read the manifest. Inspect the scopes. The information is there. You are not missing some secret that is only available to people at companies with T-shirts and ergonomic chairs.*
+
+The scope greed was fixable in two lines of code. The wall was intimidating, not insurmountable. Claiming your seat at the table means staying in your chair when Google shows you a brick wall, reading what the error actually says, and fixing it.
+
+Drop the Sir. Read the manifest. Ship the thing.
