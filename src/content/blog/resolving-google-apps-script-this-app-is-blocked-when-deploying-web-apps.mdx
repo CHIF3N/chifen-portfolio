@@ -1,0 +1,91 @@
+---
+title: Resolving Google Apps Script "This App Is Blocked" When Deploying Web Apps
+pubDate: 2026-09-25T17:27:00.000+01:00
+description: A step-by-step guide to bypassing Google's strict OAuth block by scoping manifests with @OnlyCurrentDoc and configuring container-bound scripts.
+tags:
+  - bug-fix
+  - google-apps-script,
+  - web-dev,
+  - troubleshooting
+cover: /images/blog/gemini-svg.svg
+draft: false
+---
+
+If you have ever built a Google Apps Script project, added an HTML frontend, and tried to deploy it as a Web App, chances are you’ve run headfirst into a red triangle and this message:
+
+> \*\*"This app is blocked"\*\*  
+
+> \*This app tried to access sensitive info in your Google Account. To keep your account safe, Google blocked this access.\*
+
+Unlike the standard \*"Google hasn't verified this app"\* screen, there is no "Advanced" button to bypass this. You are completely locked out.
+
+Here is why this error occurs and how to fix it permanently.
+
+---
+
+### Why Does This Happen?
+
+Google triggers the outright block primarily due to three reasons:
+
+1. \*\*Overly Broad Scopes:\*\* By default, Google Apps Script infers permissions. If you use services like \`SpreadsheetApp\`, it requests full read/write access across \*\*all\*\* files in your Google Drive. For unverified apps, Google’s security policies block this automatically.
+
+2. \*\*Standalone vs Container-Bound Scripts:\*\* When a script is created as a standalone project (\`script.google.com\`) rather than bound directly to the sheet (\`Extensions > Apps Script\`), Google treats it as an untrusted third-party client.
+
+3. \*\*Multi-Account Browser Collisions:\*\* When logged into multiple Google accounts in one Chrome session, OAuth redirects frequently scramble project tokens.
+
+---
+
+### The Permanent Fix: 3 Steps
+
+#### 1. Add the \`@OnlyCurrentDoc\` Guard
+
+At the very top of your \`Code.gs\` file, declare the \`@OnlyCurrentDoc\` JSDoc tag. This instructs Apps Script's compiler to restrict scope requests strictly to the active spreadsheet rather than your entire Drive.
+
+\`\`\`javascript
+
+/\*\*
+
+ \* @OnlyCurrentDoc
+
+ \*/
+
+function doGet() {
+
+  return HtmlService.createTemplateFromFile('Index')
+
+    .evaluate()
+
+    .setTitle('Dashboard')
+
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+
+}
+`{`
+
+`  "timeZone": "Africa/Lagos",`
+
+`  "dependencies": {},`
+
+`  "exceptionLogging": "STACKDRIVER",`
+
+`  "runtimeVersion": "V8",`
+
+`  "webapp": {`
+
+`    "executeAs": "USER_DEPLOYING",`
+
+`    "access": "MYSELF"`
+
+`  },`
+
+`  "oauthScopes": [`
+
+`    "[https://www.googleapis.com/auth/spreadsheets.currentonly](https://www.googleapis.com/auth/spreadsheets.currentonly)",`
+
+`    "[https://www.googleapis.com/auth/script.container.ui](https://www.googleapis.com/auth/script.container.ui)"`
+
+`  ]`
+
+`}`
