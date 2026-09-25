@@ -1,43 +1,28 @@
 ---
-/**
- * The animated 3D slot.
- *
- * Video tracks have been removed entirely. Each scene now renders a dark
- * technical developer backdrop (radial-gradient ambient glow + SVG dot-grid)
- * with zero render-blocking asset weight, plus the floating SVG illustration.
- */
-
+// src/components/Scene3D.astro
 interface Props {
-  /** Fallback scene to draw. */
-  variant?: 'drop' | 'device' | 'orbit';
-  /** Describes the animation for screen readers. Decorative if omitted. */
-  label?: string;
-  /** CSS aspect-ratio for the frame. */
-  ratio?: string;
-  /** Corner rounding. The hero scene runs square-cornered, the rest are rounded. */
-  rounded?: boolean;
-  /** Speech bubble pinned to the top of the frame. */
-  bubble?: string;
-  /** Which side the bubble tail points from. */
-  bubbleSide?: 'left' | 'right';
   class?: string;
-  /** @deprecated mp4 src is no longer used – pass nothing. */
   src?: string;
+  rounded?: boolean;
+  label?: string;
+  ratio?: string;
+  bubble?: string;
+  bubbleSide?: 'left' | 'right';
+  variant?: string;
+  [key: string]: any;
 }
 
 const {
-  variant = 'drop',
+  class: className = '',
+  src = '/scenes/hero.mp4',
+  rounded = true,
   label,
   ratio = '1 / 1',
-  rounded = true,
   bubble,
   bubbleSide = 'right',
-  class: className = '',
-  // src is accepted so existing call-sites don't break at build time, but it is ignored.
 } = Astro.props;
 
-// Unique ID per instance (server-rendered, safe for SSG).
-const uid = `sc-${variant}-${Math.random().toString(36).slice(2, 7)}`;
+const videoSrc = src || '/scenes/hero.mp4';
 ---
 
 <div class:list={['relative', className]}>
@@ -55,202 +40,51 @@ const uid = `sc-${variant}-${Math.random().toString(36).slice(2, 7)}`;
   }
 
   <div
-    class:list={['scene relative overflow-hidden', rounded && 'rounded-[30px]']}
-    style={`--scene-ratio:${ratio}`}
+    class:list={[
+      'scene relative w-full h-full overflow-hidden bg-[#0a0a0f]',
+      rounded && 'rounded-[30px]',
+    ]}
+    style={`--scene-ratio:${ratio}; aspect-ratio: var(--scene-ratio, 1 / 1);`}
     role={label ? 'img' : undefined}
     aria-label={label}
-    aria-hidden={label ? undefined : 'true'}
   >
-    {/* ── Dark tech backdrop: deep gradient + translucent dot-grid ── */}
-    <div class="scene-backdrop" aria-hidden="true"></div>
-    <svg class="scene-dotgrid" viewBox="0 0 200 200" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <pattern id={`dots-${uid}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-          <circle cx="1" cy="1" r="1" fill="currentColor" />
-        </pattern>
-      </defs>
-      <rect width="200" height="200" fill={`url(#dots-${uid})`} />
-    </svg>
+    <!-- Direct video stream: no data-saver gating -->
+    <video
+      src={videoSrc}
+      autoplay
+      loop
+      muted
+      playsinline
+      preload="auto"
+      class="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-80"
+    ></video>
 
-    {/* ── Floating illustration SVG ── */}
-    <svg class="scene-art h-full w-full" viewBox="0 0 400 400" fill="none">
-      <defs>
-        <radialGradient id={`glow-${uid}`} cx="34%" cy="26%" r="78%">
-          <stop offset="0%" stop-color="#8ef0ff" />
-          <stop offset="48%" stop-color="var(--color-accent)" />
-          <stop offset="100%" stop-color="#046b7d" />
-        </radialGradient>
-        <radialGradient id={`glow-dark-${uid}`} cx="36%" cy="24%" r="80%">
-          <stop offset="0%" stop-color="#4a4a4a" />
-          <stop offset="100%" stop-color="#0d0d0d" />
-        </radialGradient>
-        <radialGradient id={`sheen-${uid}`} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
-          <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
-        </radialGradient>
-        <filter id={`soft-${uid}`} x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="12" />
-        </filter>
-      </defs>
-
-      {/* Contact shadow */}
-      <ellipse
-        class="scene-shadow"
-        cx="200"
-        cy="330"
-        rx="86"
-        ry="18"
-        fill="#000000"
-        opacity="0.16"
-        filter={`url(#soft-${uid})`}
-      />
-
-      {variant === 'drop' && (
-        <g class="scene-float">
-          <path
-            d="M200 78c34 44 62 74 62 110a62 62 0 1 1-124 0c0-36 28-66 62-110z"
-            fill={`url(#glow-${uid})`}
-          />
-          <ellipse cx="176" cy="168" rx="24" ry="30" fill={`url(#sheen-${uid})`} />
-        </g>
-      )}
-
-      {variant === 'device' && (
-        <g class="scene-float">
-          <rect x="140" y="86" width="120" height="212" rx="26" fill={`url(#glow-dark-${uid})`} />
-          <rect x="152" y="102" width="96" height="164" rx="14" fill={`url(#glow-${uid})`} />
-          <rect x="176" y="278" width="48" height="6" rx="3" fill="#ffffff" opacity="0.35" />
-          <ellipse cx="172" cy="132" rx="16" ry="22" fill={`url(#sheen-${uid})`} />
-        </g>
-      )}
-
-      {variant === 'orbit' && (
-        <g class="scene-float">
-          <circle cx="200" cy="196" r="74" fill={`url(#glow-${uid})`} />
-          <ellipse cx="176" cy="170" rx="22" ry="28" fill={`url(#sheen-${uid})`} />
-        </g>
-      )}
-
-      <circle class="scene-orbit-a" cx="98" cy="120" r="17" fill="var(--color-ink)" />
-      <circle class="scene-orbit-b" cx="308" cy="248" r="12" fill="var(--color-accent)" />
-    </svg>
+    <!-- Subtle dark overlay gradient for readability -->
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-transparent via-[#0d1117]/40 to-[#0d1117] pointer-events-none"
+    ></div>
   </div>
 </div>
 
 <style>
   .scene {
     aspect-ratio: var(--scene-ratio, 1 / 1);
-    background: transparent;
-  }
-
-  /* ── Radial gradient backdrop: deep dark indigo/violet ambient glow ── */
-  .scene-backdrop {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-        ellipse 80% 60% at 30% 20%,
-        rgba(99, 66, 212, 0.22) 0%,
-        transparent 65%
-      ),
-      radial-gradient(
-        ellipse 60% 70% at 70% 80%,
-        rgba(14, 165, 233, 0.12) 0%,
-        transparent 60%
-      ),
-      linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #1a1333 100%);
-    z-index: 0;
-  }
-
-  /* ── SVG dot-grid overlay at ~17% opacity ── */
-  .scene-dotgrid {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    color: rgba(255, 255, 255, 0.17);
-    z-index: 1;
-    pointer-events: none;
-  }
-
-  /* ── Floating art sits above both layers ── */
-  .scene-art {
-    position: relative;
-    z-index: 2;
   }
 
   /* Speech bubble tail */
   .bubble::after {
     content: '';
     position: absolute;
-    bottom: -5px;
-    width: 16px;
-    height: 16px;
-    background-color: var(--color-ink);
+    bottom: -6px;
+    width: 12px;
+    height: 12px;
+    background: var(--color-ink, #000);
     transform: rotate(45deg);
-    border-radius: 3px;
   }
   .bubble-right::after {
-    right: 26px;
+    right: 24px;
   }
   .bubble-left::after {
-    left: 26px;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .scene-float {
-      animation: scene-bob 6s ease-in-out infinite;
-      transform-origin: 200px 200px;
-    }
-    .scene-shadow {
-      animation: scene-shadow 6s ease-in-out infinite;
-    }
-    .scene-orbit-a {
-      animation: scene-drift-a 9s ease-in-out infinite;
-    }
-    .scene-orbit-b {
-      animation: scene-drift-b 7s ease-in-out infinite;
-    }
-  }
-
-  @keyframes scene-bob {
-    0%,
-    100% {
-      transform: translateY(0) rotate(-1.5deg);
-    }
-    50% {
-      transform: translateY(-18px) rotate(1.5deg);
-    }
-  }
-
-  @keyframes scene-shadow {
-    0%,
-    100% {
-      opacity: 0.16;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.09;
-      transform: scale(0.88);
-    }
-  }
-
-  @keyframes scene-drift-a {
-    0%,
-    100% {
-      transform: translate(0, 0);
-    }
-    50% {
-      transform: translate(14px, -22px);
-    }
-  }
-
-  @keyframes scene-drift-b {
-    0%,
-    100% {
-      transform: translate(0, 0);
-    }
-    50% {
-      transform: translate(-18px, 16px);
-    }
+    left: 24px;
   }
 </style>
