@@ -23,16 +23,25 @@
 export interface WorkbenchFile {
   name: string;
   /** Language hint: javascript | typescript | json | bash | yaml | html | css | nginx | dockerfile */
-  lang: string;
+  lang?: string;
+  language?: string;
   code: string;
 }
 
 interface Props {
   project?: string;
+  title?: string;
   files: WorkbenchFile[];
 }
 
-const { project = 'project', files } = Astro.props;
+const { project: projectProp, title: titleProp, files: rawFiles = [] } = Astro.props;
+const project = projectProp ?? titleProp ?? 'project';
+
+const files = rawFiles.map(f => ({
+  name: f.name,
+  lang: f.lang ?? f.language ?? 'text',
+  code: f.code ?? '',
+}));
 
 const uid = `wb-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -42,7 +51,8 @@ const langColor: Record<string, string> = {
   html: '#e34c26', css: '#563d7c', mdx: '#f97316', md: '#f97316',
   dockerfile: '#2496ed', nginx: '#009639',
 };
-function extColor(lang: string): string {
+function extColor(lang?: string): string {
+  if (!lang) return '#abb2bf';
   return langColor[lang.toLowerCase()] ?? '#abb2bf';
 }
 
@@ -51,7 +61,8 @@ const langLabel: Record<string, string> = {
   yaml: 'YAML', yml: 'YAML', html: 'HTML', css: 'CSS', mdx: 'MDX', md: 'MD',
   dockerfile: 'Docker', nginx: 'NGINX',
 };
-function extLabel(lang: string): string {
+function extLabel(lang?: string): string {
+  if (!lang) return 'FILE';
   return langLabel[lang.toLowerCase()] ?? lang.toUpperCase().slice(0, 6);
 }
 
