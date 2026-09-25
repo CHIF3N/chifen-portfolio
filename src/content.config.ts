@@ -25,16 +25,15 @@ const work = defineCollection({
 
 const blog = defineCollection({
   loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      description: z.string(),
-      pubDate: z.coerce.date(),
-      updated: z.coerce.date().optional(),
-      tags: z.array(z.string()).default([]),
-      draft: z.boolean().default(true),
-      cover: image().optional(),
-    }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.coerce.date(),
+    updated: z.coerce.date().optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+    cover: z.string().optional().nullable(),
+  }),
 });
 
 const research = defineCollection({
