@@ -2,10 +2,6 @@ backend:
   name: github
   repo: Chif99/chifen-portfolio
   branch: main
-  base_url: https://sveltia-cms-auth.vercel.app
-
-# Local proxy for local development (uncomment when running `npx decap-server`)
-# local_backend: true
 
 media_folder: "public/images/blog"
 public_folder: "/images/blog"
@@ -40,5 +36,5 @@ collections:
       - label: "Draft"
         name: "draft"
         widget: "boolean"
-        default: true
+        default: false
       - { label: "Body", name: "body", widget: "markdown" }
