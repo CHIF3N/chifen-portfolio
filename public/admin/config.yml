@@ -2,6 +2,7 @@ backend:
   name: github
   repo: Chif99/chifen-portfolio
   branch: main
+  base_url: https://sveltia-cms-auth.vercel.app
 
 # Local proxy for local development (uncomment when running `npx decap-server`)
 # local_backend: true
