@@ -1,0 +1,44 @@
+backend:
+  name: github
+  repo: Chif99/chifen-portfolio
+  branch: main
+
+# Local proxy for local development (uncomment when running `npx decap-server`)
+# local_backend: true
+
+media_folder: "public/images/blog"
+public_folder: "/images/blog"
+
+collections:
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "src/content/blog"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    extension: "mdx"
+    format: "frontmatter"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Publish Date"
+        name: "pubDate"
+        widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: "HH:mm"
+        format: "YYYY-MM-DDTHH:mm:ss.000Z"
+      - { label: "Description / Summary", name: "description", widget: "text" }
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        default: ["bug-fix"]
+        allow_add: true
+      - label: "Cover Image"
+        name: "cover"
+        widget: "image"
+        required: false
+        allow_multiple: false
+      - label: "Draft"
+        name: "draft"
+        widget: "boolean"
+        default: true
+      - { label: "Body", name: "body", widget: "markdown" }

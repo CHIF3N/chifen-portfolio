@@ -1,0 +1,231 @@
+---
+/**
+ * Callout.astro
+ * ──────────────────────────────────────────────────────────────────────────────
+ * Technical callout boxes for blog posts.
+ *
+ * Variants:
+ *   "bug"      — amber accent  (Bug / Warning)
+ *   "warning"  — amber accent  (alias of bug)
+ *   "tip"      — blue/indigo   (Tip / Note)
+ *   "note"     — blue/indigo   (alias of tip)
+ *   "success"  — emerald       (Solution / Success)
+ *   "solution" — emerald       (alias of success)
+ *
+ * Props:
+ *   type  — one of the variant strings above (default: "note")
+ *   title — optional header label (auto-derived from type if omitted)
+ *
+ * Usage in MDX:
+ *   import Callout from '../../components/Callout.astro';
+ *   <Callout type="bug" title="Known Issue">
+ *     Safari 17 drops the `popover` attribute on focusout — add a polyfill.
+ *   </Callout>
+ */
+
+type CalloutType = 'bug' | 'warning' | 'tip' | 'note' | 'success' | 'solution';
+
+interface Props {
+  type?: CalloutType;
+  title?: string;
+}
+
+const { type = 'note', title } = Astro.props;
+
+const config: Record<CalloutType, { icon: string; label: string; cls: string }> = {
+  bug: {
+    label: 'Bug',
+    cls: 'callout--bug',
+    icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M8 5v3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="8" cy="11" r="0.85" fill="currentColor"/>
+    </svg>`,
+  },
+  warning: {
+    label: 'Warning',
+    cls: 'callout--bug',
+    icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M8 2L14.5 13H1.5L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M8 6v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="8" cy="11" r="0.85" fill="currentColor"/>
+    </svg>`,
+  },
+  tip: {
+    label: 'Tip',
+    cls: 'callout--tip',
+    icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M8 2a4.5 4.5 0 0 1 3 7.8V11.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9.8A4.5 4.5 0 0 1 8 2Z" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M6.5 14h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`,
+  },
+  note: {
+    label: 'Note',
+    cls: 'callout--tip',
+    icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M8 7.5v3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="8" cy="5" r="0.85" fill="currentColor"/>
+    </svg>`,
+  },
+  success: {
+    label: 'Solution',
+    cls: 'callout--success',
+    icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M5 8.5l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+  },
+  solution: {
+    label: 'Solution',
+    cls: 'callout--success',
+    icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M5 8.5l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+  },
+};
+
+const { icon, label, cls } = config[type];
+const heading = title ?? label;
+---
+
+<aside class:list={['callout', cls]} role="note">
+  <div class="callout__header">
+    <span class="callout__icon" set:html={icon} />
+    <span class="callout__label">{heading}</span>
+  </div>
+  <div class="callout__body">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .callout {
+    margin-block: 1.75em;
+    border-radius: 8px;
+    border-left: 3px solid var(--callout-border);
+    background-color: var(--callout-bg);
+    overflow: hidden;
+  }
+
+  .callout__header {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 1rem 0.55rem;
+    background-color: var(--callout-header-bg);
+    color: var(--callout-color);
+  }
+
+  .callout__icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .callout__label {
+    font-family: var(--blog-font-body, var(--font-sans));
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .callout__body {
+    padding: 0.85rem 1rem 1rem;
+    font-size: 0.925rem;
+    line-height: 1.7;
+    color: var(--callout-text);
+  }
+
+  /* prose inside callout */
+  .callout__body :global(p) { margin: 0; }
+  .callout__body :global(p + p) { margin-top: 0.65em; }
+  .callout__body :global(code) {
+    background-color: rgba(0, 0, 0, 0.08);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+    font-size: 0.88em;
+  }
+  .callout__body :global(a) {
+    color: var(--callout-color);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ── Bug / Warning — amber ─────────────────────── */
+  .callout--bug {
+    --callout-border:     #f59e0b;
+    --callout-bg:         #fffbeb;
+    --callout-header-bg:  #fef3c7;
+    --callout-color:      #92400e;
+    --callout-text:       #78350f;
+  }
+  :root[data-theme='dark'] .callout--bug {
+    --callout-border:     #d97706;
+    --callout-bg:         #1c1507;
+    --callout-header-bg:  #261c07;
+    --callout-color:      #fbbf24;
+    --callout-text:       #d6b073;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .callout--bug {
+      --callout-border:     #d97706;
+      --callout-bg:         #1c1507;
+      --callout-header-bg:  #261c07;
+      --callout-color:      #fbbf24;
+      --callout-text:       #d6b073;
+    }
+  }
+
+  /* ── Tip / Note — blue/indigo ─────────────────── */
+  .callout--tip {
+    --callout-border:     #6366f1;
+    --callout-bg:         #f5f3ff;
+    --callout-header-bg:  #ede9fe;
+    --callout-color:      #4338ca;
+    --callout-text:       #3730a3;
+  }
+  :root[data-theme='dark'] .callout--tip {
+    --callout-border:     #818cf8;
+    --callout-bg:         #0d0c1f;
+    --callout-header-bg:  #14132e;
+    --callout-color:      #a5b4fc;
+    --callout-text:       #c7d2fe;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .callout--tip {
+      --callout-border:     #818cf8;
+      --callout-bg:         #0d0c1f;
+      --callout-header-bg:  #14132e;
+      --callout-color:      #a5b4fc;
+      --callout-text:       #c7d2fe;
+    }
+  }
+
+  /* ── Success / Solution — emerald ─────────────── */
+  .callout--success {
+    --callout-border:     #10b981;
+    --callout-bg:         #ecfdf5;
+    --callout-header-bg:  #d1fae5;
+    --callout-color:      #065f46;
+    --callout-text:       #064e3b;
+  }
+  :root[data-theme='dark'] .callout--success {
+    --callout-border:     #34d399;
+    --callout-bg:         #061a12;
+    --callout-header-bg:  #09261a;
+    --callout-color:      #6ee7b7;
+    --callout-text:       #a7f3d0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .callout--success {
+      --callout-border:     #34d399;
+      --callout-bg:         #061a12;
+      --callout-header-bg:  #09261a;
+      --callout-color:      #6ee7b7;
+      --callout-text:       #a7f3d0;
+    }
+  }
+</style>

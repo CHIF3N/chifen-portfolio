@@ -1,4 +1,4 @@
-﻿---
+---
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import portrait from '../assets/photos/chifen-portrait.jpg';
@@ -130,6 +130,8 @@ const skills = [
             alt="Chifen Sama N."
             widths={[400, 640]}
             sizes="(max-width: 1024px) 80vw, 32vw"
+            loading="lazy"
+            decoding="async"
             class="w-full object-cover"
           />
         </div>

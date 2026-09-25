@@ -1,0 +1,329 @@
+---
+/**
+ * CodeTabs.astro
+ * ──────────────────────────────────────────────────────────────────────────────
+ * Tabbed code-snippet switcher for showing alternatives side-by-side.
+ * e.g. "Problem" vs "Workaround", or "npm" vs "pnpm" vs "yarn"
+ *
+ * Props:
+ *   tabs — array of { label: string; code: string; lang?: string; filename?: string; diff?: boolean }
+ *
+ * Usage in MDX:
+ *   import CodeTabs from '../../components/CodeTabs.astro';
+ *   <CodeTabs tabs={[
+ *     { label: 'npm',   lang: 'sh', code: 'npm install react' },
+ *     { label: 'pnpm',  lang: 'sh', code: 'pnpm add react' },
+ *     { label: 'yarn',  lang: 'sh', code: 'yarn add react' },
+ *   ]} />
+ */
+
+interface Tab {
+  label: string;
+  code: string;
+  lang?: string;
+  filename?: string;
+  diff?: boolean;
+}
+
+interface Props {
+  tabs: Tab[];
+}
+
+const { tabs } = Astro.props;
+const uid = `ct-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="code-tabs not-prose" data-uid={uid}>
+  <!-- ── Tab bar ── -->
+  <div class="code-tabs__bar" role="tablist" aria-label="Code snippets">
+    {tabs.map((tab, i) => (
+      <button
+        class:list={['code-tabs__tab', i === 0 && 'is-active']}
+        role="tab"
+        aria-selected={i === 0 ? 'true' : 'false'}
+        aria-controls={`${uid}-panel-${i}`}
+        id={`${uid}-tab-${i}`}
+        data-index={i}
+        type="button"
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+
+  <!-- ── Panels ── -->
+  {tabs.map((tab, i) => {
+    const lines = tab.code.trimEnd().split('\n');
+    const panelId = `${uid}-panel-${i}`;
+    const copyId = `${uid}-code-${i}`;
+    return (
+      <div
+        class:list={['code-tabs__panel', i !== 0 && 'is-hidden']}
+        role="tabpanel"
+        id={panelId}
+        aria-labelledby={`${uid}-tab-${i}`}
+        hidden={i !== 0}
+      >
+        <!-- inner header: lang + copy -->
+        <div class="code-tabs__code-header">
+          <div class="code-tabs__file">
+            {tab.filename ? (
+              <>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 2h6l4 4v8H3V2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  <path d="M9 2v4h4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+                <span class="code-tabs__filename">{tab.filename}</span>
+              </>
+            ) : null}
+          </div>
+          <div class="code-tabs__actions">
+            {tab.lang && <span class="code-tabs__lang">{tab.lang}</span>}
+            <button
+              class="code-block__copy"
+              data-copy-target={copyId}
+              aria-label="Copy code"
+              type="button"
+            >
+              <svg class="icon-copy" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect x="5" y="3" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M3 5v8a1.5 1.5 0 0 0 1.5 1.5H11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              <svg class="icon-check" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="copy-label">Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="code-block__scroll">
+          <pre class="code-block__pre" id={copyId}><code class="code-block__code">{lines.map((line, li) => {
+            const isAdd = tab.diff && line.startsWith('+');
+            const isRem = tab.diff && line.startsWith('-');
+            return (
+              <span
+                class:list={[
+                  'code-line',
+                  isAdd && 'code-line--add',
+                  isRem && 'code-line--rem',
+                ]}
+              ><span class="code-line__num" aria-hidden="true">{li + 1}</span><span class="code-line__text">{line}</span>
+              </span>
+            );
+          })}</code></pre>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+<style>
+  /* Re-use CodeBlock's .code-block__* variables / classes for the inner code */
+  .code-tabs {
+    margin-block: 1.75em;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #0d0d0d;
+    font-family: var(--blog-font-mono, ui-monospace, 'Cascadia Code', 'Fira Code', monospace);
+    font-size: 0.855rem;
+  }
+
+  /* ── Tab bar ── */
+  .code-tabs__bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .code-tabs__bar::-webkit-scrollbar { display: none; }
+
+  .code-tabs__tab {
+    padding: 0.55rem 1rem;
+    font-family: var(--blog-font-body, var(--font-sans));
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.38);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.18s ease, border-color 0.18s ease;
+  }
+  .code-tabs__tab:hover {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .code-tabs__tab.is-active {
+    color: var(--blog-accent, #08b9d4);
+    border-bottom-color: var(--blog-accent, #08b9d4);
+  }
+
+  /* ── Panel ── */
+  .code-tabs__panel.is-hidden { display: none; }
+
+  .code-tabs__code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  .code-tabs__file {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.72rem;
+  }
+
+  .code-tabs__filename {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .code-tabs__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .code-tabs__lang {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Reuse CodeBlock's copy button styles */
+  .code-block__copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--blog-font-body, var(--font-sans));
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  }
+  .code-block__copy:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  .code-block__copy .icon-check { display: none; }
+  .code-block__copy.is-copied {
+    border-color: rgba(52, 211, 153, 0.4);
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.08);
+  }
+  .code-block__copy.is-copied .icon-copy { display: none; }
+  .code-block__copy.is-copied .icon-check { display: block; }
+  .copy-label { display: inline; }
+  .code-block__copy.is-copied .copy-label { display: none; }
+
+  /* Shared code display with CodeBlock */
+  .code-block__scroll { overflow-x: auto; padding-block: 1.1rem; }
+  .code-block__pre { margin: 0; padding: 0; }
+  .code-block__code { display: block; white-space: pre; }
+  .code-line {
+    display: block;
+    padding-inline: 1rem;
+    line-height: 1.65;
+    color: #c9d1d9;
+  }
+  .code-line__num {
+    display: inline-block;
+    width: 2.4ch;
+    margin-right: 1.25rem;
+    text-align: right;
+    color: rgba(255, 255, 255, 0.2);
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .code-line--add {
+    background-color: rgba(52, 211, 153, 0.09);
+    color: #7fcea8;
+    position: relative;
+  }
+  .code-line--add::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: rgba(52, 211, 153, 0.55);
+    border-radius: 0 2px 2px 0;
+  }
+  .code-line--rem {
+    background-color: rgba(248, 113, 113, 0.08);
+    color: #e07070;
+    position: relative;
+  }
+  .code-line--rem::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: rgba(248, 113, 113, 0.55);
+    border-radius: 0 2px 2px 0;
+  }
+</style>
+
+<script>
+  // Tab switching
+  document.querySelectorAll<HTMLElement>('.code-tabs').forEach((widget) => {
+    const tabs = widget.querySelectorAll<HTMLButtonElement>('.code-tabs__tab');
+    const panels = widget.querySelectorAll<HTMLElement>('.code-tabs__panel');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const idx = Number(tab.dataset.index);
+        tabs.forEach((t, i) => {
+          t.classList.toggle('is-active', i === idx);
+          t.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+        });
+        panels.forEach((p, i) => {
+          p.classList.toggle('is-hidden', i !== idx);
+          if (i !== idx) p.setAttribute('hidden', '');
+          else p.removeAttribute('hidden');
+        });
+      });
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll<HTMLButtonElement>('.code-block__copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.dataset.copyTarget;
+      if (!targetId) return;
+      const pre = document.getElementById(targetId);
+      if (!pre) return;
+      const text = pre.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.classList.add('is-copied');
+        const label = btn.querySelector('.copy-label');
+        if (label) label.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('is-copied');
+          if (label) label.textContent = 'Copy';
+        }, 2000);
+      } catch (_) {}
+    });
+  });
+</script>
