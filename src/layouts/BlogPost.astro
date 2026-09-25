@@ -1,0 +1,265 @@
+---
+/**
+ * BlogPost.astro
+ * ──────────────────────────────────────────────────────────────────────────────
+ * Full reading layout for blog post detail pages.
+ * Wraps Base.astro and adds:
+ *   - Fixed reading-progress bar
+ *   - Breadcrumb navigation (Home › Writing › Post Title)
+ *   - Publication date + read-time badge + category tag pills
+ *   - Centred max-w-3xl (--blog-container-max) prose area
+ *   - Footer tag row matching the site's badge style
+ *
+ * All design tokens reference --blog-* from blog-tokens.css.
+ * Import blog-tokens.css here so every post gets them automatically.
+ */
+
+import Base from './Base.astro';
+import '../styles/blog-tokens.css';
+import { withBase } from '../lib/url';
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updated?: Date;
+  tags?: string[];
+  readMinutes?: number;
+}
+
+const { title, description, pubDate, updated, tags = [], readMinutes = 1 } = Astro.props;
+
+const dateFormat = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<Base title={title} description={description}>
+  <!-- ── Reading progress bar ── -->
+  <div class="blog-progress" id="reading-progress" aria-hidden="true"></div>
+
+  <article class="blog-post-page">
+    <!-- ── Breadcrumb ── -->
+    <nav class="blog-post-page__breadcrumb" aria-label="Breadcrumb">
+      <ol class="blog-breadcrumbs">
+        <li>
+          <a href={withBase('/')} class="blog-breadcrumbs__link">Home</a>
+        </li>
+        <li aria-hidden="true" class="blog-breadcrumbs__sep">/</li>
+        <li>
+          <a href={withBase('/blog')} class="blog-breadcrumbs__link">Writing</a>
+        </li>
+        <li aria-hidden="true" class="blog-breadcrumbs__sep">/</li>
+        <li class="blog-breadcrumbs__current" aria-current="page">{title}</li>
+      </ol>
+    </nav>
+
+    <!-- ── Post header ── -->
+    <header class="blog-post-page__header">
+      <!-- Meta row: date · read time -->
+      <div class="blog-post-page__meta">
+        <time
+          datetime={pubDate.toISOString()}
+          class="blog-meta"
+        >
+          {dateFormat.format(pubDate)}
+        </time>
+        <span class="blog-meta" aria-hidden="true">·</span>
+        <span class="blog-meta">{readMinutes} min read</span>
+
+        {updated && (
+          <>
+            <span class="blog-meta" aria-hidden="true">·</span>
+            <span class="blog-meta">
+              Updated {dateFormat.format(updated)}
+            </span>
+          </>
+        )}
+      </div>
+
+      <!-- Tag pills -->
+      {tags.length > 0 && (
+        <ul class="blog-post-page__tags" aria-label="Categories">
+          {tags.map((tag) => (
+            <li>
+              <a
+                href={withBase(`/blog?tag=${encodeURIComponent(tag)}`)}
+                class="blog-tag"
+              >
+                {tag}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <!-- Title & description -->
+      <h1 class="blog-post-title">{title}</h1>
+      <p class="blog-lede">{description}</p>
+    </header>
+
+    <!-- ── Prose body ── -->
+    <div class="blog-post-page__body prose-body">
+      <slot />
+    </div>
+
+    <!-- ── Footer tag row ── -->
+    {tags.length > 0 && (
+      <footer class="blog-post-page__footer">
+        <ul class="blog-post-page__tags" aria-label="Tags">
+          {tags.map((tag) => (
+            <li>
+              <a href={withBase(`/blog?tag=${encodeURIComponent(tag)}`)} class="blog-tag">
+                {tag}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </footer>
+    )}
+
+    <!-- ── Back link ── -->
+    <div class="blog-post-page__back">
+      <a href={withBase('/blog')} class="blog-back">
+        <span class="blog-back-arrow" aria-hidden="true">←</span>
+        All writing
+      </a>
+    </div>
+  </article>
+</Base>
+
+<style>
+  /* Import blog tokens — already done via Astro import above, but the @layer
+     below adds layout rules that reference those tokens. */
+
+  .blog-post-page {
+    width: 100%;
+    max-width: var(--blog-container-max, 48rem);
+    margin-inline: auto;
+    padding-inline: var(--blog-container-px, 1.25rem);
+    padding-top: clamp(3rem, 7vw, 5rem);
+    padding-bottom: clamp(4rem, 9vw, 7rem);
+  }
+
+  @media (min-width: 640px) {
+    .blog-post-page {
+      padding-inline: var(--blog-container-px-sm, 2rem);
+    }
+  }
+
+  /* ── Breadcrumb ── */
+  .blog-post-page__breadcrumb {
+    margin-bottom: 2rem;
+  }
+
+  .blog-breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .blog-breadcrumbs__link {
+    font-family: var(--blog-font-body);
+    font-size: var(--blog-meta-size, 0.875rem);
+    font-weight: 500;
+    color: var(--blog-text-muted);
+    text-decoration: none;
+    transition: color 0.18s ease;
+  }
+  .blog-breadcrumbs__link:hover {
+    color: var(--blog-accent);
+  }
+
+  .blog-breadcrumbs__sep {
+    font-size: var(--blog-meta-size, 0.875rem);
+    color: var(--blog-text-faint);
+  }
+
+  .blog-breadcrumbs__current {
+    font-family: var(--blog-font-body);
+    font-size: var(--blog-meta-size, 0.875rem);
+    font-weight: 500;
+    color: var(--blog-text-faint);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 22ch;
+  }
+
+  /* ── Header ── */
+  .blog-post-page__header {
+    border-bottom: 1px solid var(--blog-border, var(--color-line));
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .blog-post-page__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+  }
+
+  /* ── Tags row ── */
+  .blog-post-page__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 1.2rem;
+  }
+  .blog-post-page__tags a {
+    text-decoration: none;
+  }
+
+  /* ── Title + lede ── */
+  .blog-post-title {
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── Body ── */
+  .blog-post-page__body {
+    /* prose-body styles come from global.css */
+  }
+
+  /* ── Footer ── */
+  .blog-post-page__footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--blog-border, var(--color-line));
+  }
+
+  /* ── Back link ── */
+  .blog-post-page__back {
+    margin-top: 2rem;
+  }
+</style>
+
+<script>
+  // Reading progress bar
+  const bar = document.getElementById('reading-progress');
+  const article = document.querySelector('.blog-post-page__body');
+
+  if (bar && article) {
+    const update = () => {
+      const { top, bottom } = article.getBoundingClientRect();
+      const viewH = window.innerHeight;
+      const total = bottom - top;
+      const scrolled = Math.max(0, viewH - top);
+      const pct = Math.min(100, Math.max(0, (scrolled / total) * 100));
+      bar.style.width = pct + '%';
+    };
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+</script>

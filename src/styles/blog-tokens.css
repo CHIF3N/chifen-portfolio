@@ -1,0 +1,516 @@
+/**
+ * blog-tokens.css
+ * ──────────────────────────────────────────────────────────────────────────────
+ * Design contract for blog components.
+ *
+ * HOW TO USE
+ *   Import this file in any blog layout or component that needs design tokens:
+ *
+ *     import '../../styles/blog-tokens.css';   // from a page under src/pages/blog/
+ *
+ *   Every blog-specific custom property below is derived directly from the
+ *   site-wide tokens declared in global.css.  Nothing is hard-coded to a raw
+ *   colour value — changes to the global theme automatically propagate here.
+ *
+ * CONTRACT RULES
+ *   1. Always reference a `--blog-*` variable in blog components; never use a
+ *      raw hex, a Tailwind utility colour class, or a `--color-*` token
+ *      directly inside blog-specific CSS.
+ *   2. Radius, spacing, and animation tokens come from this file; do not invent
+ *      new values in individual components.
+ *   3. To override a token for a specific post (e.g. a per-post accent), set
+ *      the matching `--blog-*` variable on the article element, not on :root.
+ * ──────────────────────────────────────────────────────────────────────────────
+ */
+
+/* ---------------------------------------------------------------------------
+   Blog design tokens
+   These vars live on :root so they follow the same light/dark flipping logic
+   that already powers --ink / --paper / --accent in global.css.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* -- Surfaces -------------------------------------------------------------- */
+
+  /** Page background for blog listing and post pages. */
+  --blog-bg:          var(--color-paper);
+
+  /** Slightly-dimmed surface for post metadata bands, aside boxes, etc. */
+  --blog-bg-dim:      var(--color-paper-dim);
+
+  /** Surface for tag chips, code spans, and other inlined badges. */
+  --blog-bg-badge:    var(--color-paper-dim);
+
+  /** Dark panel surface - mirrors card-dark / footer pattern. */
+  --blog-bg-panel:    var(--color-panel);
+
+  /* -- Borders & separators -------------------------------------------------- */
+
+  /** Default hairline colour (article dividers, section rules, card outlines). */
+  --blog-border:      var(--color-line);
+
+  /* -- Text ------------------------------------------------------------------ */
+
+  /** Primary reading text - headings, strong elements, and link text. */
+  --blog-text:        var(--color-ink);
+
+  /** Secondary / muted text - metadata, descriptions, captions. */
+  --blog-text-muted:  var(--color-slate);
+
+  /** Faint text - dates, eyebrow labels, ordinal numbers. */
+  --blog-text-faint:  var(--color-slate-light);
+
+  /** Text on dark panels (e.g. a dark featured-post card). */
+  --blog-text-on-panel: var(--color-panel-ink);
+
+  /* -- Accent ---------------------------------------------------------------- */
+
+  /**
+   * Primary accent - used for link underlines, tag highlights, active
+   * indicators, and icon colour. Inherits the per-page override when
+   * Base.astro injects --accent on <html>.
+   */
+  --blog-accent:      var(--color-accent);
+
+  /** Soft tint of the accent - hover backgrounds, selection, faint pills. */
+  --blog-accent-soft: var(--color-accent-soft);
+
+  /* -- Typography ------------------------------------------------------------ */
+
+  /**
+   * Display / heading font: Big Shoulders (condensed grotesque, uppercase).
+   * Used for post titles, section headings, tag group labels.
+   */
+  --blog-font-display: var(--font-display);
+
+  /**
+   * Body / UI font: Inter.
+   * Used for running prose, metadata, tag chips, navigation copy.
+   */
+  --blog-font-body:   var(--font-sans);
+
+  /**
+   * Monospace font stack for inline code and code blocks.
+   * No site-wide mono token exists, so this is defined here.
+   */
+  --blog-font-mono:   ui-monospace, 'Cascadia Code', 'Fira Code', 'Menlo',
+                      'Consolas', monospace;
+
+  /* -- Type scale ------------------------------------------------------------ */
+
+  /** Post title on listing cards - matches .display-card. */
+  --blog-title-card:       1.5625rem;
+
+  /** Post title on the detail page header. */
+  --blog-title-post:       clamp(1.875rem, 5vw, 2.625rem);
+
+  /** Section headings within a post (h2). */
+  --blog-heading-2:        clamp(1.375rem, 3vw, 2.25rem);
+
+  /** Sub-section headings within a post (h3). */
+  --blog-heading-3:        1.5rem;
+
+  /** Body / running prose size - mirrors .prose-body. */
+  --blog-body-size:        1.0625rem;
+
+  /** Small / metadata text size - mirrors .body-sm. */
+  --blog-meta-size:        0.875rem;
+
+  /** Eyebrow / chip label size - mirrors .eyebrow. */
+  --blog-label-size:       0.75rem;
+
+  /* -- Line heights ----------------------------------------------------------- */
+
+  --blog-lh-display:  0.92;
+  --blog-lh-heading:  1.25;
+  --blog-lh-body:     1.75;
+  --blog-lh-ui:       1.6;
+
+  /* -- Letter spacing --------------------------------------------------------- */
+
+  --blog-tracking-body:    -0.02em;
+  --blog-tracking-display: 0;
+  --blog-tracking-label:   0.12em;
+
+  /* -- Border radii ----------------------------------------------------------- */
+
+  /** Blog cards use the same --radius-card as WorkCard / .card-dark. */
+  --blog-radius-card:      var(--radius-card);
+  /** Tag chips and pill buttons use --radius-pill. */
+  --blog-radius-pill:      var(--radius-pill);
+  /** Tag chip specific alias. */
+  --blog-radius-badge:     90px;
+  /** Inline images - matches .prose-body img. */
+  --blog-radius-image:     12px;
+  /** Inline code spans. */
+  --blog-radius-code:      4px;
+
+  /* -- Spacing --------------------------------------------------------------- */
+
+  /** Container max-width for blog pages (narrower than .shell). */
+  --blog-container-max:    48rem;
+
+  /** Inline padding for the blog container. */
+  --blog-container-px:     1.25rem;
+  --blog-container-px-sm:  2rem;
+
+  /** Vertical rhythm between sections on listing page - mirrors .band. */
+  --blog-section-gap:      clamp(4rem, 9vw, 7.5rem);
+
+  /** Vertical rhythm inside a post between headings and paragraphs. */
+  --blog-prose-gap:        1.35em;
+
+  /* -- Animations ------------------------------------------------------------ */
+
+  --blog-ease:             var(--ease-out-soft);
+
+  /** Card lift on hover - mirrors .card-dark:hover. */
+  --blog-hover-lift:       -6px;
+
+  /** Subtle lift for flat cards - mirrors .card-flat:hover. */
+  --blog-hover-lift-flat:  -4px;
+
+  /** Card hover box-shadow on dark cards. */
+  --blog-hover-shadow:     0 24px 60px -32px rgba(0, 0, 0, 0.65);
+
+  /** Scroll-reveal entrance distance - mirrors [data-reveal]. */
+  --blog-reveal-distance:  18px;
+  --blog-reveal-duration:  0.6s;
+
+  /* -- Focus ring ------------------------------------------------------------ */
+
+  --blog-focus-ring:       2px solid var(--color-accent);
+  --blog-focus-offset:     3px;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Utility layer  -  @layer blog
+   Opt-in class helpers that blog components can compose. These mirror site
+   primitives (.shell, .band, .eyebrow, .prose-body, etc.) without replacing
+   them - they provide blog-scoped equivalents that reference only --blog-*
+   variables.
+   --------------------------------------------------------------------------- */
+
+@layer blog {
+
+  /* -- Container ------------------------------------------------------------- */
+
+  /**
+   * .blog-shell
+   * Narrower centred container suited to long-form text.
+   * Use on the <article> wrapper on post pages.
+   */
+  .blog-shell {
+    width: 100%;
+    max-width: var(--blog-container-max);
+    margin-inline: auto;
+    padding-inline: var(--blog-container-px);
+  }
+  @media (min-width: 640px) {
+    .blog-shell {
+      padding-inline: var(--blog-container-px-sm);
+    }
+  }
+
+  /* -- Post title ------------------------------------------------------------- */
+
+  /**
+   * .blog-post-title
+   * Used on the <h1> of a post detail page.
+   */
+  .blog-post-title {
+    font-family: var(--blog-font-display);
+    font-size: var(--blog-title-post);
+    font-weight: 600;
+    line-height: var(--blog-lh-display);
+    letter-spacing: var(--blog-tracking-display);
+    text-transform: uppercase;
+    text-wrap: balance;
+    color: var(--blog-text);
+  }
+
+  /* -- Card title ------------------------------------------------------------- */
+
+  /**
+   * .blog-card-title
+   * Used on post summary cards in the listing page.
+   * Mirrors .display-card.
+   */
+  .blog-card-title {
+    font-family: var(--blog-font-display);
+    font-size: var(--blog-title-card);
+    font-weight: 500;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: var(--blog-tracking-display);
+    color: var(--blog-text);
+  }
+
+  /* -- Eyebrow label ---------------------------------------------------------- */
+
+  /**
+   * .blog-eyebrow
+   * Small all-caps label above headings or beside dates.
+   * Mirrors .eyebrow from global.css.
+   */
+  .blog-eyebrow {
+    font-family: var(--blog-font-body);
+    font-size: var(--blog-label-size);
+    font-weight: 600;
+    letter-spacing: var(--blog-tracking-label);
+    text-transform: uppercase;
+    color: var(--blog-text-muted);
+  }
+
+  /* -- Meta line -------------------------------------------------------------- */
+
+  /**
+   * .blog-meta
+   * Date, reading-time, and other small metadata.
+   * Mirrors .body-sm.
+   */
+  .blog-meta {
+    font-family: var(--blog-font-body);
+    font-size: var(--blog-meta-size);
+    font-weight: 500;
+    line-height: var(--blog-lh-ui);
+    letter-spacing: var(--blog-tracking-body);
+    color: var(--blog-text-faint);
+  }
+
+  /* -- Description / lede ----------------------------------------------------- */
+
+  /**
+   * .blog-lede
+   * Post description/summary text under a title.
+   * Mirrors .lede.
+   */
+  .blog-lede {
+    font-family: var(--blog-font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: var(--blog-lh-ui);
+    letter-spacing: var(--blog-tracking-body);
+    color: var(--blog-text-muted);
+  }
+
+  /* -- Tag chip --------------------------------------------------------------- */
+
+  /**
+   * .blog-tag
+   * Pill-shaped tag badge for listing and detail pages.
+   * Matches WorkCard tag style (border border-paper/20 px-2.5 py-1).
+   */
+  .blog-tag {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--blog-radius-badge);
+    padding: 0.25rem 0.625rem;
+    font-family: var(--blog-font-body);
+    font-size: var(--blog-label-size);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    background-color: var(--blog-bg-badge);
+    color: var(--blog-text-muted);
+    border: 1px solid var(--blog-border);
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .blog-tag:hover,
+  .blog-tag[aria-pressed='true'] {
+    background-color: var(--blog-accent-soft);
+    color: var(--blog-text);
+    border-color: var(--blog-accent);
+  }
+
+  /** Active / selected tag chip. */
+  .blog-tag-accent {
+    background-color: var(--blog-accent);
+    color: var(--blog-text);
+    border-color: var(--blog-accent);
+  }
+
+  /* -- Post card -------------------------------------------------------------- */
+
+  /**
+   * .blog-card
+   * Container for a post summary card on the listing page.
+   * Light/flat surface variant - mirrors .card-flat.
+   *
+   * Add .blog-card--dark for a dark panel surface - mirrors .card-dark.
+   */
+  .blog-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--blog-radius-card);
+    background-color: var(--blog-bg-dim);
+    color: var(--blog-text);
+    overflow: hidden;
+    transition:
+      transform 0.35s var(--blog-ease),
+      background-color 0.35s ease;
+  }
+  .blog-card:hover {
+    transform: translateY(var(--blog-hover-lift-flat));
+  }
+
+  .blog-card.blog-card--dark {
+    background-color: var(--blog-bg-panel);
+    color: var(--blog-text-on-panel);
+  }
+  .blog-card.blog-card--dark:hover {
+    transform: translateY(var(--blog-hover-lift));
+    box-shadow: var(--blog-hover-shadow);
+  }
+
+  /* -- Cover image wrapper ---------------------------------------------------- */
+
+  /**
+   * .blog-cover
+   * 16/10 aspect-ratio image banner at the top of a card.
+   * Matches WorkCard cover image container.
+   */
+  .blog-cover {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+  .blog-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s var(--blog-ease);
+  }
+  .blog-card:hover .blog-cover img {
+    transform: scale(1.05);
+  }
+
+  /* -- Post card body --------------------------------------------------------- */
+
+  /**
+   * .blog-card-body
+   * Inner padding for a .blog-card - same as WorkCard p-6 / sm:p-7.
+   */
+  .blog-card-body {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .blog-card-body {
+      padding: 1.75rem;
+    }
+  }
+
+  /* -- Divider line ----------------------------------------------------------- */
+
+  /**
+   * .blog-divider
+   * Full-width hairline, identical to .band-line and the prose-body hr.
+   */
+  .blog-divider {
+    border: 0;
+    border-top: 1px solid var(--blog-border);
+  }
+
+  /* -- Accent link ------------------------------------------------------------ */
+
+  /**
+   * .blog-link
+   * Inline hyperlink with an accent underline.
+   * Mirrors .prose-body a.
+   */
+  .blog-link {
+    color: var(--blog-text);
+    text-decoration: underline;
+    text-decoration-color: var(--blog-accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+  }
+  .blog-link:hover {
+    color: var(--blog-accent);
+  }
+
+  /* -- Back navigation link --------------------------------------------------- */
+
+  /**
+   * .blog-back
+   * "All writing" style navigation link with a leading arrow.
+   */
+  .blog-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--blog-meta-size);
+    font-weight: 500;
+    color: var(--blog-text-muted);
+    transition: color 0.2s ease;
+  }
+  .blog-back:hover {
+    color: var(--blog-accent);
+  }
+  .blog-back .blog-back-arrow {
+    transition: transform 0.2s ease;
+  }
+  .blog-back:hover .blog-back-arrow {
+    transform: translateX(-2px);
+  }
+
+  /* -- Reading progress bar --------------------------------------------------- */
+
+  /**
+   * .blog-progress
+   * Fixed top bar that fills as the reader scrolls.
+   * Wire up width via JS:  el.style.width = scrollPercent + '%'
+   */
+  .blog-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    height: 3px;
+    width: 0%;
+    background-color: var(--blog-accent);
+    transition: width 0.1s linear;
+    pointer-events: none;
+  }
+
+  /* -- Related posts band ----------------------------------------------------- */
+
+  /**
+   * .blog-related
+   * Section below a post article for "You might also like" cards.
+   */
+  .blog-related {
+    padding-block: clamp(3rem, 6vw, 5rem);
+    border-top: 1px solid var(--blog-border);
+  }
+
+  /* -- Scroll reveal ---------------------------------------------------------- */
+
+  /**
+   * Blog components can also use [data-reveal] directly - it is already
+   * handled by the IntersectionObserver in Base.astro. The helpers below
+   * are provided as pure-CSS alternatives for components that prefer not to
+   * depend on JS.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .blog-fade-in {
+      opacity: 0;
+      transform: translateY(var(--blog-reveal-distance));
+      transition:
+        opacity var(--blog-reveal-duration) var(--blog-ease),
+        transform var(--blog-reveal-duration) var(--blog-ease);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .blog-fade-in.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+} /* end @layer blog */

@@ -1,0 +1,262 @@
+---
+/**
+ * CodeBlock.astro
+ * ──────────────────────────────────────────────────────────────────────────────
+ * Interactive code block with:
+ *   - Header bar: file path / language label + one-click copy button
+ *   - Syntax-highlighted code with line numbers
+ *   - Diff view support: lines beginning with "+" or "-" are styled accordingly
+ *
+ * Props:
+ *   code       — the raw code string (required)
+ *   lang       — language label shown in the header (e.g. "TypeScript")
+ *   filename   — optional file path / name shown in the header
+ *   showLines  — whether to show line numbers (default: true)
+ *   diff       — enable diff highlighting (default: false)
+ */
+
+interface Props {
+  code: string;
+  lang?: string;
+  filename?: string;
+  showLines?: boolean;
+  diff?: boolean;
+}
+
+const {
+  code,
+  lang = 'Code',
+  filename,
+  showLines = true,
+  diff = false,
+} = Astro.props;
+
+const lines = code.trimEnd().split('\n');
+const uid = `cb-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<figure class="code-block not-prose" data-diff={diff} aria-label={filename ?? lang}>
+  <!-- ── Header ── -->
+  <div class="code-block__header">
+    <div class="code-block__file">
+      {filename ? (
+        <>
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 2h6l4 4v8H3V2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M9 2v4h4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <span class="code-block__filename">{filename}</span>
+        </>
+      ) : null}
+    </div>
+    <div class="code-block__meta">
+      <span class="code-block__lang">{lang}</span>
+      <button
+        class="code-block__copy"
+        data-copy-target={uid}
+        aria-label="Copy code to clipboard"
+        type="button"
+      >
+        <svg class="icon-copy" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <rect x="5" y="3" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M3 5v8a1.5 1.5 0 0 0 1.5 1.5H11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon-check" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="copy-label">Copy</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Code area ── -->
+  <div class="code-block__scroll">
+    <pre class="code-block__pre" id={uid}><code class="code-block__code">{lines.map((line, i) => {
+      const isAdd = diff && line.startsWith('+');
+      const isRem = diff && line.startsWith('-');
+      return (
+        <span
+          class:list={[
+            'code-line',
+            isAdd && 'code-line--add',
+            isRem && 'code-line--rem',
+          ]}
+          aria-label={isAdd ? 'Added' : isRem ? 'Removed' : undefined}
+        >{showLines && <span class="code-line__num" aria-hidden="true">{i + 1}</span>}<span class="code-line__text">{line}</span>
+        </span>
+      );
+    })}</code></pre>
+  </div>
+</figure>
+
+<style>
+  .code-block {
+    margin-block: 1.75em;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #0d0d0d;
+    font-family: var(--blog-font-mono, ui-monospace, 'Cascadia Code', 'Fira Code', monospace);
+    font-size: 0.855rem;
+  }
+
+  .code-block__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .code-block__file {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.75rem;
+  }
+
+  .code-block__filename {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  .code-block__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    flex-shrink: 0;
+  }
+
+  .code-block__lang {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .code-block__copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--blog-font-body, var(--font-sans));
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  }
+  .code-block__copy:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  .code-block__copy .icon-check { display: none; }
+  .code-block__copy.is-copied {
+    border-color: rgba(52, 211, 153, 0.4);
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.08);
+  }
+  .code-block__copy.is-copied .icon-copy { display: none; }
+  .code-block__copy.is-copied .icon-check { display: block; }
+  .copy-label { display: inline; }
+  .code-block__copy.is-copied .copy-label { display: none; }
+
+  .code-block__scroll {
+    overflow-x: auto;
+    padding-block: 1.1rem;
+  }
+
+  .code-block__pre {
+    margin: 0;
+    padding: 0;
+  }
+
+  .code-block__code {
+    display: block;
+    white-space: pre;
+  }
+
+  .code-line {
+    display: block;
+    padding-inline: 1rem;
+    line-height: 1.65;
+    color: #c9d1d9;
+  }
+
+  .code-line__num {
+    display: inline-block;
+    width: 2.4ch;
+    margin-right: 1.25rem;
+    text-align: right;
+    color: rgba(255, 255, 255, 0.2);
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .code-line--add {
+    background-color: rgba(52, 211, 153, 0.09);
+    color: #7fcea8;
+    position: relative;
+  }
+  .code-line--add::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: rgba(52, 211, 153, 0.55);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .code-line--rem {
+    background-color: rgba(248, 113, 113, 0.08);
+    color: #e07070;
+    position: relative;
+  }
+  .code-line--rem::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: rgba(248, 113, 113, 0.55);
+    border-radius: 0 2px 2px 0;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.code-block__copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.dataset.copyTarget;
+      if (!targetId) return;
+      const pre = document.getElementById(targetId);
+      if (!pre) return;
+      const text = pre.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.classList.add('is-copied');
+        const label = btn.querySelector('.copy-label');
+        if (label) label.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('is-copied');
+          if (label) label.textContent = 'Copy';
+        }, 2000);
+      } catch (_) {
+        // clipboard blocked in some browsers
+      }
+    });
+  });
+</script>
