@@ -2,27 +2,13 @@
 /**
  * The animated 3D slot.
  *
- * Adaptive media behaviour
- * ─────────────────────────
- * When `src` is supplied the component renders BOTH a <video> element and the
- * SVG fallback. The video carries its URL in `data-src` only — no `src`
- * attribute is set at build time, so zero bytes are fetched on page load.
- *
- * A module client script (`setupAdaptiveVideos`) then decides:
- *   • Slow / data-saver connection → keep the video hidden, show the SVG.
- *   • Fast connection             → hide the SVG, set video.src from data-src
- *                                   and use IntersectionObserver to play only
- *                                   while the element is in the viewport.
- *
- * Deliberately no third-party artwork: the fallback is drawn here, and `src`
- * takes whatever Chifen commissions or renders himself.
+ * Video tracks have been removed entirely. Each scene now renders a dark
+ * technical developer backdrop (radial-gradient ambient glow + SVG dot-grid)
+ * with zero render-blocking asset weight, plus the floating SVG illustration.
  */
-import { withBase } from '../lib/url';
 
 interface Props {
-  /** Path under /public, e.g. '/scenes/scene-hero.mp4'. Base path is applied here. */
-  src?: string;
-  /** Fallback scene to draw when there is no video yet. */
+  /** Fallback scene to draw. */
   variant?: 'drop' | 'device' | 'orbit';
   /** Describes the animation for screen readers. Decorative if omitted. */
   label?: string;
@@ -30,15 +16,16 @@ interface Props {
   ratio?: string;
   /** Corner rounding. The hero scene runs square-cornered, the rest are rounded. */
   rounded?: boolean;
-  /** Speech bubble pinned to the top of the frame, as on the reference. */
+  /** Speech bubble pinned to the top of the frame. */
   bubble?: string;
   /** Which side the bubble tail points from. */
   bubbleSide?: 'left' | 'right';
   class?: string;
+  /** @deprecated mp4 src is no longer used – pass nothing. */
+  src?: string;
 }
 
 const {
-  src,
   variant = 'drop',
   label,
   ratio = '1 / 1',
@@ -46,7 +33,11 @@ const {
   bubble,
   bubbleSide = 'right',
   class: className = '',
+  // src is accepted so existing call-sites don't break at build time, but it is ignored.
 } = Astro.props;
+
+// Unique ID per instance (server-rendered, safe for SSG).
+const uid = `sc-${variant}-${Math.random().toString(36).slice(2, 7)}`;
 ---
 
 <div class:list={['relative', className]}>
@@ -64,115 +55,130 @@ const {
   }
 
   <div
-    class:list={['scene adaptive-scene relative overflow-hidden bg-paper-dim', rounded && 'rounded-[30px]']}
+    class:list={['scene relative overflow-hidden', rounded && 'rounded-[30px]']}
     style={`--scene-ratio:${ratio}`}
     role={label ? 'img' : undefined}
     aria-label={label}
     aria-hidden={label ? undefined : 'true'}
   >
-  {
-    src && (
-      /* Video track: src is intentionally absent at build time.
-         The client script sets video.src from data-src only when
-         the element enters the viewport AND the connection is fast. */
-      <video
-        class="adaptive-video h-full w-full object-cover"
-        data-src={withBase(src)}
-        loop
-        muted
-        playsinline
-        preload="none"
-        aria-hidden="true"
+    {/* ── Dark tech backdrop: deep gradient + translucent dot-grid ── */}
+    <div class="scene-backdrop" aria-hidden="true"></div>
+    <svg class="scene-dotgrid" viewBox="0 0 200 200" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <pattern id={`dots-${uid}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="1" fill="currentColor" />
+        </pattern>
+      </defs>
+      <rect width="200" height="200" fill={`url(#dots-${uid})`} />
+    </svg>
+
+    {/* ── Floating illustration SVG ── */}
+    <svg class="scene-art h-full w-full" viewBox="0 0 400 400" fill="none">
+      <defs>
+        <radialGradient id={`glow-${uid}`} cx="34%" cy="26%" r="78%">
+          <stop offset="0%" stop-color="#8ef0ff" />
+          <stop offset="48%" stop-color="var(--color-accent)" />
+          <stop offset="100%" stop-color="#046b7d" />
+        </radialGradient>
+        <radialGradient id={`glow-dark-${uid}`} cx="36%" cy="24%" r="80%">
+          <stop offset="0%" stop-color="#4a4a4a" />
+          <stop offset="100%" stop-color="#0d0d0d" />
+        </radialGradient>
+        <radialGradient id={`sheen-${uid}`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+        </radialGradient>
+        <filter id={`soft-${uid}`} x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="12" />
+        </filter>
+      </defs>
+
+      {/* Contact shadow */}
+      <ellipse
+        class="scene-shadow"
+        cx="200"
+        cy="330"
+        rx="86"
+        ry="18"
+        fill="#000000"
+        opacity="0.16"
+        filter={`url(#soft-${uid})`}
       />
-    )
-  }
 
-  {/* SVG fallback — always in the DOM; hidden by the client script on fast
-       connections once the video is ready. On slow connections it stays
-       visible permanently and the video is never loaded. */}
-  <svg class="adaptive-fallback h-full w-full" viewBox="0 0 400 400" fill="none">
-    <defs>
-      {/* Off-centre highlight fakes a single light source, which is what
-          sells the shapes as rendered rather than flat. */}
-      <radialGradient id={`glow-${variant}`} cx="34%" cy="26%" r="78%">
-        <stop offset="0%" stop-color="#8ef0ff" />
-        <stop offset="48%" stop-color="var(--color-accent)" />
-        <stop offset="100%" stop-color="#046b7d" />
-      </radialGradient>
-      <radialGradient id={`glow-dark-${variant}`} cx="36%" cy="24%" r="80%">
-        <stop offset="0%" stop-color="#4a4a4a" />
-        <stop offset="100%" stop-color="#0d0d0d" />
-      </radialGradient>
-      <radialGradient id={`sheen-${variant}`} cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
-        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
-      </radialGradient>
-      <filter id={`soft-${variant}`} x="-40%" y="-40%" width="180%" height="180%">
-        <feGaussianBlur stdDeviation="12" />
-      </filter>
-    </defs>
+      {variant === 'drop' && (
+        <g class="scene-float">
+          <path
+            d="M200 78c34 44 62 74 62 110a62 62 0 1 1-124 0c0-36 28-66 62-110z"
+            fill={`url(#glow-${uid})`}
+          />
+          <ellipse cx="176" cy="168" rx="24" ry="30" fill={`url(#sheen-${uid})`} />
+        </g>
+      )}
 
-    {/* Contact shadow on the floor, pulsing in time with the float. */}
-    <ellipse
-      class="scene-shadow"
-      cx="200"
-      cy="330"
-      rx="86"
-      ry="18"
-      fill="#000000"
-      opacity="0.16"
-      filter={`url(#soft-${variant})`}
-    />
+      {variant === 'device' && (
+        <g class="scene-float">
+          <rect x="140" y="86" width="120" height="212" rx="26" fill={`url(#glow-dark-${uid})`} />
+          <rect x="152" y="102" width="96" height="164" rx="14" fill={`url(#glow-${uid})`} />
+          <rect x="176" y="278" width="48" height="6" rx="3" fill="#ffffff" opacity="0.35" />
+          <ellipse cx="172" cy="132" rx="16" ry="22" fill={`url(#sheen-${uid})`} />
+        </g>
+      )}
 
-    {variant === 'drop' && (
-      <g class="scene-float">
-        {/* Droplet: circle with a drawn-up apex. */}
-        <path
-          d="M200 78c34 44 62 74 62 110a62 62 0 1 1-124 0c0-36 28-66 62-110z"
-          fill={`url(#glow-${variant})`}
-        />
-        <ellipse cx="176" cy="168" rx="24" ry="30" fill={`url(#sheen-${variant})`} />
-      </g>
-    )}
+      {variant === 'orbit' && (
+        <g class="scene-float">
+          <circle cx="200" cy="196" r="74" fill={`url(#glow-${uid})`} />
+          <ellipse cx="176" cy="170" rx="22" ry="28" fill={`url(#sheen-${uid})`} />
+        </g>
+      )}
 
-    {variant === 'device' && (
-      <g class="scene-float">
-        <rect
-          x="140"
-          y="86"
-          width="120"
-          height="212"
-          rx="26"
-          fill={`url(#glow-dark-${variant})`}
-        />
-        <rect x="152" y="102" width="96" height="164" rx="14" fill={`url(#glow-${variant})`} />
-        <rect x="176" y="278" width="48" height="6" rx="3" fill="#ffffff" opacity="0.35" />
-        <ellipse cx="172" cy="132" rx="16" ry="22" fill={`url(#sheen-${variant})`} />
-      </g>
-    )}
-
-    {variant === 'orbit' && (
-      <g class="scene-float">
-        <circle cx="200" cy="196" r="74" fill={`url(#glow-${variant})`} />
-        <ellipse cx="176" cy="170" rx="22" ry="28" fill={`url(#sheen-${variant})`} />
-      </g>
-    )}
-
-    {/* Two satellites drifting on their own cycles, so the scene never
-        reads as a single looping bob. */}
-    <circle class="scene-orbit-a" cx="98" cy="120" r="17" fill="var(--color-ink)" />
-    <circle class="scene-orbit-b" cx="308" cy="248" r="12" fill="var(--color-accent)" />
-  </svg>
-
+      <circle class="scene-orbit-a" cx="98" cy="120" r="17" fill="var(--color-ink)" />
+      <circle class="scene-orbit-b" cx="308" cy="248" r="12" fill="var(--color-accent)" />
+    </svg>
   </div>
 </div>
 
 <style>
   .scene {
     aspect-ratio: var(--scene-ratio, 1 / 1);
+    background: transparent;
   }
 
-  /* Speech bubble tail, drawn as a rotated square tucked under the bubble. */
+  /* ── Radial gradient backdrop: deep dark indigo/violet ambient glow ── */
+  .scene-backdrop {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse 80% 60% at 30% 20%,
+        rgba(99, 66, 212, 0.22) 0%,
+        transparent 65%
+      ),
+      radial-gradient(
+        ellipse 60% 70% at 70% 80%,
+        rgba(14, 165, 233, 0.12) 0%,
+        transparent 60%
+      ),
+      linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #1a1333 100%);
+    z-index: 0;
+  }
+
+  /* ── SVG dot-grid overlay at ~17% opacity ── */
+  .scene-dotgrid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: rgba(255, 255, 255, 0.17);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ── Floating art sits above both layers ── */
+  .scene-art {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Speech bubble tail */
   .bubble::after {
     content: '';
     position: absolute;
@@ -248,15 +254,3 @@ const {
     }
   }
 </style>
-
-<script type="module">
-  // Guard: Astro deduplicates <script type="module"> across component instances,
-  // so this runs at most once per page — no need to call it in every Scene3D.
-  import { setupAdaptiveVideos } from '../utils/network.js';
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupAdaptiveVideos, { once: true });
-  } else {
-    setupAdaptiveVideos();
-  }
-</script>
