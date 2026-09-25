@@ -25,9 +25,11 @@ interface Props {
   updated?: Date;
   tags?: string[];
   readMinutes?: number;
+  /** Public-folder path written by Sveltia CMS, e.g. /images/blog/cover.jpg */
+  cover?: string | null;
 }
 
-const { title, description, pubDate, updated, tags = [], readMinutes = 1 } = Astro.props;
+const { title, description, pubDate, updated, tags = [], readMinutes = 1, cover } = Astro.props;
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
@@ -99,6 +101,17 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
       <h1 class="blog-post-title">{title}</h1>
       <p class="blog-lede">{description}</p>
     </header>
+
+    <!-- ── Cover image (optional) ── -->
+    {cover && (
+      <img
+        src={cover}
+        alt={title}
+        class="w-full rounded-xl object-cover mb-8 max-h-[420px]"
+        loading="lazy"
+        decoding="async"
+      />
+    )}
 
     <!-- ── Prose body ── -->
     <div class="blog-post-page__body prose-body">

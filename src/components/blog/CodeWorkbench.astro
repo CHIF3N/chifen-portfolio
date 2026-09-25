@@ -1,0 +1,344 @@
+---
+/**
+ * CodeWorkbench.astro
+ * ───────────────────────────────────────────────────────────────────────────
+ * VS Code-style interactive multi-file code viewer.
+ * Pure Astro + vanilla JS — no framework island required.
+ *
+ * Usage in MDX (after global registration in astro.config.mjs):
+ *
+ *   <CodeWorkbench
+ *     project="my-project"
+ *     files={[
+ *       { name: "index.ts", lang: "typescript", code: `…` },
+ *       { name: "config.json", lang: "json", code: `…` },
+ *     ]}
+ *   />
+ *
+ * Props:
+ *   project  — breadcrumb label shown in the title bar
+ *   files    — array of { name, lang, code } objects
+ */
+
+export interface WorkbenchFile {
+  name: string;
+  /** Language hint: javascript | typescript | json | bash | yaml | html | css | nginx | dockerfile */
+  lang: string;
+  code: string;
+}
+
+interface Props {
+  project?: string;
+  files: WorkbenchFile[];
+}
+
+const { project = 'project', files } = Astro.props;
+
+const uid = `wb-${Math.random().toString(36).slice(2, 8)}`;
+
+const langColor: Record<string, string> = {
+  javascript: '#f7df1e', typescript: '#3178c6', json: '#9cdcfe',
+  bash: '#89d185', sh: '#89d185', yaml: '#e06c75', yml: '#e06c75',
+  html: '#e34c26', css: '#563d7c', mdx: '#f97316', md: '#f97316',
+  dockerfile: '#2496ed', nginx: '#009639',
+};
+function extColor(lang: string): string {
+  return langColor[lang.toLowerCase()] ?? '#abb2bf';
+}
+
+const langLabel: Record<string, string> = {
+  javascript: 'JS', typescript: 'TS', json: 'JSON', bash: 'SH', sh: 'SH',
+  yaml: 'YAML', yml: 'YAML', html: 'HTML', css: 'CSS', mdx: 'MDX', md: 'MD',
+  dockerfile: 'Docker', nginx: 'NGINX',
+};
+function extLabel(lang: string): string {
+  return langLabel[lang.toLowerCase()] ?? lang.toUpperCase().slice(0, 6);
+}
+
+function esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderLines(code: string): string {
+  return esc(code).split('\n').map((line, ln) =>
+    `<span class="cwb-line"><span class="cwb-ln" aria-hidden="true">${ln + 1}</span><span class="cwb-lc">${line || ' '}</span></span>`
+  ).join('\n');
+}
+---
+
+<div class="cwb" id={uid} data-uid={uid}>
+  <!-- Title bar -->
+  <div class="cwb-titlebar">
+    <span class="cwb-dots" aria-hidden="true">
+      <span class="cwb-dot cwb-dot--red"></span>
+      <span class="cwb-dot cwb-dot--yellow"></span>
+      <span class="cwb-dot cwb-dot--green"></span>
+    </span>
+    <span class="cwb-breadcrumb">
+      <span class="cwb-bc-project">{project}</span>
+      <span class="cwb-bc-sep" aria-hidden="true">/</span>
+      <span class="cwb-bc-file" id={`${uid}-bc`}>{files[0]?.name ?? ''}</span>
+    </span>
+    <button class="cwb-copy" id={`${uid}-copy`} aria-label="Copy code" title="Copy code">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span class="cwb-copy-label">Copy</span>
+    </button>
+  </div>
+
+  <!-- Tab strip -->
+  <div class="cwb-tabs" role="tablist" id={`${uid}-tabs`}>
+    {files.map((f, i) => (
+      <button
+        class:list={['cwb-tab', i === 0 && 'cwb-tab--active']}
+        role="tab"
+        aria-selected={i === 0 ? 'true' : 'false'}
+        aria-controls={`${uid}-panel-${i}`}
+        id={`${uid}-tab-${i}`}
+        data-index={String(i)}
+        data-name={f.name}
+      >
+        <span class="cwb-tab-dot" style={`background:${extColor(f.lang)}`} aria-hidden="true"></span>
+        {f.name}
+        <span class="cwb-tab-badge">{extLabel(f.lang)}</span>
+      </button>
+    ))}
+  </div>
+
+  <!-- Body: sidebar + panels -->
+  <div class="cwb-body">
+    <nav class="cwb-sidebar" aria-label="File explorer">
+      <div class="cwb-sidebar-head">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+        {project}
+      </div>
+      <ul class="cwb-tree" role="list">
+        {files.map((f, i) => (
+          <li>
+            <button
+              class:list={['cwb-tree-item', i === 0 && 'cwb-tree-item--active']}
+              data-index={String(i)}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+            >
+              <span class="cwb-tree-dot" style={`background:${extColor(f.lang)}`} aria-hidden="true"></span>
+              {f.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="cwb-panels">
+      {files.map((f, i) => (
+        <div
+          class:list={['cwb-panel', i === 0 && 'cwb-panel--active']}
+          role="tabpanel"
+          id={`${uid}-panel-${i}`}
+          aria-labelledby={`${uid}-tab-${i}`}
+          hidden={i !== 0}
+        >
+          <pre class="cwb-pre"><code set:html={renderLines(f.code)} /></pre>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id={`${uid}-data`} set:text={JSON.stringify(
+  files.map(f => ({ name: f.name, code: f.code }))
+)} />
+
+<script>
+(function () {
+  function init(wb: HTMLElement) {
+    const uid = wb.dataset.uid!;
+    const dataEl = document.getElementById(`${uid}-data`);
+    if (!dataEl) return;
+    const files: Array<{ name: string; code: string }> =
+      JSON.parse(dataEl.textContent ?? '[]');
+
+    const tabs      = wb.querySelectorAll<HTMLElement>('.cwb-tab');
+    const panels    = wb.querySelectorAll<HTMLElement>('.cwb-panel');
+    const treeItems = wb.querySelectorAll<HTMLElement>('.cwb-tree-item');
+    const bcFile    = document.getElementById(`${uid}-bc`);
+    const copyBtn   = document.getElementById(`${uid}-copy`);
+    const copyLabel = copyBtn?.querySelector<HTMLElement>('.cwb-copy-label');
+
+    function activate(index: number) {
+      tabs.forEach((t, i) => {
+        const on = i === index;
+        t.classList.toggle('cwb-tab--active', on);
+        t.setAttribute('aria-selected', String(on));
+      });
+      panels.forEach((p, i) => {
+        const on = i === index;
+        p.classList.toggle('cwb-panel--active', on);
+        (p as HTMLElement).hidden = !on;
+      });
+      treeItems.forEach((t, i) => {
+        const on = i === index;
+        t.classList.toggle('cwb-tree-item--active', on);
+        t.setAttribute('aria-pressed', String(on));
+      });
+      if (bcFile) bcFile.textContent = files[index]?.name ?? '';
+    }
+
+    tabs.forEach(tab =>
+      tab.addEventListener('click', () => activate(Number(tab.dataset.index)))
+    );
+    treeItems.forEach(item =>
+      item.addEventListener('click', () => activate(Number(item.dataset.index)))
+    );
+
+    if (copyBtn && copyLabel) {
+      copyBtn.addEventListener('click', () => {
+        const activeIndex = [...tabs].findIndex(t =>
+          t.classList.contains('cwb-tab--active')
+        );
+        navigator.clipboard?.writeText(files[activeIndex]?.code ?? '').then(() => {
+          copyLabel.textContent = 'Copied!';
+          copyBtn.classList.add('cwb-copy--ok');
+          setTimeout(() => {
+            copyLabel.textContent = 'Copy';
+            copyBtn.classList.remove('cwb-copy--ok');
+          }, 2000);
+        });
+      });
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.cwb').forEach(init);
+})();
+</script>
+
+<style>
+  .cwb {
+    --cwb-bg:         #0d1117;
+    --cwb-bar-bg:     #161b22;
+    --cwb-border:     rgba(255,255,255,0.08);
+    --cwb-text:       #e6edf3;
+    --cwb-muted:      #7d8590;
+    --cwb-accent:     var(--color-accent, #38bdf8);
+    --cwb-ln-color:   #3d444d;
+    --cwb-font:       'JetBrains Mono', 'Fira Code', ui-monospace, 'Courier New', monospace;
+    --cwb-font-size:  0.8125rem;
+
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    border: 1px solid var(--cwb-border);
+    background: var(--cwb-bg);
+    overflow: hidden;
+    margin-block: 1.75rem;
+    font-family: var(--cwb-font);
+    font-size: var(--cwb-font-size);
+    line-height: 1.65;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  /* Title bar */
+  .cwb-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1rem;
+    background: var(--cwb-bar-bg);
+    border-bottom: 1px solid var(--cwb-border);
+  }
+  .cwb-dots { display: flex; gap: 6px; flex-shrink: 0; }
+  .cwb-dot  { width: 12px; height: 12px; border-radius: 50%; }
+  .cwb-dot--red    { background: #ff5f57; }
+  .cwb-dot--yellow { background: #febc2e; }
+  .cwb-dot--green  { background: #28c840; }
+
+  .cwb-breadcrumb {
+    flex: 1; display: flex; align-items: center; gap: 0.3rem;
+    font-size: 0.75rem; color: var(--cwb-muted); overflow: hidden;
+  }
+  .cwb-bc-sep  { color: var(--cwb-ln-color); }
+  .cwb-bc-file { color: var(--cwb-text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .cwb-copy {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.3rem 0.6rem; border-radius: 6px;
+    background: transparent; border: 1px solid var(--cwb-border);
+    color: var(--cwb-muted); font-size: 0.7rem; font-family: var(--cwb-font);
+    cursor: pointer; transition: color 0.15s, border-color 0.15s; flex-shrink: 0;
+  }
+  .cwb-copy:hover  { color: var(--cwb-text); border-color: var(--cwb-muted); }
+  .cwb-copy--ok    { color: #28c840 !important; border-color: #28c840 !important; }
+
+  /* Tabs */
+  .cwb-tabs {
+    display: flex; overflow-x: auto; scrollbar-width: none;
+    background: var(--cwb-bar-bg); border-bottom: 1px solid var(--cwb-border);
+  }
+  .cwb-tabs::-webkit-scrollbar { display: none; }
+
+  .cwb-tab {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.45rem 1rem; border: none; border-bottom: 2px solid transparent;
+    background: transparent; color: var(--cwb-muted);
+    font-family: var(--cwb-font); font-size: 0.76rem; white-space: nowrap;
+    cursor: pointer; transition: color 0.12s, border-color 0.12s, background 0.12s;
+  }
+  .cwb-tab:hover { color: var(--cwb-text); background: rgba(255,255,255,0.03); }
+  .cwb-tab--active { color: var(--cwb-text); border-bottom-color: var(--cwb-accent); background: var(--cwb-bg); }
+
+  .cwb-tab-dot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .cwb-tab-badge {
+    font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px;
+    background: rgba(255,255,255,0.06); color: var(--cwb-muted);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  /* Body */
+  .cwb-body { display: flex; flex: 1; min-height: 0; max-height: 520px; }
+
+  /* Sidebar */
+  .cwb-sidebar {
+    width: 180px; flex-shrink: 0; background: var(--cwb-bar-bg);
+    border-right: 1px solid var(--cwb-border); overflow-y: auto;
+  }
+  @media (max-width: 560px) { .cwb-sidebar { display: none; } }
+
+  .cwb-sidebar-head {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.6rem 0.75rem 0.4rem;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--cwb-muted);
+  }
+  .cwb-tree { list-style: none; padding: 0; margin: 0; }
+  .cwb-tree-item {
+    display: flex; align-items: center; gap: 0.45rem; width: 100%;
+    padding: 0.3rem 0.75rem; border: none; background: transparent;
+    color: var(--cwb-muted); font-family: var(--cwb-font); font-size: 0.76rem;
+    text-align: left; cursor: pointer; transition: color 0.12s, background 0.12s;
+  }
+  .cwb-tree-item:hover { color: var(--cwb-text); background: rgba(255,255,255,0.04); }
+  .cwb-tree-item--active { color: var(--cwb-text); background: rgba(255,255,255,0.07); }
+  .cwb-tree-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Panels */
+  .cwb-panels { flex: 1; overflow: auto; }
+  .cwb-panel  { display: none; }
+  .cwb-panel--active { display: block; }
+
+  .cwb-pre {
+    margin: 0; padding: 0.75rem 0;
+    background: var(--cwb-bg); overflow-x: auto;
+  }
+  .cwb-pre code { display: block; width: max-content; min-width: 100%; }
+
+  .cwb-line { display: flex; }
+  .cwb-line:hover { background: rgba(255,255,255,0.025); }
+
+  .cwb-ln {
+    width: 3rem; flex-shrink: 0; padding-right: 1.25rem;
+    text-align: right; color: var(--cwb-ln-color);
+    user-select: none; font-size: 0.72rem; line-height: 1.65;
+  }
+  .cwb-lc {
+    flex: 1; padding-right: 1.5rem; color: var(--cwb-text); white-space: pre;
+    font-family: var(--cwb-font); font-size: var(--cwb-font-size); line-height: 1.65;
+  }
+</style>
