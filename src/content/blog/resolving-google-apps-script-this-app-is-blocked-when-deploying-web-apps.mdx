@@ -21,19 +21,17 @@ Unlike the standard \*"Google hasn't verified this app"\* screen, there is no "A
 
 Here is why this error occurs and how to fix it permanently.
 
----
+***
 
 ### Why Does This Happen?
 
 Google triggers the outright block primarily due to three reasons:
 
 1. \*\*Overly Broad Scopes:\*\* By default, Google Apps Script infers permissions. If you use services like \`SpreadsheetApp\`, it requests full read/write access across \*\*all\*\* files in your Google Drive. For unverified apps, Google’s security policies block this automatically.
-
 2. \*\*Standalone vs Container-Bound Scripts:\*\* When a script is created as a standalone project (\`script.google.com\`) rather than bound directly to the sheet (\`Extensions > Apps Script\`), Google treats it as an untrusted third-party client.
-
 3. \*\*Multi-Account Browser Collisions:\*\* When logged into multiple Google accounts in one Chrome session, OAuth redirects frequently scramble project tokens.
 
----
+***
 
 ### The Permanent Fix: 3 Steps
 
