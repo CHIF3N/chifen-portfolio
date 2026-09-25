@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: Chif99/chifen-portfolio
+  repo: CHIF3N/chifen-portfolio
   branch: main
 
 media_folder: "public/images/blog"
