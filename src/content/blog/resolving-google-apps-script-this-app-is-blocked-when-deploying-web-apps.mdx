@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 title: Resolving Google Apps Script "This App Is Blocked" When Deploying Web Apps
 pubDate: 2026-09-25T17:27:00.000+01:00
 description: A step-by-step guide to bypassing Google's strict OAuth block by scoping manifests with @OnlyCurrentDoc and configuring container-bound scripts.
@@ -24,9 +25,29 @@ Here is why this error occurs and how to fix it permanently.
 ***
 
 ### Why Does This Happen?
+=======
+title: "Resolving Google Apps Script \"This App Is Blocked\" When Deploying Web Apps"
+description: "A step-by-step guide to bypassing Google's strict OAuth block by scoping manifests with @OnlyCurrentDoc and configuring container-bound scripts."
+pubDate: 2026-09-25T14:00:00.000Z
+tags: ["google-apps-script", "web-dev", "troubleshooting", "bug-fix"]
+draft: false
+---
+
+import CodeWorkbench from '../../components/blog/CodeWorkbench.astro';
+
+If you have ever built a Google Apps Script project, added an HTML frontend, and tried to deploy it as a Web App, chances are you’ve run headfirst into a red triangle and this message:
+
+> **"This app is blocked"**  
+> *This app tried to access sensitive info in your Google Account. To keep your account safe, Google blocked this access.*
+
+Unlike the standard *"Google hasn't verified this app"* screen, there is no "Advanced" button to bypass this. You are completely locked out.
+
+Here is why this error occurs and how to fix it permanently.
+>>>>>>> 60fa0b8 (docs: publish structured technical walkthrough for apps script oauth bypass)
 
 Google triggers the outright block primarily due to three reasons:
 
+<<<<<<< HEAD
 1. **Overly Broad Scopes:** By default, Google Apps Script infers permissions. If you use services like `SpreadsheetApp`, it requests full read/write access across **all** files in your Google Drive. For unverified apps, Google's security policies block this automatically.
 2. **Standalone vs Container-Bound Scripts:** When a script is created as a standalone project (`script.google.com`) rather than bound directly to the sheet (`Extensions > Apps Script`), Google treats it as an untrusted third-party client.
 3. **Multi-Account Browser Collisions:** When logged into multiple Google accounts in one Chrome session, OAuth redirects frequently scramble project tokens.
@@ -39,6 +60,43 @@ Here is the complete working setup — three files that together eliminate the b
 
 <CodeWorkbench
   project="gas-webapp"
+=======
+### Why Does This Happen?
+
+Google triggers the outright block primarily due to three reasons:
+
+1. **Overly Broad Scopes:** By default, Google Apps Script infers permissions. If you use services like `SpreadsheetApp`, it requests full read/write access across **all** files in your Google Drive. For unverified apps, Google’s security policies block this automatically.
+2. **Standalone vs Container-Bound Scripts:** When a script is created as a standalone project (`script.google.com`) rather than bound directly to the sheet (`Extensions > Apps Script`), Google treats it as an untrusted third-party client.
+3. **Multi-Account Browser Collisions:** When logged into multiple Google accounts in one Chrome session, OAuth redirects frequently scramble project tokens.
+
+---
+
+### The Permanent Fix: 3 Steps
+
+#### 1. Add the `@OnlyCurrentDoc` Guard
+At the very top of your `Code.gs` file, declare the `@OnlyCurrentDoc` JSDoc tag. This instructs Apps Script's compiler to restrict scope requests strictly to the active spreadsheet rather than your entire Drive.
+
+#### 2. Restrict Scopes in `appsscript.json`
+To make your manifest file visible:
+1. Go to **Project Settings** (gear icon) in the Apps Script left panel.
+2. Check **"Show 'appsscript.json' manifest file in editor"**.
+3. Open `appsscript.json` and declare explicit, minimal scopes using `spreadsheets.currentonly`.
+
+#### 3. Deploy Under a Fresh Version
+1. Click **Deploy > Manage deployments**.
+2. Edit your deployment (pencil icon).
+3. Under **Version**, pick **New version**.
+4. Click **Deploy**.
+
+---
+
+### Interactive Multi-File Implementation
+
+Switch between the files below to inspect the manifest configuration, the guarded backend script, and the frontend card interface:
+
+<CodeWorkbench
+  title="apps-script-oauth-fix"
+>>>>>>> 60fa0b8 (docs: publish structured technical walkthrough for apps script oauth bypass)
   files={[
     {
       name: "Code.gs",
@@ -76,8 +134,13 @@ function appendRow(rowData) {
     },
     {
       name: "appsscript.json",
+<<<<<<< HEAD
       lang: "json",
       code: \`{
+=======
+      language: "json",
+      code: `{
+>>>>>>> 60fa0b8 (docs: publish structured technical walkthrough for apps script oauth bypass)
   "timeZone": "Africa/Lagos",
   "dependencies": {},
   "exceptionLogging": "STACKDRIVER",
@@ -90,6 +153,7 @@ function appendRow(rowData) {
     "https://www.googleapis.com/auth/spreadsheets.currentonly",
     "https://www.googleapis.com/auth/script.container.ui"
   ]
+<<<<<<< HEAD
 }\`
     },
     {
@@ -132,7 +196,115 @@ function appendRow(rowData) {
             'Error: ' + err.message;
         })
         .getSheetData();
+=======
+}`
+    },
+    {
+      name: "Code.gs",
+      language: "javascript",
+      code: `/**
+ * @OnlyCurrentDoc
+ * Forces scope isolation to prevent Google OAuth blocks.
+ */
+
+function doGet(e) {
+  return HtmlService.createTemplateFromFile('Index')
+    .evaluate()
+    .setTitle('Dashboard')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function getDatabaseMetrics() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const data = sheet.getDataRange().getValues();
+  const headers = data.shift();
+  
+  return {
+    status: "healthy",
+    recordsCount: data.length,
+    lastSync: new Date().toLocaleTimeString(),
+    columns: headers
+  };
+}`
+    },
+    {
+      name: "Index.html",
+      language: "html",
+      code: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      margin: 0;
     }
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(46, 160, 67, 0.15);
+      color: #3fb950;
+      border: 1px solid rgba(46, 160, 67, 0.4);
+    }
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      background: #238636;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #2ea043; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">Connected to Sheet</span>
+    <h2 style="margin: 0.75rem 0 0.25rem;">Workspace Dashboard</h2>
+    <p style="color: #8b949e; font-size: 0.875rem;">Live data stream bypassing OAuth locks.</p>
+    
+    <div id="output" style="margin-top: 1.5rem; font-family: monospace;">Fetching state...</div>
+    <button onclick="refreshData()">Query Metrics</button>
+  </div>
+
+  <script>
+    function refreshData() {
+      document.getElementById('output').innerText = "Syncing with Apps Script...";
+      google.script.run
+        .withSuccessHandler(res => {
+          document.getElementById('output').innerHTML = 
+            \`Status: \${res.status}<br>Rows: \${res.recordsCount}<br>Updated: \${res.lastSync}\`;
+        })
+        .withFailureHandler(err => {
+          document.getElementById('output').innerText = "Sync failed: " + err.message;
+        })
+        .getDatabaseMetrics();
+>>>>>>> 60fa0b8 (docs: publish structured technical walkthrough for apps script oauth bypass)
+    }
+    
+    refreshData();
   </script>
 </body>
 </html>\`
@@ -142,6 +314,7 @@ function appendRow(rowData) {
 
 ***
 
+<<<<<<< HEAD
 ### Step-by-Step Deployment
 
 #### 1. Use a Container-Bound Script
@@ -171,3 +344,9 @@ Copy the deployment URL and open it in a clean Incognito window logged into one 
 | Missing explicit scopes | Declare `oauthScopes` in `appsscript.json` |
 | Standalone script | Re-create as container-bound via `Extensions > Apps Script` |
 | Multi-account collision | Open deployment URL in Incognito with one account only |
+=======
+### Live Deployment
+
+You can view the resulting working web app deployment here:  
+👉 **[Live Google Apps Script Web App](https://script.google.com/macros/s/AKfycbyqavrCzXQ-UR2P3pGkDYmIjMnpgZakpUmS77OrVAEUowinbE-Gzw3ytJNWQH2PabtGVw/exec)**
+>>>>>>> 60fa0b8 (docs: publish structured technical walkthrough for apps script oauth bypass)
