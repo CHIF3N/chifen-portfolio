@@ -1,0 +1,420 @@
+---
+title: "Inside LifeDrop: How We Match Blood Donors on WhatsApp in Under 15 Minutes"
+description: "When a hospital in Cameroon runs out of blood, the search falls on the family. Here is the clinical triage logic, ABO compatibility matrix, and automated WhatsApp dispatch engine behind LifeDrop."
+pubDate: 2026-09-26T14:00:00.000Z
+tags: ["health-tech", "WhatsApp", "algorithms", "product", "Cameroon", "LifeDrop"]
+draft: false
+---
+
+import CodeWorkbench from '../../components/blog/CodeWorkbench.astro';
+import DonorMatchSimulator from '../../components/blog/DonorMatchSimulator.astro';
+
+When a hospital in Cameroon runs out of blood, the search falls entirely on the patient's family.
+
+Door to door, phone call by phone call, while the clinical clock runs down. A father sprints between private clinics in Douala; a sister posts frantic pleas on Facebook and WhatsApp statuses at two in the morning.
+
+The tragedy is that the blood almost always exists. It is walking around in the veins of a healthy stranger three streets away in Molyko or Clerks Quarters. Nobody can find it in time.
+
+That realization shaped everything we built with **LifeDrop**:
+
+> **Blood is not scarce here. It is unfindable.**  
+> Scarcity is a tragic medical constraint you have to accept. *Findability* is a coordination problem, and coordination is an engineering problem you can solve.
+
+Here is the technical architecture, clinical triage logic, and WhatsApp automated dispatch engine that powers LifeDrop.
+
+---
+
+### Why We Abandoned Native Mobile Apps
+
+Before LifeDrop, we built **Ayodah**—a dedicated mobile application for blood donation coordination. It was well-engineered, had hospital partnerships, and won awards.
+
+And it died at the install screen.
+
+People downloaded it once, closed it, and never touched it again. When emergency blood requests came in, they didn't open Ayodah; they flooded my personal WhatsApp inbox. Asking a terrified relative standing in a hospital corridor at 2:00 AM to download an 80MB app over unstable 3G is a failure of product empathy.
+
+We stopped arguing with our users and moved directly into **WhatsApp**—the single digital tool already installed on every phone across Cameroon.
+
+---
+
+### The 4 Pillars of the Matching Engine
+
+Matching blood donors is fundamentally different from matching taxis or food deliveries. A bad ride is inconvenient; a mismatched transfusion causes acute intravascular hemolysis and renal failure.
+
+Our matching algorithm balances four strict clinical and geographic constraints:
+
+```
+Match Score = (Compatibility × 0.40) + (Proximity × 0.35) + (Reliability × 0.25)
+```
+
+#### 1. Strict ABO & Rh Immunological Compatibility
+Transfusion medicine dictates that red blood cells lacking certain antigens will be attacked by recipient antibodies:
+- **O Negative (O-)** has neither A, B, nor Rh antigens. It is the universal donor for red cells.
+- **AB Positive (AB+)** possesses both A, B, and Rh antigens. It can safely receive red cells from any blood type.
+- An **A+** patient can receive from **A+, A-, O+, O-**, but never from B or AB donors.
+
+#### 2. Clinical Cooldown & Donor Protection
+A donor's safety is as critical as the recipient's. Donors must not be over-bled:
+- **Males:** Minimum **90 days (12 weeks)** cooldown between whole blood donations.
+- **Females:** Minimum **120 days (16 weeks)** cooldown due to higher risk of iron deficiency.
+- **Weight Threshold:** Minimum **50 kg**.
+- Anyone with an active donation or pending reservation is instantly excluded.
+
+#### 3. Hyperlocal Geo-Proximity in Buea
+In Cameroon, physical distance does not equal transit time. Road conditions, motorbikes, and terrain mean 3 kilometers in Buea can take 6 minutes or 35 minutes depending on the sector:
+- **Molyko / Checkpoint:** High student density, 5–10 minutes to Buea Regional Hospital.
+- **Clerks Quarters / Government Station:** 4–8 minutes transit.
+- **Mile 16 / Mile 17:** 15–25 minutes transit.
+- **Bokwango / Great Soppo:** 10–15 minutes transit.
+
+#### 4. Cascaded WhatsApp Dispatch (Wave-Based)
+Blasting hundreds of donors simultaneously causes panic and donor burnout. LifeDrop sends interactive WhatsApp messages in **waves of 3**:
+- Wave 1 targets the 3 highest-scoring, closest compatible donors.
+- Each message contains single-tap interactive buttons: **"Yes, I can donate now"** or **"Unavailable"**.
+- If no positive response occurs within **8 minutes**, the engine automatically cascades to Wave 2.
+- The first confirmed acceptance locks the ticket, cancels outgoing alerts, and sends a hospital pass to the donor.
+
+---
+
+### Interactive Pipeline Architecture & Simulator
+
+Explore the live matching pipeline below. Click any step in the flowchart to inspect its technical logic, or select a patient blood group and hospital to test the matching engine and live WhatsApp message dispatch:
+
+<DonorMatchSimulator defaultBloodGroup="O+" defaultHospital="Buea Regional Hospital" />
+
+---
+
+### The Code: Multi-File Matching Engine
+
+Below is the production implementation of the LifeDrop matching engine, ABO compatibility matrix, Meta WhatsApp webhook handler, and PostgreSQL schema.
+
+You can click folders to unfold subdirectories, select files to view syntax-highlighted source code, toggle the explorer sidebar, and copy code snippets:
+
+<CodeWorkbench
+  project="lifedrop-engine"
+  files={[
+    {
+      name: "src/matching/engine.ts",
+      lang: "typescript",
+      code: `import { getCompatibleDonorGroups } from './matrix';
+import { calculateTransitScore } from './sectors';
+
+export interface BloodRequest {
+  id: string;
+  hospitalId: string;
+  hospitalName: string;
+  recipientBloodGroup: string;
+  unitsRequired: number;
+  urgency: 'critical' | 'urgent' | 'scheduled';
+  wardBed: string;
+  doctorLicense: string;
+  createdAt: Date;
+}
+
+export interface DonorCandidate {
+  id: string;
+  name: string;
+  phone: string;
+  bloodGroup: string;
+  gender: 'M' | 'F';
+  sector: string;
+  lastDonationDate: Date | null;
+  reliabilityRating: number; // 0.0 to 1.0
+  activeStatus: boolean;
+}
+
+export interface ScoredMatch {
+  donor: DonorCandidate;
+  compositeScore: number;
+  compatible: boolean;
+  transitMinutes: number;
+  cooldownEligible: boolean;
+}
+
+/**
+ * Evaluates the entire donor pool against clinical constraints
+ * and returns ranked candidate donors for WhatsApp dispatch.
+ */
+export function matchDonorsForRequest(
+  request: BloodRequest,
+  donorPool: DonorCandidate[]
+): ScoredMatch[] {
+  const compatibleTypes = getCompatibleDonorGroups(request.recipientBloodGroup);
+  const now = new Date();
+
+  const evaluated: ScoredMatch[] = donorPool
+    .filter(donor => donor.activeStatus)
+    .map(donor => {
+      // 1. Immunological Check
+      const compatible = compatibleTypes.includes(donor.bloodGroup);
+
+      // 2. Clinical Cooldown Gate
+      const minCooldownDays = donor.gender === 'M' ? 90 : 120;
+      let cooldownEligible = true;
+      if (donor.lastDonationDate) {
+        const daysSinceLast = (now.getTime() - donor.lastDonationDate.getTime()) / (1000 * 3600 * 24);
+        cooldownEligible = daysSinceLast >= minCooldownDays;
+      }
+
+      // Hard gate: Incompatible or in cooldown cannot be dispatched
+      if (!compatible || !cooldownEligible) {
+        return {
+          donor,
+          compositeScore: 0,
+          compatible,
+          transitMinutes: 999,
+          cooldownEligible,
+        };
+      }
+
+      // 3. Proximity Scoring (Buea Sectors)
+      const { transitMinutes, proximityScore } = calculateTransitScore(
+        donor.sector,
+        request.hospitalName
+      );
+
+      // 4. Urgency and Compatibility Weighting
+      // Critical emergency prioritizes identical blood match and nearest donor
+      const isExactMatch = donor.bloodGroup === request.recipientBloodGroup;
+      const compatibilityScore = isExactMatch ? 1.0 : 0.85;
+
+      const compositeScore =
+        compatibilityScore * 0.40 +
+        proximityScore * 0.35 +
+        donor.reliabilityRating * 0.25;
+
+      return {
+        donor,
+        compositeScore: parseFloat(compositeScore.toFixed(3)),
+        compatible: true,
+        transitMinutes,
+        cooldownEligible: true,
+      };
+    })
+    .filter(m => m.compositeScore > 0)
+    .sort((a, b) => b.compositeScore - a.compositeScore);
+
+  return evaluated;
+}
+
+/**
+ * Returns the top N donors for the initial WhatsApp dispatch wave.
+ */
+export function getDispatchWave(matches: ScoredMatch[], waveSize = 3): ScoredMatch[] {
+  return matches.slice(0, waveSize);
+}`
+    },
+    {
+      name: "src/matching/matrix.ts",
+      lang: "typescript",
+      code: `/**
+ * ABO and Rh blood group compatibility lookup table.
+ * Derived from standard clinical transfusion protocols.
+ */
+
+export type BloodGroup = 'O-' | 'O+' | 'A-' | 'A+' | 'B-' | 'B+' | 'AB-' | 'AB+';
+
+export const COMPATIBILITY_TABLE: Record<BloodGroup, BloodGroup[]> = {
+  // O- can only receive from O-
+  'O-': ['O-'],
+
+  // O+ can receive from O- and O+
+  'O+': ['O-', 'O+'],
+
+  // A- can receive from O- and A-
+  'A-': ['O-', 'A-'],
+
+  // A+ can receive from O-, O+, A-, A+
+  'A+': ['O-', 'O+', 'A-', 'A+'],
+
+  // B- can receive from O- and B-
+  'B-': ['O-', 'B-'],
+
+  // B+ can receive from O-, O+, B-, B+
+  'B+': ['O-', 'O+', 'B-', 'B+'],
+
+  // AB- can receive from O-, A-, B-, AB-
+  'AB-': ['O-', 'A-', 'B-', 'AB-'],
+
+  // AB+ is universal recipient for red blood cells
+  'AB+': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']
+};
+
+export function getCompatibleDonorGroups(recipientGroup: string): BloodGroup[] {
+  const normalized = recipientGroup.toUpperCase().trim() as BloodGroup;
+  return COMPATIBILITY_TABLE[normalized] ?? ['O-'];
+}`
+    },
+    {
+      name: "src/services/whatsapp.ts",
+      lang: "typescript",
+      code: `/**
+ * LifeDrop WhatsApp Bot Dispatch Service
+ * Interfaces with Meta Cloud WhatsApp API to send interactive quick-reply templates.
+ */
+
+interface DispatchPayload {
+  toPhoneNumber: string;
+  donorName: string;
+  hospitalName: string;
+  bloodGroup: string;
+  transitEstimate: string;
+  requestId: string;
+}
+
+export async function sendEmergencyDonorAlert(payload: DispatchPayload): Promise<boolean> {
+  const WHATSAPP_API_URL = \`https://graph.facebook.com/v18.0/\${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages\`;
+
+  const body = {
+    messaging_product: 'whatsapp',
+    recipient_type: 'individual',
+    to: payload.toPhoneNumber,
+    type: 'interactive',
+    interactive: {
+      type: 'button',
+      header: {
+        type: 'text',
+        text: '🩸 LifeDrop Emergency Alert'
+      },
+      body: {
+        text: \`Hello \${payload.donorName}. An urgent blood need has been verified at \${payload.hospitalName}.\\n\\nNeeded: *\${payload.bloodGroup}*\\nEstimated distance: \${payload.transitEstimate}\\n\\nCan you make it to the blood bank within the next 45 minutes?\`
+      },
+      footer: {
+        text: 'Zero fees • Free transport voucher provided'
+      },
+      action: {
+        buttons: [
+          {
+            type: 'reply',
+            reply: {
+              id: \`ACCEPT_\${payload.requestId}\`,
+              title: '✅ Yes, I can donate'
+            }
+          },
+          {
+            type: 'reply',
+            reply: {
+              id: \`DECLINE_\${payload.requestId}\`,
+              title: '❌ Unavailable'
+            }
+          }
+        ]
+      }
+    }
+  };
+
+  const response = await fetch(WHATSAPP_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${process.env.WHATSAPP_ACCESS_TOKEN}\`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  return response.ok;
+}`
+    },
+    {
+      name: "database/schema.sql",
+      lang: "sql",
+      code: `-- LifeDrop Database Schema: Blood Donor & Request Tracking
+CREATE TABLE donors (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name VARCHAR(120) NOT NULL,
+  phone VARCHAR(20) UNIQUE NOT NULL,
+  blood_group VARCHAR(5) NOT NULL,
+  gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
+  sector VARCHAR(80) NOT NULL,
+  last_donation_date TIMESTAMP WITH TIME ZONE,
+  reliability_score NUMERIC(3, 2) DEFAULT 1.00,
+  active_status BOOLEAN DEFAULT true,
+  registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE blood_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hospital_id VARCHAR(50) NOT NULL,
+  hospital_name VARCHAR(120) NOT NULL,
+  recipient_blood_group VARCHAR(5) NOT NULL,
+  units_required INT NOT NULL DEFAULT 1,
+  urgency_tier VARCHAR(20) NOT NULL CHECK (urgency_tier IN ('critical', 'urgent', 'scheduled')),
+  ward_bed VARCHAR(40) NOT NULL,
+  doctor_license VARCHAR(60) NOT NULL,
+  status VARCHAR(20) DEFAULT 'dispatched' CHECK (status IN ('dispatched', 'matched', 'fulfilled', 'cancelled')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE dispatch_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_id UUID REFERENCES blood_requests(id) ON DELETE CASCADE,
+  donor_id UUID REFERENCES donors(id) ON DELETE CASCADE,
+  wave_number INT NOT NULL DEFAULT 1,
+  dispatched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  response_status VARCHAR(20) DEFAULT 'pending' CHECK (response_status IN ('pending', 'accepted', 'declined', 'timeout')),
+  responded_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX idx_donors_blood_group ON donors(blood_group, active_status);
+CREATE INDEX idx_requests_status ON blood_requests(status);`
+    },
+    {
+      name: "config/buea-sectors.json",
+      lang: "json",
+      code: `{
+  "sectors": {
+    "molyko": {
+      "name": "Molyko",
+      "transitMinutesToRegionalHospital": 8,
+      "proximityScore": 0.95
+    },
+    "clerks_quarters": {
+      "name": "Clerks Quarters",
+      "transitMinutesToRegionalHospital": 5,
+      "proximityScore": 1.00
+    },
+    "mile_17": {
+      "name": "Mile 17 Motor Park",
+      "transitMinutesToRegionalHospital": 16,
+      "proximityScore": 0.70
+    },
+    "bokwango": {
+      "name": "Bokwango",
+      "transitMinutesToRegionalHospital": 12,
+      "proximityScore": 0.80
+    },
+    "buea_town": {
+      "name": "Buea Town",
+      "transitMinutesToRegionalHospital": 10,
+      "proximityScore": 0.85
+    }
+  }
+}`
+    }
+  ]}
+/>
+
+---
+
+### Clinical & Ethical Guardrails
+
+When building health technology in low-resource environments, the edge cases are not academic—they are human lives:
+
+1. **Donors Are Never Paid for Blood:**  
+   Selling blood creates perverse incentives for donors to conceal communicable infections or donate during unsafe cooldown periods. LifeDrop strictly complies with Cameroonian law and WHO guidelines: blood is donated voluntarily. Our small coordination fee covers transport, a post-donation meal, hospital screening supplies, and WhatsApp messaging costs.
+
+2. **Ward Authentication Precedes Every Alert:**  
+   No notification is ever fired from LifeDrop based on an unverified user report. Every single request must originate from an authenticated hospital ward clinician with their professional license and bed identifier. This prevents hoaxes and protects donors from alert fatigue.
+
+3. **Clinicians Do the Medicine; We Do the Coordination:**  
+   LifeDrop never tests, stores, or handles blood units. We connect the healthy walking donor to the hospital laboratory. The hospital lab conducts the final cross-match testing and serology screening before any transfusion needle touches the patient.
+
+---
+
+### What’s Next: Buea Pilot Targets
+
+LifeDrop was awarded **3rd place in MTN YaMo Season 4**. We are currently rolling out the Buea pilot across three partner hospitals, with targets of:
+- **1,000 registered voluntary donors** across the Buea municipality.
+- **200 successful emergency matches** within a 15-minute average response window.
+- Expansion to Limbe Regional Hospital and Douala General Hospital.
+
+If you are a clinician, hospital administrator, or health-tech engineer interested in our open coordination architecture, please reach out via [my contact page](/contact) or check out the [LifeDrop case study](/work/lifedrop).
