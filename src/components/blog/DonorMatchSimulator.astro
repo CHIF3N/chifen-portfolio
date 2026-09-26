@@ -1,0 +1,829 @@
+---
+/**
+ * DonorMatchSimulator.astro
+ * ───────────────────────────────────────────────────────────────────────────
+ * Interactive Architecture Diagram & Donor Matching Simulator for LifeDrop.
+ * Features:
+ *   1. Visual pipeline flowchart with clickable stages revealing technical & clinical specs.
+ *   2. Live ABO/Rh compatibility & Buea sector proximity matching engine.
+ *   3. Interactive WhatsApp chat bubble dispatch simulator with real-time response webhook preview.
+ */
+
+interface Props {
+  defaultBloodGroup?: string;
+  defaultHospital?: string;
+}
+
+const {
+  defaultBloodGroup = 'O+',
+  defaultHospital = 'Buea Regional Hospital',
+} = Astro.props;
+
+const uid = `dms-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="dms-root" id={uid} data-uid={uid}>
+  <!-- Header Bar -->
+  <div class="dms-header">
+    <div class="dms-header-title">
+      <span class="dms-status-dot"></span>
+      <span class="dms-title-text">LifeDrop Engine Architecture & Dispatch Simulator</span>
+    </div>
+    <span class="dms-badge">Interactive System</span>
+  </div>
+
+  <!-- Section 1: Visual Interactive Pipeline Diagram -->
+  <div class="dms-diagram-section">
+    <div class="dms-section-label">Pipeline Architecture (Click any stage to inspect logic)</div>
+    
+    <div class="dms-flowchart" role="tablist">
+      <button class="dms-node dms-node--active" data-step="0" role="tab" aria-selected="true">
+        <span class="dms-node-num">1</span>
+        <span class="dms-node-label">Hospital Request</span>
+        <span class="dms-node-sub">Clinician Ticket</span>
+      </button>
+
+      <div class="dms-connector" aria-hidden="true">&rarr;</div>
+
+      <button class="dms-node" data-step="1" role="tab" aria-selected="false">
+        <span class="dms-node-num">2</span>
+        <span class="dms-node-label">ABO/Rh Matrix</span>
+        <span class="dms-node-sub">Immuno-Filter</span>
+      </button>
+
+      <div class="dms-connector" aria-hidden="true">&rarr;</div>
+
+      <button class="dms-node" data-step="2" role="tab" aria-selected="false">
+        <span class="dms-node-num">3</span>
+        <span class="dms-node-label">Cooldown & Geo</span>
+        <span class="dms-node-sub">Buea Sectors</span>
+      </button>
+
+      <div class="dms-connector" aria-hidden="true">&rarr;</div>
+
+      <button class="dms-node" data-step="3" role="tab" aria-selected="false">
+        <span class="dms-node-num">4</span>
+        <span class="dms-node-label">WhatsApp Dispatch</span>
+        <span class="dms-node-sub">Interactive Alert</span>
+      </button>
+
+      <div class="dms-connector" aria-hidden="true">&rarr;</div>
+
+      <button class="dms-node" data-step="4" role="tab" aria-selected="false">
+        <span class="dms-node-num">5</span>
+        <span class="dms-node-label">Ward Handshake</span>
+        <span class="dms-node-sub">Lock & ETA</span>
+      </button>
+    </div>
+
+    <!-- Dynamic Stage Details Card -->
+    <div class="dms-stage-card" id={`${uid}-stage-card`}>
+      <div class="dms-stage-header">
+        <span class="dms-stage-tag" id={`${uid}-stage-tag`}>Stage 1 of 5</span>
+        <h4 class="dms-stage-title" id={`${uid}-stage-title`}>Hospital Emergency Ticket Generation</h4>
+      </div>
+      <p class="dms-stage-desc" id={`${uid}-stage-desc`}>
+        A verified doctor or head nurse at Buea Regional Hospital submits an urgent transfusion request.
+        To avoid false alerts and donor burnout, zero notifications are sent until the clinical request is authenticated with doctor license and ward bed ID.
+      </p>
+      <div class="dms-stage-meta" id={`${uid}-stage-meta`}>
+        <strong>Key Parameters:</strong> Patient ABO/Rh, Units needed, Urgency Tier (Immediate vs Scheduled), Clinical Contact.
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Live Simulator -->
+  <div class="dms-sim-section">
+    <div class="dms-section-label">Live Matching Engine & WhatsApp Dispatch Simulator</div>
+
+    <div class="dms-sim-grid">
+      <!-- Input Controls -->
+      <div class="dms-controls">
+        <div class="dms-field">
+          <label for={`${uid}-bg-select`} class="dms-label">Patient Blood Group (Recipient):</label>
+          <div class="dms-bg-grid" id={`${uid}-bg-buttons`}>
+            {['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'].map(bg => (
+              <button
+                type="button"
+                class:list={['dms-bg-btn', bg === defaultBloodGroup && 'dms-bg-btn--active']}
+                data-bg={bg}
+              >
+                {bg}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="dms-field">
+          <label for={`${uid}-hosp-select`} class="dms-label">Hospital Location:</label>
+          <select id={`${uid}-hosp-select`} class="dms-select">
+            <option value="Buea Regional Hospital" selected>Buea Regional Hospital (Molyko/Central)</option>
+            <option value="Mount Mary Hospital">Mount Mary Health Centre (Buea Town)</option>
+            <option value="Limbe District Hospital">Limbe District Hospital (Mile 4)</option>
+          </select>
+        </div>
+
+        <div class="dms-field">
+          <label for={`${uid}-urgency-select`} class="dms-label">Emergency Severity:</label>
+          <select id={`${uid}-urgency-select`} class="dms-select">
+            <option value="critical">🚨 Critical / Acute Hemorrhage (&lt; 20 mins)</option>
+            <option value="urgent" selected>⚠️ Urgent Transfusion (&lt; 60 mins)</option>
+            <option value="scheduled">📅 Scheduled Elective Surgery (Tomorrow)</option>
+          </select>
+        </div>
+
+        <button type="button" class="dms-run-btn" id={`${uid}-run-btn`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          Run Matching Engine
+        </button>
+      </div>
+
+      <!-- Output: WhatsApp Mock & Match Breakdown -->
+      <div class="dms-output-pane">
+        <!-- ABO Matrix result pill -->
+        <div class="dms-compat-summary" id={`${uid}-compat-summary`}>
+          <span class="dms-compat-label">Compatible Donors for <strong id={`${uid}-active-bg`}>{defaultBloodGroup}</strong>:</span>
+          <div class="dms-compat-badges" id={`${uid}-compat-badges`}>
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- WhatsApp Chat Simulation -->
+        <div class="dms-chat-wrapper">
+          <div class="dms-chat-header">
+            <div class="dms-chat-avatar">🩸</div>
+            <div class="dms-chat-info">
+              <span class="dms-chat-name">LifeDrop Donor Network</span>
+              <span class="dms-chat-status">Official WhatsApp Bot • Verified</span>
+            </div>
+          </div>
+
+          <div class="dms-chat-body">
+            <div class="dms-chat-msg" id={`${uid}-chat-msg`}>
+              <div class="dms-msg-text" id={`${uid}-msg-text`}>
+                🚨 <strong>URGENT BLOOD NEED</strong><br/><br/>
+                Hospital: <strong>Buea Regional Hospital</strong><br/>
+                Blood Group Needed: <strong id={`${uid}-msg-bg`}>O+</strong><br/>
+                Distance from you: <strong>1.4 km (~7 mins from Molyko)</strong><br/>
+                Patient Condition: <strong>Maternity Ward (Post-partum)</strong><br/><br/>
+                Can you donate a unit today?
+              </div>
+              <div class="dms-msg-time" id={`${uid}-msg-time`}>Just now • Encrypted</div>
+
+              <!-- Interactive Quick Reply Buttons -->
+              <div class="dms-msg-buttons">
+                <button type="button" class="dms-btn-action dms-btn-accept" id={`${uid}-btn-accept`}>
+                  ✅ Yes, I can donate now
+                </button>
+                <button type="button" class="dms-btn-action dms-btn-decline" id={`${uid}-btn-decline`}>
+                  ❌ Not available today
+                </button>
+              </div>
+            </div>
+
+            <!-- Confirmation Handshake Badge -->
+            <div class="dms-handshake-box" id={`${uid}-handshake-box`} style="display:none">
+              <div class="dms-handshake-icon">⚡</div>
+              <div class="dms-handshake-text">
+                <strong>Match Confirmed & Locked!</strong>
+                <span>Donor Token #LD-8842 dispatched to Buea Regional Hospital. Ward staff alerted with 12-minute ETA.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const root = document.querySelector('.dms-root') as HTMLElement | null;
+  if (!root) return;
+  const uid = root.dataset.uid;
+
+  // Stages data
+  const stages = [
+    {
+      num: 1,
+      tag: 'Stage 1 of 5',
+      title: 'Hospital Emergency Ticket Generation',
+      desc: 'A verified doctor or head nurse at Buea Regional Hospital submits an urgent transfusion request. To avoid false alerts and donor burnout, zero notifications are sent until the clinical request is authenticated with doctor license and ward bed ID.',
+      meta: 'Key Parameters: Patient ABO/Rh, Units needed, Urgency Tier (Immediate vs Scheduled), Clinical Contact.'
+    },
+    {
+      num: 2,
+      tag: 'Stage 2 of 5',
+      title: 'ABO & Rh Immunological Compatibility Matrix',
+      desc: 'The engine evaluates red blood cell antigen compatibility. O- is the universal donor, whereas AB+ is the universal recipient. LifeDrop rejects any donor with mismatched antigens before evaluating proximity.',
+      meta: 'Compatibility: Strict cross-match rules preventing hemolytic transfusion reactions.'
+    },
+    {
+      num: 3,
+      tag: 'Stage 3 of 5',
+      title: 'Cooldown Gate & Hyperlocal Proximity Scoring',
+      desc: 'The donor registry filters out anyone who donated in the last 90 days (males) or 120 days (females). Next, it scores proximity based on Buea sectors (Molyko, Mile 17, Bokwango, Clerks Quarters) to maximize speed.',
+      meta: 'Ranking formula: Score = (Compatibility × 0.40) + (Proximity × 0.35) + (Reliability × 0.25).'
+    },
+    {
+      num: 4,
+      tag: 'Stage 4 of 5',
+      title: 'Targeted WhatsApp Cloud API Dispatch',
+      desc: 'Rather than panic-blasting hundreds of volunteers, LifeDrop dispatches an interactive WhatsApp template to the top 3 scored donors with one-tap YES/NO buttons. If no reply occurs within 8 minutes, Wave 2 auto-triggers.',
+      meta: 'Technology: Meta Cloud WhatsApp API, Webhooks, Low-data mobile payloads.'
+    },
+    {
+      num: 5,
+      tag: 'Stage 5 of 5',
+      title: 'Real-Time Clinician Ward Handshake',
+      desc: 'The first donor to tap YES claims the ticket. The engine locks the request, sends a personalized hospital gate pass with turn-by-turn directions, and updates the ward nurse dashboard with donor name and ETA.',
+      meta: 'Outcome: Donor arrives at the ward within 25 minutes; remaining donors receive gentle standby note.'
+    }
+  ];
+
+  // ABO Compatibility Map
+  const compatibilityMap: Record<string, string[]> = {
+    'O-':  ['O-'],
+    'O+':  ['O-', 'O+'],
+    'A-':  ['O-', 'A-'],
+    'A+':  ['O-', 'O+', 'A-', 'A+'],
+    'B-':  ['O-', 'B-'],
+    'B+':  ['O-', 'O+', 'B-', 'B+'],
+    'AB-': ['O-', 'A-', 'B-', 'AB-'],
+    'AB+': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']
+  };
+
+  let selectedBg = 'O+';
+  let selectedHosp = 'Buea Regional Hospital';
+
+  // DOM elements
+  const stageButtons = root.querySelectorAll<HTMLButtonElement>('.dms-node');
+  const stageTag = document.getElementById(`${uid}-stage-tag`);
+  const stageTitle = document.getElementById(`${uid}-stage-title`);
+  const stageDesc = document.getElementById(`${uid}-stage-desc`);
+  const stageMeta = document.getElementById(`${uid}-stage-meta`);
+
+  const bgButtons = root.querySelectorAll<HTMLButtonElement>('.dms-bg-btn');
+  const hospSelect = document.getElementById(`${uid}-hosp-select`) as HTMLSelectElement | null;
+  const runBtn = document.getElementById(`${uid}-run-btn`);
+  const activeBgLabel = document.getElementById(`${uid}-active-bg`);
+  const compatBadges = document.getElementById(`${uid}-compat-badges`);
+  const msgBg = document.getElementById(`${uid}-msg-bg`);
+  const msgText = document.getElementById(`${uid}-msg-text`);
+  const btnAccept = document.getElementById(`${uid}-btn-accept`);
+  const btnDecline = document.getElementById(`${uid}-btn-decline`);
+  const handshakeBox = document.getElementById(`${uid}-handshake-box`);
+
+  // Stage tab click
+  stageButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      stageButtons.forEach(b => {
+        b.classList.remove('dms-node--active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('dms-node--active');
+      btn.setAttribute('aria-selected', 'true');
+
+      const stepIndex = Number(btn.dataset.step || '0');
+      const stage = stages[stepIndex];
+      if (stage && stageTag && stageTitle && stageDesc && stageMeta) {
+        stageTag.textContent = stage.tag;
+        stageTitle.textContent = stage.title;
+        stageDesc.textContent = stage.desc;
+        stageMeta.innerHTML = `<strong>Key Parameters:</strong> ${stage.meta}`;
+      }
+    });
+  });
+
+  function updateCompatibilityUI() {
+    if (activeBgLabel) activeBgLabel.textContent = selectedBg;
+    if (msgBg) msgBg.textContent = selectedBg;
+
+    const compatList = compatibilityMap[selectedBg] || ['O-'];
+    if (compatBadges) {
+      compatBadges.innerHTML = compatList.map(bg =>
+        `<span class="dms-compat-pill">${bg}</span>`
+      ).join('');
+    }
+
+    if (msgText && hospSelect) {
+      const hosp = hospSelect.value;
+      const isOminus = selectedBg === 'O-';
+      const distance = isOminus ? '3.1 km (~14 mins from Mile 16)' : '1.4 km (~7 mins from Molyko)';
+      
+      msgText.innerHTML = `
+        🚨 <strong>URGENT BLOOD NEED</strong><br/><br/>
+        Hospital: <strong>${hosp}</strong><br/>
+        Blood Group Needed: <strong>${selectedBg}</strong><br/>
+        Distance from you: <strong>${distance}</strong><br/>
+        Patient Condition: <strong>Maternity Ward (Obstetric Hemorrhage)</strong><br/><br/>
+        Can you donate a unit today?
+      `;
+    }
+
+    if (handshakeBox) {
+      handshakeBox.style.display = 'none';
+    }
+  }
+
+  // Blood group button clicks
+  bgButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      bgButtons.forEach(b => b.classList.remove('dms-bg-btn--active'));
+      btn.classList.add('dms-bg-btn--active');
+      selectedBg = btn.dataset.bg || 'O+';
+      updateCompatibilityUI();
+    });
+  });
+
+  hospSelect?.addEventListener('change', () => {
+    selectedHosp = hospSelect.value;
+    updateCompatibilityUI();
+  });
+
+  runBtn?.addEventListener('click', () => {
+    runBtn.classList.add('dms-btn--pulse');
+    setTimeout(() => runBtn.classList.remove('dms-btn--pulse'), 500);
+    updateCompatibilityUI();
+  });
+
+  btnAccept?.addEventListener('click', () => {
+    if (handshakeBox) {
+      handshakeBox.style.display = 'flex';
+      handshakeBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  });
+
+  btnDecline?.addEventListener('click', () => {
+    if (msgText) {
+      msgText.innerHTML = `
+        <em>You declined this alert. LifeDrop has routed the request to Donor #2 (Enow in Clerks Quarters). Thank you for keeping the response line active.</em>
+      `;
+    }
+    if (handshakeBox) handshakeBox.style.display = 'none';
+  });
+
+  // Initial populate
+  updateCompatibilityUI();
+})();
+</script>
+
+<style>
+  .dms-root {
+    background: #0d1117;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-block: 2rem;
+    color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  }
+
+  .dms-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 1.25rem;
+  }
+
+  .dms-header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .dms-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #e63946;
+    box-shadow: 0 0 10px #e63946;
+    display: inline-block;
+  }
+
+  .dms-title-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #f0f6fc;
+  }
+
+  .dms-badge {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .dms-section-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8b949e;
+    margin-bottom: 0.85rem;
+    font-weight: 600;
+  }
+
+  /* Flowchart tabs */
+  .dms-flowchart {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .dms-node {
+    flex: 1;
+    min-width: 110px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 0.65rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: center;
+  }
+
+  .dms-node:hover {
+    border-color: #58a6ff;
+    background: #1c2128;
+  }
+
+  .dms-node--active {
+    border-color: #e63946;
+    background: rgba(230, 57, 70, 0.12);
+    box-shadow: 0 0 12px rgba(230, 57, 70, 0.25);
+  }
+
+  .dms-node-num {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.1);
+    color: #c9d1d9;
+    border-radius: 999px;
+    width: 16px;
+    height: 16px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 0.25rem;
+  }
+
+  .dms-node--active .dms-node-num {
+    background: #e63946;
+    color: #fff;
+  }
+
+  .dms-node-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #f0f6fc;
+  }
+
+  .dms-node-sub {
+    font-size: 0.65rem;
+    color: #8b949e;
+  }
+
+  .dms-connector {
+    color: #484f58;
+    font-weight: bold;
+    user-select: none;
+  }
+
+  /* Stage card */
+  .dms-stage-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .dms-stage-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .dms-stage-tag {
+    font-size: 0.7rem;
+    color: #e63946;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .dms-stage-title {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .dms-stage-desc {
+    font-size: 0.825rem;
+    color: #c9d1d9;
+    line-height: 1.5;
+    margin: 0.25rem 0 0.6rem;
+  }
+
+  .dms-stage-meta {
+    font-size: 0.75rem;
+    color: #8b949e;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border-left: 3px solid #e63946;
+  }
+
+  /* Simulator Section */
+  .dms-sim-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .dms-sim-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .dms-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+
+  .dms-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .dms-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #c9d1d9;
+  }
+
+  .dms-bg-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+  }
+
+  .dms-bg-btn {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #f0f6fc;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .dms-bg-btn:hover {
+    border-color: #58a6ff;
+  }
+
+  .dms-bg-btn--active {
+    background: #e63946;
+    border-color: #e63946;
+    color: #fff;
+  }
+
+  .dms-select {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #f0f6fc;
+    padding: 0.55rem;
+    font-size: 0.825rem;
+    outline: none;
+  }
+
+  .dms-run-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: #238636;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.15s;
+  }
+
+  .dms-run-btn:hover {
+    background: #2ea043;
+  }
+
+  .dms-btn--pulse {
+    animation: dms-pulse 0.4s ease-out;
+  }
+
+  @keyframes dms-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.97); }
+    100% { transform: scale(1); }
+  }
+
+  /* Output Pane */
+  .dms-output-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .dms-compat-summary {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .dms-compat-label {
+    font-size: 0.78rem;
+    color: #c9d1d9;
+  }
+
+  .dms-compat-badges {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .dms-compat-pill {
+    background: rgba(46, 160, 67, 0.2);
+    border: 1px solid rgba(46, 160, 67, 0.5);
+    color: #3fb950;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+  }
+
+  /* WhatsApp Simulation */
+  .dms-chat-wrapper {
+    background: #0b141a;
+    border: 1px solid #202c33;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dms-chat-header {
+    background: #1f2c34;
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    border-bottom: 1px solid #2a3942;
+  }
+
+  .dms-chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: #e63946;
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+  }
+
+  .dms-chat-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dms-chat-name {
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: #e9edef;
+  }
+
+  .dms-chat-status {
+    font-size: 0.68rem;
+    color: #00a884;
+  }
+
+  .dms-chat-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    background-image: radial-gradient(#1f2c34 1px, transparent 1px);
+    background-size: 16px 16px;
+    min-height: 220px;
+  }
+
+  .dms-chat-msg {
+    align-self: flex-start;
+    max-width: 90%;
+    background: #202c33;
+    border-radius: 8px 8px 8px 0;
+    padding: 0.75rem 0.85rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
+
+  .dms-msg-text {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: #d1d7db;
+  }
+
+  .dms-msg-time {
+    font-size: 0.65rem;
+    color: #8696a0;
+    text-align: right;
+    margin-top: 0.35rem;
+  }
+
+  .dms-msg-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.65rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0.5rem;
+  }
+
+  .dms-btn-action {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #00a884;
+    padding: 0.45rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: center;
+  }
+
+  .dms-btn-action:hover {
+    background: rgba(0, 168, 132, 0.15);
+  }
+
+  .dms-handshake-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(35, 134, 54, 0.15);
+    border: 1px solid #238636;
+    border-radius: 8px;
+    padding: 0.75rem;
+    animation: dms-fade-in 0.3s ease;
+  }
+
+  @keyframes dms-fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .dms-handshake-icon {
+    font-size: 1.25rem;
+  }
+
+  .dms-handshake-text {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.75rem;
+    color: #c9d1d9;
+    line-height: 1.35;
+  }
+
+  .dms-handshake-text strong {
+    color: #3fb950;
+  }
+</style>

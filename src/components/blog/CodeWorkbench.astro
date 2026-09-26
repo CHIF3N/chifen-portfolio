@@ -2,27 +2,21 @@
 /**
  * CodeWorkbench.astro
  * ───────────────────────────────────────────────────────────────────────────
- * VS Code-style interactive multi-file code viewer.
- * Pure Astro + vanilla JS — no framework island required.
+ * VS Code / Antigravity style interactive multi-file code viewer.
  *
- * Usage in MDX (after global registration in astro.config.mjs):
- *
- *   <CodeWorkbench
- *     project="my-project"
- *     files={[
- *       { name: "index.ts", lang: "typescript", code: `…` },
- *       { name: "config.json", lang: "json", code: `…` },
- *     ]}
- *   />
- *
- * Props:
- *   project  — breadcrumb label shown in the title bar
- *   files    — array of { name, lang, code } objects
+ * Features:
+ *   - Hierarchical folder & subfolder explorer tree that can be clicked to fold/unfold.
+ *   - Clicking any file opens the code in the editor pane and activates its tab.
+ *   - Top tab strip with active indicators and quick switching.
+ *   - Rich multi-color syntax highlighting (keywords, types, strings, numbers, functions, comments).
+ *   - Interactive "Copy Code" button with instant checkmark feedback.
+ *   - Collapsible sidebar toggle to expand code to full-width.
+ *   - Breadcrumb navigation path matching active file tree location.
+ *   - Read-only code viewing with line numbering and hover guides.
  */
 
 export interface WorkbenchFile {
   name: string;
-  /** Language hint: javascript | typescript | json | bash | yaml | html | css | nginx | dockerfile */
   lang?: string;
   language?: string;
   code: string;
@@ -39,28 +33,44 @@ const project = projectProp ?? titleProp ?? 'project';
 
 const files = rawFiles.map(f => ({
   name: f.name,
-  lang: f.lang ?? f.language ?? 'text',
+  lang: (f.lang ?? f.language ?? 'text').toLowerCase(),
   code: f.code ?? '',
 }));
 
 const uid = `wb-${Math.random().toString(36).slice(2, 8)}`;
 
+// Language colors and badges
 const langColor: Record<string, string> = {
-  javascript: '#f7df1e', typescript: '#3178c6', json: '#9cdcfe',
-  bash: '#89d185', sh: '#89d185', yaml: '#e06c75', yml: '#e06c75',
-  html: '#e34c26', css: '#563d7c', mdx: '#f97316', md: '#f97316',
-  dockerfile: '#2496ed', nginx: '#009639',
+  javascript: '#f7df1e', js: '#f7df1e',
+  typescript: '#3178c6', ts: '#3178c6', tsx: '#3178c6', jsx: '#f7df1e',
+  json: '#9cdcfe',
+  bash: '#89d185', sh: '#89d185', shell: '#89d185',
+  yaml: '#e06c75', yml: '#e06c75',
+  html: '#e34c26', css: '#563d7c',
+  sql: '#38bdf8', postgresql: '#38bdf8',
+  mdx: '#f97316', md: '#f97316',
+  dockerfile: '#2496ed', docker: '#2496ed',
+  nginx: '#009639', python: '#3776ab', py: '#3776ab'
 };
+
 function extColor(lang?: string): string {
   if (!lang) return '#abb2bf';
   return langColor[lang.toLowerCase()] ?? '#abb2bf';
 }
 
 const langLabel: Record<string, string> = {
-  javascript: 'JS', typescript: 'TS', json: 'JSON', bash: 'SH', sh: 'SH',
-  yaml: 'YAML', yml: 'YAML', html: 'HTML', css: 'CSS', mdx: 'MDX', md: 'MD',
-  dockerfile: 'Docker', nginx: 'NGINX',
+  javascript: 'JS', js: 'JS',
+  typescript: 'TS', ts: 'TS', tsx: 'TSX', jsx: 'JSX',
+  json: 'JSON',
+  bash: 'BASH', sh: 'SH', shell: 'BASH',
+  yaml: 'YAML', yml: 'YAML',
+  html: 'HTML', css: 'CSS',
+  sql: 'SQL', postgresql: 'SQL',
+  mdx: 'MDX', md: 'MD',
+  dockerfile: 'DOCKER', docker: 'DOCKER',
+  nginx: 'NGINX', python: 'PY', py: 'PY'
 };
+
 function extLabel(lang?: string): string {
   if (!lang) return 'FILE';
   return langLabel[lang.toLowerCase()] ?? lang.toUpperCase().slice(0, 6);
@@ -70,29 +80,226 @@ function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function renderLines(code: string): string {
-  return esc(code).split('\n').map((line, ln) =>
-    `<span class="cwb-line"><span class="cwb-ln" aria-hidden="true">${ln + 1}</span><span class="cwb-lc">${line || ' '}</span></span>`
-  ).join('\n');
+/**
+ * Lightweight, zero-dependency multi-color syntax highlighter.
+ * Generates VS Code Dark+ theme token spans server-side.
+ */
+function highlightLine(rawLine: string, lang: string): string {
+  if (!rawLine.trim()) return '&nbsp;';
+
+  // 1. Separate line comments
+  let line = rawLine;
+  let commentHtml = '';
+  
+  const isHashComment = ['python', 'py', 'yaml', 'yml', 'bash', 'sh', 'shell', 'dockerfile', 'docker', 'nginx'].includes(lang);
+  const isDashComment = ['sql', 'postgresql'].includes(lang);
+
+  if (isHashComment) {
+    const hashIdx = line.indexOf('#');
+    if (hashIdx !== -1) {
+      commentHtml = `<span class="cwb-tok-com">${esc(line.slice(hashIdx))}</span>`;
+      line = line.slice(0, hashIdx);
+    }
+  } else if (isDashComment) {
+    const dashIdx = line.indexOf('--');
+    if (dashIdx !== -1) {
+      commentHtml = `<span class="cwb-tok-com">${esc(line.slice(dashIdx))}</span>`;
+      line = line.slice(0, dashIdx);
+    }
+  } else {
+    // JS / TS / CSS / JSON / C style
+    const slashIdx = line.indexOf('//');
+    if (slashIdx !== -1) {
+      commentHtml = `<span class="cwb-tok-com">${esc(line.slice(slashIdx))}</span>`;
+      line = line.slice(0, slashIdx);
+    }
+  }
+
+  // 2. Extract string literals to protect from keyword matching
+  const strings: string[] = [];
+  const stringRegex = /(".*?"|'.*?'|`.*?`)/g;
+  let codeWithoutStrings = line.replace(stringRegex, (match) => {
+    const placeholder = `___STR_${strings.length}___`;
+    strings.push(match);
+    return placeholder;
+  });
+
+  // 3. Escape HTML entities in code portion
+  let out = esc(codeWithoutStrings);
+
+  // 4. Highlight keywords
+  const kwRegex = /\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|new|class|extends|super|this|import|export|from|default|as|async|await|yield|type|interface|enum|public|private|protected|readonly|static|implements|package|typeof|instanceof|void|delete|in|of|SELECT|FROM|WHERE|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|DROP|ALTER|JOIN|LEFT|RIGHT|INNER|GROUP|BY|ORDER|ASC|DESC|LIMIT|OFFSET|AND|OR|NOT|PRIMARY|KEY|FOREIGN|REFERENCES|DEFAULT|events|server|http|location|proxy_pass|listen|def|class|lambda|with|elif)\b/g;
+  out = out.replace(kwRegex, '<span class="cwb-tok-kw">$1</span>');
+
+  // 5. Highlight types & builtins
+  const typeRegex = /\b(string|number|boolean|any|unknown|never|Promise|Record|Array|Set|Map|Date|Object|Function|UUID|TEXT|INTEGER|BOOLEAN|TIMESTAMP|VARCHAR|JSONB|SERIAL|INT|FLOAT|true|false|null|undefined|None|True|False)\b/g;
+  out = out.replace(typeRegex, '<span class="cwb-tok-type">$1</span>');
+
+  // 6. Highlight function calls
+  const fnRegex = /\b([a-zA-Z_$][a-zA-Z0-9_$]*)(?=\s*\()/g;
+  out = out.replace(fnRegex, '<span class="cwb-tok-fn">$1</span>');
+
+  // 7. Highlight numeric literals
+  const numRegex = /\b(\d+(\.\d+)?)\b/g;
+  out = out.replace(numRegex, '<span class="cwb-tok-num">$1</span>');
+
+  // 8. Re-insert strings wrapped with styling
+  strings.forEach((str, idx) => {
+    const token = `___STR_${idx}___`;
+    out = out.replace(token, `<span class="cwb-tok-str">${esc(str)}</span>`);
+  });
+
+  return out + commentHtml;
 }
+
+function renderCodeLines(code: string, lang: string): string {
+  return code.split('\n').map((line, ln) => {
+    const highlighted = highlightLine(line, lang);
+    return `<div class="cwb-line" data-line="${ln + 1}"><span class="cwb-ln" aria-hidden="true">${ln + 1}</span><span class="cwb-lc">${highlighted}</span></div>`;
+  }).join('');
+}
+
+// Build folder/file tree
+interface FolderNode {
+  type: 'folder';
+  name: string;
+  fullPath: string;
+  children: (FolderNode | FileNode)[];
+}
+
+interface FileNode {
+  type: 'file';
+  name: string;
+  fullPath: string;
+  fileIndex: number;
+  lang: string;
+}
+
+function buildTree(fileList: typeof files): (FolderNode | FileNode)[] {
+  const roots: (FolderNode | FileNode)[] = [];
+
+  fileList.forEach((file, index) => {
+    const parts = file.name.split('/').filter(Boolean);
+    let currentLevel = roots;
+    let accumulatedPath = '';
+
+    parts.forEach((part, partIdx) => {
+      accumulatedPath = accumulatedPath ? `${accumulatedPath}/${part}` : part;
+      const isFile = partIdx === parts.length - 1;
+
+      if (isFile) {
+        currentLevel.push({
+          type: 'file',
+          name: part,
+          fullPath: file.name,
+          fileIndex: index,
+          lang: file.lang,
+        });
+      } else {
+        let existingFolder = currentLevel.find(
+          item => item.type === 'folder' && item.name === part
+        ) as FolderNode | undefined;
+
+        if (!existingFolder) {
+          existingFolder = {
+            type: 'folder',
+            name: part,
+            fullPath: accumulatedPath,
+            children: [],
+          };
+          currentLevel.push(existingFolder);
+        }
+        currentLevel = existingFolder.children;
+      }
+    });
+  });
+
+  return roots;
+}
+
+const fileTree = buildTree(files);
+
+function renderTree(nodes: (FolderNode | FileNode)[], depth = 0): string {
+  let html = '';
+  for (const node of nodes) {
+    if (node.type === 'folder') {
+      html += `
+        <li class="cwb-tree-node cwb-tree-folder cwb-folder--open" data-path="${esc(node.fullPath)}">
+          <button type="button" class="cwb-folder-btn" style="padding-left: calc(0.6rem + ${depth} * 0.85rem)" aria-expanded="true">
+            <svg class="cwb-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+            <span class="cwb-folder-icon" aria-hidden="true">
+              <svg class="cwb-icon-fld-open" width="14" height="14" viewBox="0 0 24 24" fill="#e8b339">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <svg class="cwb-icon-fld-closed" width="14" height="14" viewBox="0 0 24 24" fill="#dcb67a" style="display:none">
+                <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"></path>
+              </svg>
+            </span>
+            <span class="cwb-folder-title">${esc(node.name)}</span>
+          </button>
+          <ul class="cwb-folder-children" role="list">
+            ${renderTree(node.children, depth + 1)}
+          </ul>
+        </li>
+      `;
+    } else {
+      const isActive = node.fileIndex === 0;
+      html += `
+        <li class="cwb-tree-node cwb-tree-file">
+          <button
+            type="button"
+            class="cwb-file-btn ${isActive ? 'cwb-file-btn--active' : ''}"
+            data-index="${node.fileIndex}"
+            data-path="${esc(node.fullPath)}"
+            style="padding-left: calc(0.6rem + ${depth} * 0.85rem)"
+            aria-selected="${isActive ? 'true' : 'false'}"
+          >
+            <span class="cwb-file-dot" style="background:${extColor(node.lang)}" aria-hidden="true"></span>
+            <span class="cwb-file-name">${esc(node.name)}</span>
+            <span class="cwb-file-badge">${extLabel(node.lang)}</span>
+          </button>
+        </li>
+      `;
+    }
+  }
+  return html;
+}
+
+const renderedTreeHtml = renderTree(fileTree);
 ---
 
 <div class="cwb" id={uid} data-uid={uid}>
   <!-- Title bar -->
   <div class="cwb-titlebar">
-    <span class="cwb-dots" aria-hidden="true">
-      <span class="cwb-dot cwb-dot--red"></span>
-      <span class="cwb-dot cwb-dot--yellow"></span>
-      <span class="cwb-dot cwb-dot--green"></span>
-    </span>
-    <span class="cwb-breadcrumb">
-      <span class="cwb-bc-project">{project}</span>
-      <span class="cwb-bc-sep" aria-hidden="true">/</span>
-      <span class="cwb-bc-file" id={`${uid}-bc`}>{files[0]?.name ?? ''}</span>
-    </span>
-    <button class="cwb-copy" id={`${uid}-copy`} aria-label="Copy code" title="Copy code">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      <span class="cwb-copy-label">Copy</span>
+    <div class="cwb-title-left">
+      <span class="cwb-dots" aria-hidden="true">
+        <span class="cwb-dot cwb-dot--red"></span>
+        <span class="cwb-dot cwb-dot--yellow"></span>
+        <span class="cwb-dot cwb-dot--green"></span>
+      </span>
+
+      <button type="button" class="cwb-sidebar-toggle" id={`${uid}-toggle-sidebar`} aria-label="Toggle explorer sidebar" title="Toggle explorer sidebar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="9" y1="3" x2="9" y2="21"></line>
+        </svg>
+      </button>
+
+      <div class="cwb-breadcrumb">
+        <span class="cwb-bc-project">{project}</span>
+        <span class="cwb-bc-sep" aria-hidden="true">/</span>
+        <span class="cwb-bc-file" id={`${uid}-bc`}>{files[0]?.name ?? ''}</span>
+      </div>
+    </div>
+
+    <button type="button" class="cwb-copy" id={`${uid}-copy`} aria-label="Copy code" title="Copy code">
+      <svg class="cwb-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="cwb-copy-label">Copy Code</span>
     </button>
   </div>
 
@@ -100,44 +307,39 @@ function renderLines(code: string): string {
   <div class="cwb-tabs" role="tablist" id={`${uid}-tabs`}>
     {files.map((f, i) => (
       <button
+        type="button"
         class:list={['cwb-tab', i === 0 && 'cwb-tab--active']}
         role="tab"
         aria-selected={i === 0 ? 'true' : 'false'}
         aria-controls={`${uid}-panel-${i}`}
         id={`${uid}-tab-${i}`}
         data-index={String(i)}
-        data-name={f.name}
+        data-path={f.name}
       >
         <span class="cwb-tab-dot" style={`background:${extColor(f.lang)}`} aria-hidden="true"></span>
-        {f.name}
+        <span class="cwb-tab-title">{f.name.split('/').pop()}</span>
         <span class="cwb-tab-badge">{extLabel(f.lang)}</span>
       </button>
     ))}
   </div>
 
-  <!-- Body: sidebar + panels -->
+  <!-- Body: Sidebar + Editor Panels -->
   <div class="cwb-body">
-    <nav class="cwb-sidebar" aria-label="File explorer">
+    <!-- Explorer Sidebar -->
+    <nav class="cwb-sidebar" id={`${uid}-sidebar`} aria-label="File explorer">
       <div class="cwb-sidebar-head">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-        {project}
+        <div class="cwb-sidebar-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+          </svg>
+          <span>EXPLORER: {project.toUpperCase()}</span>
+        </div>
       </div>
-      <ul class="cwb-tree" role="list">
-        {files.map((f, i) => (
-          <li>
-            <button
-              class:list={['cwb-tree-item', i === 0 && 'cwb-tree-item--active']}
-              data-index={String(i)}
-              aria-pressed={i === 0 ? 'true' : 'false'}
-            >
-              <span class="cwb-tree-dot" style={`background:${extColor(f.lang)}`} aria-hidden="true"></span>
-              {f.name}
-            </button>
-          </li>
-        ))}
-      </ul>
+
+      <ul class="cwb-tree-root" role="list" set:html={renderedTreeHtml} />
     </nav>
 
+    <!-- Editor Panels with Syntax Highlighted Lines -->
     <div class="cwb-panels">
       {files.map((f, i) => (
         <div
@@ -147,7 +349,9 @@ function renderLines(code: string): string {
           aria-labelledby={`${uid}-tab-${i}`}
           hidden={i !== 0}
         >
-          <pre class="cwb-pre"><code set:html={renderLines(f.code)} /></pre>
+          <div class="cwb-code-scroller">
+            <div class="cwb-code-content" set:html={renderCodeLines(f.code, f.lang)} />
+          </div>
         </div>
       ))}
     </div>
@@ -167,54 +371,105 @@ function renderLines(code: string): string {
     const files: Array<{ name: string; code: string }> =
       JSON.parse(dataEl.textContent ?? '[]');
 
-    const tabs      = wb.querySelectorAll<HTMLElement>('.cwb-tab');
-    const panels    = wb.querySelectorAll<HTMLElement>('.cwb-panel');
-    const treeItems = wb.querySelectorAll<HTMLElement>('.cwb-tree-item');
-    const bcFile    = document.getElementById(`${uid}-bc`);
-    const copyBtn   = document.getElementById(`${uid}-copy`);
-    const copyLabel = copyBtn?.querySelector<HTMLElement>('.cwb-copy-label');
+    const tabs         = wb.querySelectorAll<HTMLElement>('.cwb-tab');
+    const panels       = wb.querySelectorAll<HTMLElement>('.cwb-panel');
+    const fileButtons  = wb.querySelectorAll<HTMLElement>('.cwb-file-btn');
+    const folderButtons = wb.querySelectorAll<HTMLElement>('.cwb-folder-btn');
+    const bcFile       = document.getElementById(`${uid}-bc`);
+    const copyBtn      = document.getElementById(`${uid}-copy`);
+    const copyLabel    = copyBtn?.querySelector<HTMLElement>('.cwb-copy-label');
+    const toggleSidebar = document.getElementById(`${uid}-toggle-sidebar`);
+    const sidebar      = document.getElementById(`${uid}-sidebar`);
 
-    function activate(index: number) {
+    function activateFile(index: number) {
+      if (index < 0 || index >= files.length) return;
+
+      // Update tabs
       tabs.forEach((t, i) => {
         const on = i === index;
         t.classList.toggle('cwb-tab--active', on);
         t.setAttribute('aria-selected', String(on));
+        if (on) t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
       });
+
+      // Update panels
       panels.forEach((p, i) => {
         const on = i === index;
         p.classList.toggle('cwb-panel--active', on);
         (p as HTMLElement).hidden = !on;
       });
-      treeItems.forEach((t, i) => {
-        const on = i === index;
-        t.classList.toggle('cwb-tree-item--active', on);
-        t.setAttribute('aria-pressed', String(on));
+
+      // Update tree buttons
+      fileButtons.forEach((btn) => {
+        const on = Number(btn.dataset.index) === index;
+        btn.classList.toggle('cwb-file-btn--active', on);
+        btn.setAttribute('aria-selected', String(on));
       });
-      if (bcFile) bcFile.textContent = files[index]?.name ?? '';
+
+      // Update breadcrumb
+      if (bcFile) {
+        bcFile.textContent = files[index]?.name ?? '';
+      }
     }
 
-    tabs.forEach(tab =>
-      tab.addEventListener('click', () => activate(Number(tab.dataset.index)))
-    );
-    treeItems.forEach(item =>
-      item.addEventListener('click', () => activate(Number(item.dataset.index)))
-    );
+    // Tab clicks
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        activateFile(Number(tab.dataset.index));
+      });
+    });
 
+    // File tree clicks
+    fileButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        activateFile(Number(btn.dataset.index));
+      });
+    });
+
+    // Folder open/close toggle
+    folderButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const folderNode = btn.closest<HTMLElement>('.cwb-tree-folder');
+        if (!folderNode) return;
+
+        const isOpen = folderNode.classList.contains('cwb-folder--open');
+        folderNode.classList.toggle('cwb-folder--open', !isOpen);
+        btn.setAttribute('aria-expanded', String(!isOpen));
+
+        const iconOpen = btn.querySelector<HTMLElement>('.cwb-icon-fld-open');
+        const iconClosed = btn.querySelector<HTMLElement>('.cwb-icon-fld-closed');
+        if (iconOpen && iconClosed) {
+          iconOpen.style.display = isOpen ? 'none' : 'inline-block';
+          iconClosed.style.display = isOpen ? 'inline-block' : 'none';
+        }
+      });
+    });
+
+    // Copy button
     if (copyBtn && copyLabel) {
       copyBtn.addEventListener('click', () => {
         const activeIndex = [...tabs].findIndex(t =>
           t.classList.contains('cwb-tab--active')
         );
-        navigator.clipboard?.writeText(files[activeIndex]?.code ?? '').then(() => {
+        const codeToCopy = files[activeIndex]?.code ?? '';
+        navigator.clipboard?.writeText(codeToCopy).then(() => {
           copyLabel.textContent = 'Copied!';
           copyBtn.classList.add('cwb-copy--ok');
           setTimeout(() => {
-            copyLabel.textContent = 'Copy';
+            copyLabel.textContent = 'Copy Code';
             copyBtn.classList.remove('cwb-copy--ok');
           }, 2000);
         });
       });
     }
+
+    // Toggle sidebar collapse
+    toggleSidebar?.addEventListener('click', () => {
+      if (sidebar) {
+        sidebar.classList.toggle('cwb-sidebar--collapsed');
+      }
+    });
   }
 
   document.querySelectorAll<HTMLElement>('.cwb').forEach(init);
@@ -225,12 +480,13 @@ function renderLines(code: string): string {
   .cwb {
     --cwb-bg:         #0d1117;
     --cwb-bar-bg:     #161b22;
-    --cwb-border:     rgba(255,255,255,0.08);
+    --cwb-sidebar-bg: #0d1117;
+    --cwb-border:     rgba(255, 255, 255, 0.08);
     --cwb-text:       #e6edf3;
     --cwb-muted:      #7d8590;
     --cwb-accent:     var(--color-accent, #38bdf8);
-    --cwb-ln-color:   #3d444d;
-    --cwb-font:       'JetBrains Mono', 'Fira Code', ui-monospace, 'Courier New', monospace;
+    --cwb-ln-color:   #484f58;
+    --cwb-font:       'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
     --cwb-font-size:  0.8125rem;
 
     display: flex;
@@ -239,117 +495,366 @@ function renderLines(code: string): string {
     border: 1px solid var(--cwb-border);
     background: var(--cwb-bg);
     overflow: hidden;
-    margin-block: 1.75rem;
+    margin-block: 2rem;
     font-family: var(--cwb-font);
     font-size: var(--cwb-font-size);
-    line-height: 1.65;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.5);
+    line-height: 1.6;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 12px 36px rgba(0, 0, 0, 0.55);
   }
 
   /* Title bar */
   .cwb-titlebar {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.55rem 1rem;
+    justify-content: space-between;
+    padding: 0.6rem 0.85rem;
     background: var(--cwb-bar-bg);
     border-bottom: 1px solid var(--cwb-border);
+    user-select: none;
+    gap: 0.75rem;
   }
-  .cwb-dots { display: flex; gap: 6px; flex-shrink: 0; }
-  .cwb-dot  { width: 12px; height: 12px; border-radius: 50%; }
-  .cwb-dot--red    { background: #ff5f57; }
-  .cwb-dot--yellow { background: #febc2e; }
-  .cwb-dot--green  { background: #28c840; }
+
+  .cwb-title-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    overflow: hidden;
+  }
+
+  .cwb-dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .cwb-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .cwb-dot--red    { background: #ff5f56; }
+  .cwb-dot--yellow { background: #ffbd2e; }
+  .cwb-dot--green  { background: #27c93f; }
+
+  .cwb-sidebar-toggle {
+    background: transparent;
+    border: none;
+    color: var(--cwb-muted);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 0.2rem;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .cwb-sidebar-toggle:hover {
+    color: var(--cwb-text);
+    background: rgba(255, 255, 255, 0.08);
+  }
 
   .cwb-breadcrumb {
-    flex: 1; display: flex; align-items: center; gap: 0.3rem;
-    font-size: 0.75rem; color: var(--cwb-muted); overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--cwb-muted);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .cwb-bc-sep  { color: var(--cwb-ln-color); }
-  .cwb-bc-file { color: var(--cwb-text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .cwb-bc-project {
+    color: #c9d1d9;
+    font-weight: 600;
+  }
+
+  .cwb-bc-file {
+    color: var(--cwb-accent);
+    font-weight: 500;
+  }
 
   .cwb-copy {
-    display: inline-flex; align-items: center; gap: 0.35rem;
-    padding: 0.3rem 0.6rem; border-radius: 6px;
-    background: transparent; border: 1px solid var(--cwb-border);
-    color: var(--cwb-muted); font-size: 0.7rem; font-family: var(--cwb-font);
-    cursor: pointer; transition: color 0.15s, border-color 0.15s; flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.28rem 0.65rem;
+    border-radius: 6px;
+    border: 1px solid var(--cwb-border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--cwb-muted);
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.18s;
   }
-  .cwb-copy:hover  { color: var(--cwb-text); border-color: var(--cwb-muted); }
-  .cwb-copy--ok    { color: #28c840 !important; border-color: #28c840 !important; }
+  .cwb-copy:hover {
+    color: var(--cwb-text);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .cwb-copy--ok {
+    color: #3fb950 !important;
+    border-color: rgba(63, 185, 80, 0.4) !important;
+    background: rgba(63, 185, 80, 0.1) !important;
+  }
 
-  /* Tabs */
+  /* Tab strip */
   .cwb-tabs {
-    display: flex; overflow-x: auto; scrollbar-width: none;
-    background: var(--cwb-bar-bg); border-bottom: 1px solid var(--cwb-border);
+    display: flex;
+    background: #0d1117;
+    border-bottom: 1px solid var(--cwb-border);
+    overflow-x: auto;
+    scrollbar-width: none;
   }
-  .cwb-tabs::-webkit-scrollbar { display: none; }
+  .cwb-tabs::-webkit-scrollbar {
+    display: none;
+  }
 
   .cwb-tab {
-    display: inline-flex; align-items: center; gap: 0.4rem;
-    padding: 0.45rem 1rem; border: none; border-bottom: 2px solid transparent;
-    background: transparent; color: var(--cwb-muted);
-    font-family: var(--cwb-font); font-size: 0.76rem; white-space: nowrap;
-    cursor: pointer; transition: color 0.12s, border-color 0.12s, background 0.12s;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.85rem;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--cwb-border);
+    color: var(--cwb-muted);
+    font-family: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    border-top: 2px solid transparent;
   }
-  .cwb-tab:hover { color: var(--cwb-text); background: rgba(255,255,255,0.03); }
-  .cwb-tab--active { color: var(--cwb-text); border-bottom-color: var(--cwb-accent); background: var(--cwb-bg); }
+  .cwb-tab:hover {
+    color: var(--cwb-text);
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .cwb-tab--active {
+    color: var(--cwb-text);
+    background: var(--cwb-bar-bg);
+    border-top-color: var(--cwb-accent);
+    font-weight: 600;
+  }
 
-  .cwb-tab-dot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .cwb-tab-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
   .cwb-tab-badge {
-    font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px;
-    background: rgba(255,255,255,0.06); color: var(--cwb-muted);
-    letter-spacing: 0.04em; text-transform: uppercase;
+    font-size: 0.625rem;
+    color: var(--cwb-muted);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+    padding: 0.1rem 0.3rem;
   }
 
-  /* Body */
-  .cwb-body { display: flex; flex: 1; min-height: 0; max-height: 520px; }
+  /* Body: Sidebar + Panels */
+  .cwb-body {
+    display: flex;
+    min-height: 380px;
+    max-height: 600px;
+    position: relative;
+    overflow: hidden;
+  }
 
   /* Sidebar */
   .cwb-sidebar {
-    width: 180px; flex-shrink: 0; background: var(--cwb-bar-bg);
-    border-right: 1px solid var(--cwb-border); overflow-y: auto;
+    width: 230px;
+    flex-shrink: 0;
+    background: var(--cwb-sidebar-bg);
+    border-right: 1px solid var(--cwb-border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease, margin-left 0.2s ease;
   }
-  @media (max-width: 560px) { .cwb-sidebar { display: none; } }
+  .cwb-sidebar--collapsed {
+    width: 0;
+    margin-left: -1px;
+    border-right: none;
+    overflow: hidden;
+  }
 
   .cwb-sidebar-head {
-    display: flex; align-items: center; gap: 0.4rem;
-    padding: 0.6rem 0.75rem 0.4rem;
-    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--cwb-muted);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--cwb-muted);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    user-select: none;
   }
-  .cwb-tree { list-style: none; padding: 0; margin: 0; }
-  .cwb-tree-item {
-    display: flex; align-items: center; gap: 0.45rem; width: 100%;
-    padding: 0.3rem 0.75rem; border: none; background: transparent;
-    color: var(--cwb-muted); font-family: var(--cwb-font); font-size: 0.76rem;
-    text-align: left; cursor: pointer; transition: color 0.12s, background 0.12s;
+  .cwb-sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
   }
-  .cwb-tree-item:hover { color: var(--cwb-text); background: rgba(255,255,255,0.04); }
-  .cwb-tree-item--active { color: var(--cwb-text); background: rgba(255,255,255,0.07); }
-  .cwb-tree-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
-  /* Panels */
-  .cwb-panels { flex: 1; overflow: auto; }
-  .cwb-panel  { display: none; }
-  .cwb-panel--active { display: block; }
-
-  .cwb-pre {
-    margin: 0; padding: 0.75rem 0;
-    background: var(--cwb-bg); overflow-x: auto;
+  .cwb-tree-root, .cwb-folder-children {
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
-  .cwb-pre code { display: block; width: max-content; min-width: 100%; }
 
-  .cwb-line { display: flex; }
-  .cwb-line:hover { background: rgba(255,255,255,0.025); }
+  .cwb-folder-children {
+    display: block;
+  }
+  .cwb-folder--closed > .cwb-folder-children {
+    display: none;
+  }
+  .cwb-folder--closed .cwb-chevron {
+    transform: rotate(-90deg);
+  }
+
+  .cwb-folder-btn, .cwb-file-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: none;
+    color: #c9d1d9;
+    font-family: inherit;
+    font-size: 0.75rem;
+    padding-block: 0.32rem;
+    padding-right: 0.6rem;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.12s, color 0.12s;
+  }
+  .cwb-folder-btn:hover, .cwb-file-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+  }
+  .cwb-file-btn--active {
+    background: rgba(56, 189, 248, 0.12) !important;
+    color: var(--cwb-accent) !important;
+    font-weight: 600;
+  }
+
+  .cwb-chevron {
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+    color: var(--cwb-muted);
+  }
+
+  .cwb-folder-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .cwb-folder-title {
+    font-weight: 500;
+  }
+
+  .cwb-file-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-left: 2px;
+  }
+
+  .cwb-file-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cwb-file-badge {
+    font-size: 0.6rem;
+    color: var(--cwb-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.05rem 0.25rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Panels & Code Editor */
+  .cwb-panels {
+    flex: 1;
+    min-width: 0;
+    background: var(--cwb-bg);
+    overflow: hidden;
+    display: flex;
+  }
+
+  .cwb-panel {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    display: none;
+  }
+  .cwb-panel--active {
+    display: flex;
+  }
+
+  .cwb-code-scroller {
+    flex: 1;
+    overflow: auto;
+    padding-block: 0.75rem;
+  }
+
+  .cwb-code-content {
+    display: table;
+    width: 100%;
+    min-width: fit-content;
+  }
+
+  .cwb-line {
+    display: table-row;
+    transition: background 0.1s ease;
+  }
+  .cwb-line:hover {
+    background: rgba(255, 255, 255, 0.035);
+  }
 
   .cwb-ln {
-    width: 3rem; flex-shrink: 0; padding-right: 1.25rem;
-    text-align: right; color: var(--cwb-ln-color);
-    user-select: none; font-size: 0.72rem; line-height: 1.65;
+    display: table-cell;
+    padding-left: 1rem;
+    padding-right: 1.25rem;
+    text-align: right;
+    color: var(--cwb-ln-color);
+    user-select: none;
+    white-space: pre;
+    font-size: 0.75rem;
+    width: 1%;
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
   }
+
   .cwb-lc {
-    flex: 1; padding-right: 1.5rem; color: var(--cwb-text); white-space: pre;
-    font-family: var(--cwb-font); font-size: var(--cwb-font-size); line-height: 1.65;
+    display: table-cell;
+    padding-left: 1.25rem;
+    padding-right: 1.5rem;
+    white-space: pre;
+    color: var(--cwb-text);
+  }
+
+  /* Syntax Highlighting Tokens (VS Code Dark+) */
+  :global(.cwb-tok-kw)   { color: #ff7b72 !important; font-weight: 500; }
+  :global(.cwb-tok-type) { color: #79c0ff !important; font-weight: 500; }
+  :global(.cwb-tok-str)  { color: #a5d6ff !important; }
+  :global(.cwb-tok-num)  { color: #ffa657 !important; }
+  :global(.cwb-tok-fn)   { color: #d2a8ff !important; }
+  :global(.cwb-tok-prop) { color: #7ee787 !important; }
+  :global(.cwb-tok-com)  { color: #8b949e !important; font-style: italic; }
+
+  @media (max-width: 640px) {
+    .cwb-sidebar {
+      width: 170px;
+    }
   }
 </style>
