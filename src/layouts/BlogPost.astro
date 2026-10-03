@@ -17,6 +17,7 @@
 import Base from './Base.astro';
 import '../styles/blog-tokens.css';
 import { withBase } from '../lib/url';
+import BlogEngagement from '../components/blog/BlogEngagement.astro';
 
 interface Props {
   title: string;
@@ -25,11 +26,14 @@ interface Props {
   updated?: Date;
   tags?: string[];
   readMinutes?: number;
+  /** Blog post slug, used by BlogEngagement for Firestore keying. */
+  postId?: string;
   /** Public-folder path written by Sveltia CMS, e.g. /images/blog/cover.jpg */
   cover?: string | null;
 }
 
-const { title, description, pubDate, updated, tags = [], readMinutes = 1, cover } = Astro.props;
+const { title, description, pubDate, updated, tags = [], readMinutes = 1, cover, postId = '' } = Astro.props;
+
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
@@ -140,6 +144,9 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
         All writing
       </a>
     </div>
+
+    <!-- ── Engagement: likes + comments ── -->
+    {postId && <BlogEngagement postId={postId} />}
   </article>
 </Base>
 

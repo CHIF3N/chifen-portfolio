@@ -1,0 +1,461 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../lib/site';
+import { withBase } from '../lib/url';
+
+/*
+ * The CV page is the ATS-parseable, publicly accessible counterpart to the
+ * private Admin AI Studio. Every item here is verified against source docs.
+ * The structure follows the Fanaka "Show the Parts" principle: every entry
+ * records Effort (the technical action) and Value (the real-world outcome).
+ */
+
+const education = [
+  {
+    degree: 'BSc Nursing (Top-up)',
+    institution: 'Gracious Higher Institute of Excellence',
+    note: 'Mentored by the University of Bamenda',
+    period: '2024 - 2026',
+    highlights: [
+      'Dissertation: AI-assisted clinical decision-making readiness among health workers at Buea Regional Hospital (387 respondents, 92.4% response rate)',
+      'Third place, MTN YaMo Pitch Competition Season 4 (LifeDrop)',
+    ],
+  },
+  {
+    degree: 'HND Nursing',
+    institution: 'Gracious Higher Institute of Excellence',
+    note: 'Buea, Cameroon',
+    period: '2022 - 2024',
+    highlights: [
+      'Best Overall HND Student',
+      'Best Nursing Student, HND',
+      'Innovative Excellence Award',
+      'Best Creative Thinker',
+      'Proactive Student Award',
+    ],
+  },
+];
+
+const experience = [
+  {
+    role: 'District Data Manager & PMTCT Head',
+    org: 'Kumba South Health District',
+    location: 'South West Region, Cameroon',
+    period: '2025 – Present',
+    type: 'Full-time',
+    items: [
+      'Manage district-level health data across multiple facilities, ensuring reporting accuracy for national PMTCT targets.',
+      'Coordinate Prevention of Mother-to-Child Transmission (PMTCT) workflows, tracking patient cohorts from antenatal enrolment through 18-month infant outcome.',
+      'Digitised and standardised monthly district reporting pipelines, cutting submission lag from 5 days to same-day.',
+    ],
+  },
+  {
+    role: 'Founder & CEO',
+    org: 'LifeDrop',
+    location: 'Buea, Cameroon',
+    period: '2026 – Present',
+    type: 'Venture',
+    items: [
+      'Architected an asynchronous WhatsApp Cloud API blood donor matching network: ward verifies need → system filters donors by blood type and proximity → matched donor receives one message; yes or no.',
+      'Integrated MTN Mobile Money (MoMo) payment for transparent coordination fees, receipted and traceable, with no payment reaching donors (legal and safety compliance).',
+      'Pilot target: 1,000 registered donors and 200 mediated matches in six months (Buea, 2026). Inherits the 400-donor, 3-hospital Ayodah network as the seed base.',
+    ],
+  },
+  {
+    role: 'Founder & Technical Lead',
+    org: 'CoastClear',
+    location: 'Cameroon',
+    period: '2024 – Present',
+    type: 'Venture',
+    items: [
+      'Built a trilingual (English, French, Pidgin) beach-cleanup coordination platform with role-based access for community organisers, NGOs, and municipal partners.',
+      'Implemented offline-first data sync for cleanup event reporting in low-connectivity coastal areas.',
+    ],
+  },
+  {
+    role: 'Technical Writer',
+    org: 'Tech Chantier & The African Wave',
+    location: 'Remote',
+    period: '2024 – Present',
+    type: 'Freelance',
+    items: [
+      'Author engineering-focused articles on digital health, WhatsApp API integration, and AI in African clinical settings.',
+      'Writing reaches practitioners in tech and policy across Cameroon and the wider West Africa region.',
+    ],
+  },
+  {
+    role: 'Co-founder',
+    org: 'Ayodah Blood Donor Platform',
+    location: 'Buea, Cameroon',
+    period: '2020 – 2026',
+    type: 'Venture',
+    items: [
+      'Co-built a blood donor platform that grew to 400+ registered donors, 310 mediated donations, 3 partner hospitals, and 5+ NGO partnerships before being rebuilt as LifeDrop.',
+      "Won the Silicon Mountain Challenge 2022 (Cameroon's premier startup competition).",
+    ],
+  },
+];
+
+const projects = [
+  {
+    name: 'LifeDrop',
+    url: 'https://lifedropcam.netlify.app/',
+    summary:
+      'WhatsApp-native blood donor matching network. Asynchronous webhooks with idempotent request queues; MTN MoMo payment integration; English/French bilingual flows. Built to survive 2G.',
+    tags: ['WhatsApp Cloud API', 'JavaScript', 'MTN MoMo', 'Health-tech'],
+  },
+  {
+    name: 'AI Clinical Decision-Making Research',
+    url: undefined,
+    summary:
+      '387-respondent cross-sectional study at Buea Regional Hospital on nurse AI readiness. KoboCollect data pipeline → SPSS analysis → PRISMA-compliant write-up. 92.4% response rate.',
+    tags: ['KoboCollect', 'SPSS', 'Clinical research', 'scikit-learn'],
+  },
+  {
+    name: 'Maternal Health Risk Predictor',
+    url: undefined,
+    summary:
+      'scikit-learn logistic regression model trained on anonymised clinical records. Risk stratification across 5 maternal outcome variables. Deployed as a lightweight REST endpoint for midwife tablet use.',
+    tags: ['Python', 'scikit-learn', 'REST API', 'Clinical ML'],
+  },
+  {
+    name: 'MORIA Nurse Intern Assistant',
+    url: undefined,
+    summary:
+      'Offline-first React Native reference tool for newly posted nurse interns. Three core flows: drug dosage, emergency protocol, and patient handover checklist. Works with no internet connection.',
+    tags: ['React Native', 'Expo', 'SQLite', 'Offline-first'],
+  },
+  {
+    name: 'CoastClear',
+    url: undefined,
+    summary:
+      'Trilingual (English / French / Pidgin) beach-cleanup coordination platform. Role-based access for NGOs and municipal partners; offline-capable event reporting.',
+    tags: ['Next.js', 'Astro', 'Supabase', 'Multilingual'],
+  },
+  {
+    name: 'Abortion Safety Georegistry (Demo)',
+    url: undefined,
+    summary:
+      'Geospatial mapping platform for safe abortion service access. Entirely on synthetic data. Built to demonstrate the architecture for policy researchers, not as a clinical service.',
+    tags: ['Next.js', 'Mapbox', 'Supabase', 'Synthetic data'],
+  },
+  {
+    name: 'VIAC Chatbots',
+    url: undefined,
+    summary:
+      'Bilingual health information chatbots deployed for an NGO cervical cancer awareness campaign. n8n automation, WhatsApp Business API; handled 200+ patient queries in the pilot month.',
+    tags: ['n8n', 'WhatsApp Cloud API', 'Health-tech'],
+  },
+];
+
+const skills = [
+  {
+    group: 'Languages & Runtimes',
+    items: ['JavaScript / TypeScript', 'Python', 'HTML5 / CSS3', 'SQL'],
+  },
+  {
+    group: 'Frameworks & Libraries',
+    items: ['Astro', 'Next.js (App Router)', 'React Native / Expo', 'scikit-learn', 'Tailwind CSS'],
+  },
+  {
+    group: 'Platforms & APIs',
+    items: ['WhatsApp Cloud API', 'MTN Mobile Money API', 'Firebase / Firestore', 'Supabase', 'n8n automation', 'Google Gemini API'],
+  },
+  {
+    group: 'Clinical & Research',
+    items: ['SPSS', 'KoboCollect', 'PRISMA', 'Clinical data management', 'PMTCT workflows', 'Emergency nursing'],
+  },
+  {
+    group: 'Tools & Practices',
+    items: ['Git / GitHub', 'Vercel', 'Figma', 'Offline-first architecture', 'Low-bandwidth optimisation', 'Technical writing'],
+  },
+];
+
+const certifications = [
+  { name: 'Certificate of Training Completion', issuer: 'The Tony Elumelu Foundation' },
+  { name: 'Certificate of Business Management Training', issuer: 'The Tony Elumelu Foundation' },
+  { name: 'UNLEASH Hack Talent, Certificate of Participation', issuer: 'UNLEASH' },
+  { name: 'Medical Abortion Course for Providers', issuer: 'International Planned Parenthood Federation' },
+  { name: 'Teaching English as a Foreign Language (TEFL)', issuer: 'Teacher Record' },
+  { name: 'Advancing the Role of Women in Politics', issuer: 'Regional Leadership Center East Africa' },
+];
+
+const speaking = [
+  {
+    event: 'PyCon Cameroon 2026',
+    topic: 'Building Health Technology in Low-Bandwidth Environments',
+    year: '2026',
+  },
+  {
+    event: 'UbuCon Cameroon 2026',
+    topic: 'Open Source Tools for Clinical Data Management in Africa',
+    year: '2026',
+  },
+];
+---
+
+<Base
+  title="CV"
+  description="Curriculum vitae of Chifen Sama Nduma — software engineer, registered nurse, and health technology founder based in Buea, Cameroon."
+  accent="#8b5cf6"
+>
+  <!-- Print controls -->
+  <div class="shell py-6 print:hidden">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <p class="body-sm text-slate">
+        Full CV · Updated October 2026
+      </p>
+      <div class="flex gap-3">
+        <button
+          onclick="window.print()"
+          class="btn btn-ghost btn-sm"
+          type="button"
+        >
+          Print / Save PDF
+          <span aria-hidden="true">↓</span>
+        </button>
+        <a href={withBase('/contact')} class="btn btn-accent btn-sm">
+          Get in touch
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CV Header -->
+  <section class="shell border-t border-line py-10 sm:py-14 print:py-6">
+    <div class="grid gap-6 sm:grid-cols-[1fr_auto]">
+      <div>
+        <h1 class="font-display text-5xl font-bold leading-none uppercase sm:text-6xl">
+          Chifen Sama <span class="text-accent">Nduma</span>
+        </h1>
+        <p class="mt-3 text-lg font-medium text-slate">
+          Software Engineer · Health Technology Innovator · Technical Writer
+        </p>
+        <p class="mt-1 text-sm text-slate-light">{site.location}</p>
+      </div>
+      <div class="flex flex-col gap-1.5 text-sm text-slate print:text-xs">
+        <a href={`mailto:${site.emails[0]}`} class="hover:text-accent transition-colors">
+          {site.emails[0]}
+        </a>
+        <a href={site.whatsapp[0].href} class="hover:text-accent transition-colors">
+          {site.whatsapp[0].label}
+        </a>
+        <a href={site.linkedin} class="hover:text-accent transition-colors">
+          linkedin.com/in/chif3n
+        </a>
+        <a href={site.github} class="hover:text-accent transition-colors">
+          github.com/chifensama01-coder
+        </a>
+        <span class="mt-1 text-slate-light">chifen.is-a.dev</span>
+      </div>
+    </div>
+
+    <!-- Engineering headline -->
+    <blockquote class="mt-8 border-l-4 border-accent pl-5 text-lg leading-relaxed text-slate print:mt-4">
+      Registered nurse and software engineer. I build digital health infrastructure for settings
+      with unreliable power, low bandwidth, and no margin for system failure. Clinical domain
+      knowledge from the inside — not inferred from user interviews.
+    </blockquote>
+  </section>
+
+  <!-- Experience -->
+  <section class="shell band band-line print:py-4">
+    <h2 class="eyebrow text-accent">Experience</h2>
+    <ul class="mt-8 space-y-10 print:mt-4 print:space-y-6">
+      {
+        experience.map((job, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 50}ms`} class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
+            <div>
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span class="font-display text-xl font-semibold">{job.role}</span>
+                <span class="text-xs font-semibold tracking-wider text-accent uppercase rounded-full border border-accent/30 bg-accent/8 px-2.5 py-0.5">
+                  {job.type}
+                </span>
+              </div>
+              <p class="mt-0.5 text-sm text-slate">
+                {job.org} &middot; {job.location}
+              </p>
+              <ul class="mt-3 space-y-1.5">
+                {job.items.map((item) => (
+                  <li class="flex gap-2.5 text-sm leading-relaxed text-slate">
+                    <span class="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p class="ordinal shrink-0 text-right text-sm text-slate-light">{job.period}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Speaking -->
+  <section class="shell band band-line print:py-4">
+    <h2 class="eyebrow text-accent">Speaking</h2>
+    <ul class="mt-8 space-y-4 print:mt-4">
+      {
+        speaking.map((talk, i) => (
+          <li
+            data-reveal
+            style={`--reveal-delay:${i * 50}ms`}
+            class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-line pb-4 last:border-0"
+          >
+            <div>
+              <p class="font-display font-semibold">{talk.event}</p>
+              <p class="mt-0.5 text-sm text-slate">{talk.topic}</p>
+            </div>
+            <span class="ordinal text-sm text-slate-light">{talk.year}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Selected Projects -->
+  <section class="shell band band-line print:py-4">
+    <h2 class="eyebrow text-accent">Selected Projects</h2>
+    <ul class="mt-8 grid gap-4 sm:grid-cols-2 print:mt-4 print:grid-cols-2">
+      {
+        projects.map((project, i) => (
+          <li
+            data-reveal
+            style={`--reveal-delay:${i * 40}ms`}
+            class="card-flat p-5"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <p class="display-card text-base">{project.name}</p>
+              {project.url && (
+                <a
+                  href={project.url}
+                  target="_blank"
+                  rel="noopener"
+                  class="shrink-0 text-xs text-accent underline-offset-4 hover:underline"
+                  aria-label={`Visit ${project.name}`}
+                >
+                  Live &rarr;
+                </a>
+              )}
+            </div>
+            <p class="mt-2 text-sm leading-relaxed text-slate">{project.summary}</p>
+            <ul class="mt-3 flex flex-wrap gap-1.5">
+              {project.tags.map((tag) => (
+                <li class="rounded-full bg-ink/5 px-2 py-0.5 text-xs text-slate">{tag}</li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ul>
+    <a
+      href={withBase('/work')}
+      class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent underline-offset-4 hover:underline print:hidden"
+    >
+      Full case studies &rarr;
+    </a>
+  </section>
+
+  <!-- Education -->
+  <section class="shell band band-line print:py-4">
+    <h2 class="eyebrow text-accent">Education</h2>
+    <ul class="mt-8 space-y-8 print:mt-4 print:space-y-4">
+      {
+        education.map((edu, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 50}ms`} class="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-start">
+            <div>
+              <p class="font-display text-xl font-semibold">{edu.degree}</p>
+              <p class="mt-0.5 text-sm text-slate">
+                {edu.institution}
+                {edu.note && <span class="text-slate-light"> &middot; {edu.note}</span>}
+              </p>
+              <ul class="mt-3 space-y-1">
+                {edu.highlights.map((h) => (
+                  <li class="flex gap-2.5 text-sm text-slate">
+                    <span class="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                    {h}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p class="ordinal shrink-0 text-right text-sm text-slate-light">{edu.period}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Skills -->
+  <section class="shell band band-line print:py-4">
+    <h2 class="eyebrow text-accent">Skills</h2>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 print:mt-4 print:grid-cols-3">
+      {
+        skills.map((section, i) => (
+          <div data-reveal style={`--reveal-delay:${i * 40}ms`}>
+            <h3 class="text-xs font-semibold tracking-widest text-accent uppercase">
+              {section.group}
+            </h3>
+            <ul class="mt-3 space-y-1">
+              {section.items.map((item) => (
+                <li class="text-sm text-slate">{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Certifications -->
+  <section class="shell band band-line print:py-4">
+    <h2 class="eyebrow text-accent">Certifications & Training</h2>
+    <ul class="mt-8 grid gap-3 sm:grid-cols-2 print:mt-4 print:grid-cols-2">
+      {
+        certifications.map((cert, i) => (
+          <li
+            data-reveal
+            style={`--reveal-delay:${i * 40}ms`}
+            class="rounded-xl border border-ink/10 bg-white/60 px-5 py-4"
+          >
+            <p class="font-display font-medium text-sm">{cert.name}</p>
+            <p class="mt-1 text-xs text-slate-light">{cert.issuer}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Print CTA strip — only visible on screen -->
+  <section class="shell py-12 print:hidden">
+    <div class="rounded-[var(--radius-card)] bg-ink p-8 text-paper sm:p-10">
+      <p class="eyebrow text-paper/50">Working on something in health or digital infrastructure?</p>
+      <h2 class="mt-3 font-display text-3xl font-bold uppercase sm:text-4xl">
+        Let's talk.
+      </h2>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href={withBase('/contact')} class="btn btn-accent">
+          Get in touch
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+        <button onclick="window.print()" class="btn btn-ghost" type="button">
+          Download PDF
+        </button>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  @media print {
+    :root {
+      --ink: #000;
+      --paper: #fff;
+      --slate: #333;
+      --accent: #6d28d9;
+    }
+    .print\:hidden {
+      display: none !important;
+    }
+  }
+</style>
