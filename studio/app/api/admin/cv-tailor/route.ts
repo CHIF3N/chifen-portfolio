@@ -1,25 +1,12 @@
 /**
  * POST /api/admin/cv-tailor
  *
- * Server-side Gemini API route handler for the Admin AI CV Studio.
- * The Gemini API key never leaves the server.
+ * Auth: protected by middleware (studio_session cookie).
+ * No Firebase, no auth header — the cookie is verified before this route runs.
  *
- * Request body:
- *   {
- *     jobDescription: string;   // the target job posting
- *     outputType: 'bullets' | 'cover-letter' | 'summary';
- *     tone?: 'technical' | 'strategic' | 'balanced';
- *   }
- *
- * Response:
- *   { result: string }
- *
- * Fanaka principles:
- *   - "Applicant, Not Supplicant": generated copy is assertive, peer-to-peer
- *   - "Be Personal, Specific, Concrete": every output draws from real CV data
- *   - "Show the Parts": Effort/Value framing preserved in bullets
+ * Body: { jobDescription: string; outputType: 'bullets'|'cover-letter'|'summary'; tone?: string }
+ * Response: { result: string }
  */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { masterCvData } from '@/lib/masterCvData';
@@ -58,34 +45,22 @@ RULES you must follow WITHOUT EXCEPTION:
 5. Match the job description's terminology exactly where the CV data supports it.
 6. Separate Effort (technical action, tools, scale) from Value (outcome, impact, metric) in bullet points.
 7. If the job requires a skill Chifen does not have in the data, acknowledge the gap honestly — do not fabricate.
-8. Output only the requested section. No preamble, no explanation.`;
+8. Output only the requested section. No preamble, no explanation, no metadata.`;
 
 export async function POST(req: NextRequest) {
-  // Auth check: only the admin UID may call this route.
-  // The client sends its Firebase ID token in the Authorization header.
-  const authHeader = req.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  // Note: for production, verify the token server-side with Firebase Admin SDK.
-  // For now, we trust the client-side auth guard (acceptable for a private tool).
-
-  const { jobDescription, outputType, tone = 'balanced' } = await req.json();
+  const { jobDescription, outputType, tone = 'balanced' } = await req.json().catch(() => ({}));
 
   if (!jobDescription || typeof jobDescription !== 'string') {
-    return NextResponse.json({ error: 'jobDescription is required' }, { status: 400 });
+    return NextResponse.json({ error: 'jobDescription is required.' }, { status: 400 });
   }
 
-  const toneInstructions = {
-    technical:
-      'Use engineering-specific vocabulary. Emphasise architecture decisions, performance numbers, and protocol details.',
-    strategic:
-      'Emphasise leadership, organisational impact, and cross-functional coordination. Still concrete, not generic.',
-    balanced:
-      'Balance technical credibility with clear human impact. The reader may not be an engineer.',
-  }[tone as keyof typeof toneInstructions];
+  const toneInstructions: Record<string, string> = {
+    technical: 'Use engineering-specific vocabulary. Emphasise architecture decisions, performance numbers, and protocol details.',
+    strategic: 'Emphasise leadership, organisational impact, and cross-functional coordination. Still concrete, not generic.',
+    balanced: 'Balance technical credibility with clear human impact. The reader may not be an engineer.',
+  };
 
-  const outputInstructions = {
+  const outputInstructions: Record<string, string> = {
     bullets: `Generate 6–8 tailored CV bullet points for this role.
 Format: "• [Effort] — [Value]"
 Each bullet must cite a specific technology, protocol, or metric from the CV data.
@@ -99,31 +74,28 @@ Sentence 1: Role, clinical background, and engineering discipline in one line.
 Sentence 2: The domain constraint that defines the work (low bandwidth, clinical context, African health systems).
 Sentence 3: One proof point — a specific metric or outcome.
 Sentence 4: The forward direction that maps to this role.`,
-  }[outputType as keyof typeof outputInstructions];
+  };
 
-  if (!outputInstructions) {
-    return NextResponse.json({ error: 'Invalid outputType' }, { status: 400 });
+  if (!outputInstructions[outputType]) {
+    return NextResponse.json({ error: 'Invalid outputType.' }, { status: 400 });
   }
 
-  const userPrompt = `
+  const prompt = `${SYSTEM_CONTEXT}
+
 JOB DESCRIPTION:
 ${jobDescription}
 
-TONE INSTRUCTION: ${toneInstructions}
+TONE: ${toneInstructions[tone] ?? toneInstructions.balanced}
 
-TASK: ${outputInstructions}
-`;
+TASK: ${outputInstructions[outputType]}`;
 
   try {
     const response = await genai.models.generateContent({
       model: 'gemini-2.0-flash',
-      contents: [
-        { role: 'user', parts: [{ text: SYSTEM_CONTEXT + '\n\n' + userPrompt }] },
-      ],
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
 
     const result = response.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-
     return NextResponse.json({ result });
   } catch (err: unknown) {
     console.error('[cv-tailor] Gemini error:', err);
