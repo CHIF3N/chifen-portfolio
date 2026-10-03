@@ -24,6 +24,8 @@ const minutes = Math.max(1, Math.round(readingTime(post.body ?? '').minutes));
   tags={tags}
   readMinutes={minutes}
   cover={cover ?? undefined}
+  postId={post.id}
 >
   <Content components={{ CodeWorkbench }} />
 </BlogPost>
+
