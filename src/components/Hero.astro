@@ -2,6 +2,14 @@
 import Scene3D from './Scene3D.astro';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
+
+const proofChips = [
+  'Speaker @ PyCon & UbuCon Cameroon 2026',
+  'District Data Manager · PMTCT Head, Kumba South',
+  'Founder @ LifeDrop · WhatsApp Blood Donor Network',
+  'Founder @ CoastClear',
+  'Technical Writer · Tech Chantier · The African Wave',
+];
 ---
 
 <section class="shell pt-10 pb-16 sm:pt-16 sm:pb-24">
@@ -12,11 +20,11 @@ import { withBase } from '../lib/url';
       ></span>
       <span class="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
     </span>
-    Hi, I'm Chifen &mdash; {site.location}
+    Chifen Sama Nduma &mdash; {site.location}
   </p>
 
   <h1 class="mt-6">
-    <span class="hero-line display-hero block" style="--i:1">Nurse</span>
+    <span class="hero-line display-hero block" style="--i:1">Resilient</span>
 
     <!-- The middle band sits between the two hero words: portrait on the left,
          the pitch and call to action on the right. -->
@@ -31,8 +39,8 @@ import { withBase } from '../lib/url';
 
       <span class="flex flex-col items-start gap-6">
         <span class="lede block max-w-md">
-          From Buea, I build health technology that survives a real ward on a bad day. Blood donor
-          coordination, WhatsApp health services, and AI in clinical decision-making.
+          {site.headline} Nurse-trained. Built for the ward, the power cut, and the 2G
+          connection.
         </span>
         <a href={withBase('/work')} class="btn btn-accent">
           See the work
@@ -41,8 +49,20 @@ import { withBase } from '../lib/url';
       </span>
     </span>
 
-    <span class="hero-line display-hero block" style="--i:3">Developer</span>
+    <span class="hero-line display-hero block" style="--i:3">Health Tech</span>
   </h1>
+
+  <!-- Proof chips / credential badges -->
+  <div class="hero-line mt-8 flex flex-wrap gap-2" style="--i:4" aria-label="Credentials">
+    {
+      proofChips.map((chip) => (
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/8 px-3 py-1.5 text-xs font-semibold text-accent">
+          <span aria-hidden="true" class="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+          {chip}
+        </span>
+      ))
+    }
+  </div>
 </section>
 
 <style>

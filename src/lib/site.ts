@@ -1,10 +1,14 @@
 export const site = {
-  name: 'Chifen Sama N.',
+  name: 'Chifen Sama Nduma',
   shortName: 'CHIF3N',
-  role: 'Nurse and developer',
-  location: 'Buea, Cameroon',
+  /** The two-word public version used in navigation and most contexts. */
+  displayName: 'Chifen Sama',
+  role: 'Software Engineer · Health Technology Innovator · Technical Writer',
+  location: 'Buea / Yaoundé, Cameroon',
   description:
-    'Nurse and self-taught developer building health technology in Cameroon. Blood donor coordination, WhatsApp health services, and AI in clinical decision-making.',
+    'Software engineer and registered nurse architecting resilient digital health platforms, low-bandwidth communication networks, and scalable web backends across Cameroon.',
+  headline:
+    'Architecting resilient digital health platforms, low-bandwidth communication networks, and scalable web backends.',
   vision:
     'To build technologies that make quality healthcare more accessible, intelligent, and equitable across Africa.',
   emails: ['chifensama0@gmail.com'],
@@ -52,6 +56,7 @@ export const site = {
     { label: 'Services', href: '/services' },
     { label: 'Research', href: '/research' },
     { label: 'Writing', href: '/blog' },
+    { label: 'CV', href: '/cv' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
   ],
@@ -62,5 +67,6 @@ export const site = {
     work: '#ff083d',
     services: '#2fd643',
     research: '#08b9d4',
+    cv: '#8b5cf6',
   },
 } as const;
