@@ -1,20 +1,24 @@
+import siteConfig from '../data/siteConfig.json';
+
 export const site = {
-  name: 'Chifen Sama Nduma',
+  name: siteConfig.name || 'Chifen Sama Nduma',
   shortName: 'CHIF3N',
   /** The two-word public version used in navigation and most contexts. */
   displayName: 'Chifen Sama',
-  role: 'Software Engineer · Health Technology Innovator · Technical Writer',
-  location: 'Buea / Yaoundé, Cameroon',
+  role: siteConfig.role || 'Software Engineer · Health Technology Innovator · Technical Writer',
+  location: siteConfig.location || 'Buea / Yaoundé, Cameroon',
   description:
+    siteConfig.pitch ||
     'Software engineer and registered nurse architecting resilient digital health platforms, low-bandwidth communication networks, and scalable web backends across Cameroon.',
   headline:
+    siteConfig.tagline ||
     'Architecting resilient digital health platforms, low-bandwidth communication networks, and scalable web backends.',
   vision:
     'To build technologies that make quality healthcare more accessible, intelligent, and equitable across Africa.',
-  emails: ['chifensama0@gmail.com'],
-  whatsapp: [{ label: '+237 672 835 132', href: 'https://wa.me/237672835132' }],
-  github: 'https://github.com/chifensama01-coder',
-  linkedin: 'https://www.linkedin.com/in/chif3n/',
+  emails: [siteConfig.email || 'chifensama0@gmail.com'],
+  whatsapp: [{ label: siteConfig.whatsapp || '+237 672 835 132', href: `https://wa.me/${(siteConfig.whatsapp || '+237672835132').replace(/[^0-9]/g, '')}` }],
+  github: siteConfig.github || 'https://github.com/chifensama01-coder',
+  linkedin: siteConfig.linkedin || 'https://www.linkedin.com/in/chif3n/',
 
   /**
    * Share/tracking parameters are stripped: the `igsh` token on an Instagram

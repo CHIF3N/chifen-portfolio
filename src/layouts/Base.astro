@@ -64,8 +64,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       // Runs before first paint so a stored dark choice never flashes light.
       try {
         var stored = localStorage.getItem('theme');
-        if (stored === 'dark' || stored === 'light') {
-          document.documentElement.dataset.theme = stored;
+        var isDark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (isDark) {
+          document.documentElement.dataset.theme = 'dark';
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.dataset.theme = 'light';
+          document.documentElement.classList.remove('dark');
         }
       } catch (e) {}
     </script>

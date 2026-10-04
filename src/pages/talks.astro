@@ -9,25 +9,15 @@ import { withBase } from '../lib/url';
  * Verified events only — no placeholder credentials per Fanaka rules.
  */
 
-const talks = [
-  {
-    id: 'pycon-2026',
-    event: 'PyCon & UbuCon Cameroon 2026',
-    location: 'Yaoundé, Cameroon',
-    date: '2026',
-    title: 'Building WhatsApp-Based Health Tech Networks in Low-Connectivity Environments',
-    abstract:
-      'A technical walkthrough of LifeDrop\'s architecture: asynchronous WhatsApp Cloud API webhooks, idempotent request queues for unreliable 2G connections, and zero-downtime health data alerting. Covers blood donor matching heuristics, MTN MoMo payment integration, and English/French bilingual conversational flows — all built to survive connectivity degradation.',
-    slides: {
-      embedUrl:
-        'https://docs.google.com/presentation/d/e/2PACX-1vT1dZ-6OHnCv6OpI0eVEdm9Ug4SLHzsHqLBMvdT7fXUh8A/embed?start=false&loop=false&delayms=3000',
-      directUrl:
-        'https://docs.google.com/presentation/d/1dZ-6OHnCv6OpI0eVEdm9Ug4SLHzsHqLBMvdT7fXUh8A/edit?usp=sharing',
-    },
-    tags: ['Python', 'WhatsApp Cloud API', 'Docker', 'Healthcare Data Systems', 'PyCon 2026'],
-    featured: true,
+import talksJson from '../data/talks.json';
+
+const talks = (talksJson as Array<any>).map((t) => ({
+  ...t,
+  slides: {
+    embedUrl: t.embedUrl || t.slides?.embedUrl || '',
+    directUrl: t.deckUrl || t.slides?.directUrl || '',
   },
-];
+}));
 
 const demos = [
   {
@@ -55,11 +45,11 @@ const demos = [
 >
   <!-- Hero -->
   <section class="shell band border-b border-line">
-    <p class="eyebrow">Media & Presentations</p>
-    <h1 class="mt-4 font-display text-5xl font-bold uppercase leading-none sm:text-6xl lg:text-7xl">
+    <p class="eyebrow text-zinc-500 dark:text-zinc-400">Media & Presentations</p>
+    <h1 class="mt-4 font-display text-5xl font-bold uppercase leading-none sm:text-6xl lg:text-7xl text-zinc-900 dark:text-zinc-100">
       Talks &<br />Demos
     </h1>
-    <p class="mt-6 max-w-2xl text-slate">
+    <p class="mt-6 max-w-2xl text-zinc-700 dark:text-zinc-300">
       Conference presentations, architecture walkthroughs, and live product demos.
       Engineering for low-bandwidth environments, clinical health systems, and community networks.
     </p>
@@ -84,20 +74,20 @@ const demos = [
       <div class="shell">
         <!-- Meta -->
         <div class="flex flex-wrap items-center gap-3 mb-6">
-          <span class="eyebrow">{talk.event}</span>
-          <span class="text-slate text-sm">·</span>
-          <span class="text-slate text-sm">{talk.location}</span>
-          <span class="text-slate text-sm">·</span>
-          <span class="text-slate text-sm">{talk.date}</span>
+          <span class="eyebrow text-accent">{talk.event}</span>
+          <span class="text-zinc-400 text-sm">·</span>
+          <span class="text-zinc-600 dark:text-zinc-400 text-sm">{talk.location}</span>
+          <span class="text-zinc-400 text-sm">·</span>
+          <span class="text-zinc-600 dark:text-zinc-400 text-sm">{talk.date}</span>
         </div>
 
         <!-- Title -->
-        <h2 class="font-display text-3xl font-bold uppercase sm:text-4xl max-w-3xl leading-tight">
+        <h2 class="font-display text-3xl font-bold uppercase sm:text-4xl max-w-3xl leading-tight text-zinc-900 dark:text-zinc-100">
           {talk.title}
         </h2>
 
         <!-- Abstract -->
-        <p class="mt-5 max-w-2xl text-slate leading-relaxed">
+        <p class="mt-5 max-w-2xl text-zinc-700 dark:text-zinc-300 leading-relaxed">
           {talk.abstract}
         </p>
 
@@ -113,7 +103,7 @@ const demos = [
         <!-- Embedded Slides -->
         <div class="mt-8 w-full">
           <div
-            class="relative w-full overflow-hidden rounded-2xl border border-line shadow-2xl bg-paper-dim"
+            class="relative w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl bg-paper-dim"
             style="aspect-ratio: 16/9;"
           >
             <iframe
@@ -147,11 +137,11 @@ const demos = [
   <!-- Live Demos -->
   <section class="band band-line">
     <div class="shell">
-      <p class="eyebrow">Architecture Demos</p>
-      <h2 class="mt-4 font-display text-3xl font-bold uppercase sm:text-4xl">
+      <p class="eyebrow text-zinc-500 dark:text-zinc-400">Architecture Demos</p>
+      <h2 class="mt-4 font-display text-3xl font-bold uppercase sm:text-4xl text-zinc-900 dark:text-zinc-100">
         Live Walkthroughs
       </h2>
-      <p class="mt-4 text-slate max-w-xl">
+      <p class="mt-4 text-zinc-700 dark:text-zinc-300 max-w-xl">
         Recorded demos of production systems. Each shows the real constraint — 2G bandwidth,
         multilingual UX, clinical workflow — not a polished happy path.
       </p>
@@ -160,16 +150,16 @@ const demos = [
         {demos.map((demo) => (
           <div
             id={demo.id}
-            class="rounded-[var(--radius-card)] border border-line p-6 flex flex-col gap-4"
+            class="rounded-[var(--radius-card)] bg-white dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-4"
           >
             <div>
-              <h3 class="font-display text-xl font-bold uppercase">{demo.title}</h3>
-              <p class="mt-2 text-sm text-slate leading-relaxed">{demo.description}</p>
+              <h3 class="font-display text-xl font-bold uppercase text-zinc-900 dark:text-zinc-100">{demo.title}</h3>
+              <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{demo.description}</p>
             </div>
 
             <div class="flex flex-wrap gap-2">
               {demo.tags.map((tag) => (
-                <span class="rounded-full border border-line px-2.5 py-0.5 text-xs font-semibold text-slate">
+                <span class="rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 px-2.5 py-0.5 text-xs font-semibold">
                   {tag}
                 </span>
               ))}

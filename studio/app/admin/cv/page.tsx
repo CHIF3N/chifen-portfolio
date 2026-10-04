@@ -1,81 +1,56 @@
 import type { Metadata } from 'next';
+import { DashboardLayout } from '@/components/DashboardLayout';
 import { CvStudioClient } from '@/components/CvStudioClient';
 
 export const metadata: Metadata = {
-  title: 'Admin CV Studio — Chifen Studio',
+  title: 'AI CV Studio — Chifen Studio',
   robots: 'noindex, nofollow',
 };
 
-/**
- * Admin CV Studio page.
- * Auth is handled entirely by middleware (studio_session cookie).
- * This page renders unconditionally — unauthenticated requests never reach here.
- */
 export default function AdminCvPage() {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <header
-        style={{
-          borderBottom: '1px solid var(--border)',
-          padding: '0.875rem 1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ fontFamily: 'Inter', fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.02em' }}>
-            Chif<span style={{ color: 'var(--accent)' }}>3</span>n Studio
-          </span>
-          <span
-            style={{
-              fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-              color: 'var(--accent)', border: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)',
-              borderRadius: '9999px', padding: '0.15rem 0.5rem',
-            }}
-          >
-            Admin
+    <DashboardLayout
+      title="AI CV Studio"
+      subtitle="Fanaka-grade tailored bullet points, cover letters, and summaries with Gemini 2.5 Flash"
+      actions={
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span className="badge-green" style={{ fontSize: '0.72rem' }}>
+            Gemini 2.5 Flash Active
           </span>
         </div>
-        <span style={{ fontSize: '0.75rem', color: 'var(--text-faint)' }}>
-          Fanaka AI CV Studio · Gemini 2.0 Flash
-        </span>
-      </header>
+      }
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        {/* Fanaka principle chips */}
+        <div
+          style={{
+            padding: '0.75rem 1rem',
+            background: '#111113',
+            border: '1px solid #27272a',
+            borderRadius: '10px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+            alignItems: 'center',
+          }}
+        >
+          <span style={{ fontSize: '0.7rem', color: '#71717a', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: '0.25rem' }}>
+            Fanaka Engineering Rules:
+          </span>
+          {['Applicant, Not Supplicant', 'Personal · Specific · Concrete', 'Effort → Value', 'Zero Hallucination'].map(
+            (p) => (
+              <span key={p} className="chip">
+                {p}
+              </span>
+            )
+          )}
+        </div>
 
-      {/* Fanaka principle chips */}
-      <div
-        style={{
-          padding: '0.75rem 1.5rem',
-          background: 'var(--surface)',
-          borderBottom: '1px solid var(--border)',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.5rem',
-          alignItems: 'center',
-        }}
-      >
-        {['Applicant, Not Supplicant', 'Personal · Specific · Concrete', 'Effort → Value', 'No hallucination'].map(
-          (p) => (
-            <span
-              key={p}
-              style={{
-                fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.05em',
-                color: 'var(--accent)',
-                border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
-                borderRadius: '9999px', padding: '0.2rem 0.6rem',
-              }}
-            >
-              {p}
-            </span>
-          )
-        )}
+        {/* Client Tailor Component */}
+        <div className="card" style={{ padding: '1.25rem' }}>
+          <CvStudioClient />
+        </div>
       </div>
-
-      {/* Main */}
-      <main style={{ flex: 1, padding: '1.5rem', overflow: 'auto' }}>
-        <CvStudioClient />
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }

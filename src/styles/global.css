@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
+
 /* Display face. Condensed grotesque, used uppercase at large sizes. */
 @font-face {
   font-family: 'Big Shoulders';
@@ -98,31 +100,32 @@
 
 /* Dark theme. Applied by the toggle, and by system preference when the visitor
    has not chosen explicitly. */
-:root[data-theme='dark'] {
-  --ink: #ffffff;
-  --ink-700: #f0f0f0;
-  --ink-600: #d4d4d4;
-  --paper: #0a0a0a;
-  --paper-dim: #161616;
-  --panel: #161616;
-  --panel-ink: #ffffff;
-  --slate: #a1a1a1;
-  --slate-light: #8a8a8a;
-  --line: #282828;
+:root[data-theme='dark'],
+:root.dark {
+  --ink: #f4f4f5;
+  --ink-700: #fafafa;
+  --ink-600: #e4e4e7;
+  --paper: #09090b;
+  --paper-dim: #18181b;
+  --panel: #18181b;
+  --panel-ink: #f4f4f5;
+  --slate: #a1a1aa;
+  --slate-light: #71717a;
+  --line: #27272a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --ink: #ffffff;
-    --ink-700: #f0f0f0;
-    --ink-600: #d4d4d4;
-    --paper: #0a0a0a;
-    --paper-dim: #161616;
-    --panel: #161616;
-    --panel-ink: #ffffff;
-    --slate: #a1a1a1;
-    --slate-light: #8a8a8a;
-    --line: #282828;
+    --ink: #f4f4f5;
+    --ink-700: #fafafa;
+    --ink-600: #e4e4e7;
+    --paper: #09090b;
+    --paper-dim: #18181b;
+    --panel: #18181b;
+    --panel-ink: #f4f4f5;
+    --slate: #a1a1aa;
+    --slate-light: #71717a;
+    --line: #27272a;
   }
 }
 
@@ -663,6 +666,8 @@
 }
 .prose-body code {
   background-color: var(--color-paper-dim);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
   border-radius: 4px;
   padding: 0.15em 0.4em;
   font-size: 0.9em;
