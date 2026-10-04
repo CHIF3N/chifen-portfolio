@@ -2,7 +2,7 @@
  * POST /api/admin/cv-tailor
  *
  * Auth: protected by middleware (studio_session cookie).
- * No Firebase, no auth header — the cookie is verified before this route runs.
+ * Model progression: gemini-2.5-flash -> gemini-3.8-flash -> gemini-1.5-flash.
  *
  * Body: { jobDescription: string; outputType: 'bullets'|'cover-letter'|'summary'; tone?: string }
  * Response: { result: string }
@@ -10,8 +10,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { masterCvData } from '@/lib/masterCvData';
-
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 const SYSTEM_CONTEXT = `You are a world-class CV and cover letter writer operating under strict Fanaka principles.
 You have access to Chifen Sama Nduma's complete verified career record.
@@ -48,6 +46,14 @@ RULES you must follow WITHOUT EXCEPTION:
 8. Output only the requested section. No preamble, no explanation, no metadata.`;
 
 export async function POST(req: NextRequest) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json(
+      { error: 'GEMINI_API_KEY is missing in server environment. Please check studio/.env.local.' },
+      { status: 500 }
+    );
+  }
+
   const { jobDescription, outputType, tone = 'balanced' } = await req.json().catch(() => ({}));
 
   if (!jobDescription || typeof jobDescription !== 'string') {
@@ -77,7 +83,7 @@ Sentence 4: The forward direction that maps to this role.`,
   };
 
   if (!outputInstructions[outputType]) {
-    return NextResponse.json({ error: 'Invalid outputType.' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid outputType specified.' }, { status: 400 });
   }
 
   const prompt = `${SYSTEM_CONTEXT}
@@ -89,17 +95,41 @@ TONE: ${toneInstructions[tone] ?? toneInstructions.balanced}
 
 TASK: ${outputInstructions[outputType]}`;
 
-  try {
-    const response = await genai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    });
+  const genai = new GoogleGenAI({ apiKey });
 
-    const result = response.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-    return NextResponse.json({ result });
-  } catch (err: unknown) {
-    console.error('[cv-tailor] Gemini error:', err);
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+  // Priority order: gemini-2.5-flash -> gemini-3.8-flash -> gemini-1.5-flash
+  const candidateModels = ['gemini-2.5-flash', 'gemini-3.8-flash', 'gemini-1.5-flash'];
+  let result = '';
+  let successfulModel = '';
+  const errors: string[] = [];
+
+  for (const model of candidateModels) {
+    try {
+      const response = await genai.models.generateContent({
+        model,
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      });
+      const text = response.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text && text.trim()) {
+        result = text;
+        successfulModel = model;
+        break;
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[cv-tailor] Model ${model} failed: ${msg}`);
+      errors.push(`${model}: ${msg}`);
+    }
   }
+
+  if (!result.trim()) {
+    return NextResponse.json(
+      {
+        error: `Gemini generation failed across models (${errors.join('; ')}). Please verify API key permissions.`,
+      },
+      { status: 502 }
+    );
+  }
+
+  return NextResponse.json({ result, modelUsed: successfulModel });
 }

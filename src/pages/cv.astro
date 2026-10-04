@@ -15,7 +15,7 @@ const education = [
     degree: 'BSc Nursing (Top-up)',
     institution: 'Gracious Higher Institute of Excellence',
     note: 'Mentored by the University of Bamenda',
-    period: '2024 - 2026',
+    period: '2024 – 2026',
     highlights: [
       'Dissertation: AI-assisted clinical decision-making readiness among health workers at Buea Regional Hospital (387 respondents, 92.4% response rate)',
       'Third place, MTN YaMo Pitch Competition Season 4 (LifeDrop)',
@@ -25,7 +25,7 @@ const education = [
     degree: 'HND Nursing',
     institution: 'Gracious Higher Institute of Excellence',
     note: 'Buea, Cameroon',
-    period: '2022 - 2024',
+    period: '2022 – 2024',
     highlights: [
       'Best Overall HND Student',
       'Best Nursing Student, HND',
@@ -38,61 +38,94 @@ const education = [
 
 const experience = [
   {
-    role: 'District Data Manager & PMTCT Head',
-    org: 'Kumba South Health District',
-    location: 'South West Region, Cameroon',
-    period: '2025 – Present',
-    type: 'Full-time',
-    items: [
-      'Manage district-level health data across multiple facilities, ensuring reporting accuracy for national PMTCT targets.',
-      'Coordinate Prevention of Mother-to-Child Transmission (PMTCT) workflows, tracking patient cohorts from antenatal enrolment through 18-month infant outcome.',
-      'Digitised and standardised monthly district reporting pipelines, cutting submission lag from 5 days to same-day.',
-    ],
-  },
-  {
-    role: 'Founder & CEO',
+    role: 'Lead Architect & Systems Developer',
     org: 'LifeDrop',
-    location: 'Buea, Cameroon',
-    period: '2026 – Present',
-    type: 'Venture',
+    location: 'Buea / Yaoundé, Cameroon',
+    period: '2025 – Present',
+    type: 'Venture · Active',
     items: [
-      'Architected an asynchronous WhatsApp Cloud API blood donor matching network: ward verifies need → system filters donors by blood type and proximity → matched donor receives one message; yes or no.',
-      'Integrated MTN Mobile Money (MoMo) payment for transparent coordination fees, receipted and traceable, with no payment reaching donors (legal and safety compliance).',
-      'Pilot target: 1,000 registered donors and 200 mediated matches in six months (Buea, 2026). Inherits the 400-donor, 3-hospital Ayodah network as the seed base.',
+      'Architected asynchronous webhooks integrating the WhatsApp Cloud API with Python/Node.js backends and Redis queues, enabling zero-install donor triage.',
+      'Reduced emergency donor matching turnaround time to under 3 minutes per automated dispatch.',
+      'Implemented idempotent request queues and retry policies to prevent duplicate alerts during 2G packet loss.',
+      'Awarded 3rd Place in the MTN YaMo Pitch Competition Season 4.',
     ],
   },
   {
-    role: 'Founder & Technical Lead',
+    role: 'Lead Engineer',
     org: 'CoastClear',
-    location: 'Cameroon',
-    period: '2024 – Present',
-    type: 'Venture',
+    location: 'Limbe / Coastal Cameroon',
+    period: '2025 – Present',
+    type: 'Venture · Active',
     items: [
-      'Built a trilingual (English, French, Pidgin) beach-cleanup coordination platform with role-based access for community organisers, NGOs, and municipal partners.',
-      'Implemented offline-first data sync for cleanup event reporting in low-connectivity coastal areas.',
+      'Engineered responsive web dashboards with full localization (English, French, Cameroonian Pidgin) integrated with lightweight computer-vision models for photographic waste tagging.',
+      'Delivered live spatial density heatmaps enabling volunteer cleanup operations to deploy resources with 40% higher efficiency.',
+      'Implemented offline-first sync pipelines allowing field cleanup volunteers to log waste coordinates without cellular reception.',
     ],
   },
   {
-    role: 'Technical Writer',
-    org: 'Tech Chantier & The African Wave',
-    location: 'Remote',
-    period: '2024 – Present',
-    type: 'Freelance',
-    items: [
-      'Author engineering-focused articles on digital health, WhatsApp API integration, and AI in African clinical settings.',
-      'Writing reaches practitioners in tech and policy across Cameroon and the wider West Africa region.',
-    ],
-  },
-  {
-    role: 'Co-founder',
-    org: 'Ayodah Blood Donor Platform',
+    role: 'Co-Founder & Chief Executive Officer',
+    org: 'INKWAVE',
     location: 'Buea, Cameroon',
-    period: '2020 – 2026',
-    type: 'Venture',
+    period: '2023 – Present',
+    type: 'Leadership · Active',
     items: [
-      'Co-built a blood donor platform that grew to 400+ registered donors, 310 mediated donations, 3 partner hospitals, and 5+ NGO partnerships before being rebuilt as LifeDrop.',
-      "Won the Silicon Mountain Challenge 2022 (Cameroon's premier startup competition).",
+      'Directed developer workshops, hackathons, and community bootcamps; authored technical columns for Tech Chantier and The African Wave.',
+      'Established international ecosystem partnerships (e.g., ATWCE) and open-source documentation mentorship programs.',
+      'Built a thriving network of regional developers and mentored dozens of emerging engineers into global open-source ecosystems.',
     ],
+  },
+  {
+    role: 'District Data Manager & PMTCT Departmental Head',
+    org: 'Kumba South District Health Service',
+    location: 'South West Region, Cameroon',
+    period: '2025 – 2026',
+    type: 'Clinical Data · Concluded',
+    items: [
+      'Supervised regional health information systems across district clinical facilities facing intermittent power and network degradation.',
+      'Restructured weekly facility reporting pipelines, audited electronic PMTCT registries, and implemented automated local-to-cloud sync workflows for DHIS2 reporting.',
+      'Eliminated paper reporting backlogs across remote facilities and improved district data completeness from ~70% to >95%.',
+      'Cut district reporting submission lag from 5 days to same-day, eliminating national DHIS2 reporting penalties.',
+    ],
+  },
+  {
+    role: 'Co-Founder & CTO / Project Manager',
+    org: 'Ayodah',
+    location: 'Buea, Cameroon',
+    period: '2020 – 2023',
+    type: 'Venture · Concluded',
+    items: [
+      'Designed relational database schemas, managed early web application prototyping, and coordinated hospital blood bank outreach.',
+      'Validated donor response behaviors across clinical wards, establishing the architectural and operational foundation that directly inspired LifeDrop.',
+      'Built a 400+ donor registry with 310 mediated donations across 3 partner hospitals and 5+ NGOs.',
+      'Winner, Silicon Mountain Challenge 2022 (Cameroon’s premier startup competition).',
+    ],
+  },
+];
+
+const volunteer = [
+  {
+    role: 'Community Ambassador',
+    org: 'LinkedIn Local Buea',
+    period: '2026 – Present',
+    description: 'Organizing grassroots networking initiatives, bridging clinical health professionals with Silicon Mountain tech founders.',
+  },
+  {
+    role: 'Co-Founder & Executive Organizer',
+    org: 'Cameroon Innovative Health Network (CAMIHN / HETEFA)',
+    period: '2025 – Present',
+    description: 'Formulated youth health-tech programs and moderated keynote panels at the Cameroon Innovative Health Conference.',
+  },
+  {
+    role: 'Digital Health Technical Volunteer',
+    org: 'Vision in Action Cameroon (VIAC)',
+    period: '2025 – 2026',
+    description: 'Advised community outreach teams on mobile data collection tools and offline data capture for youth health interventions.',
+  },
+  {
+    role: 'Civic Leadership & Governance Fellow',
+    org: 'Mandela Washington Fellows Alumni Association / US Embassy Yaoundé',
+    period: '2022',
+    description: 'Grassroots anti-corruption, organizational integrity, and public healthcare ethics.',
   },
 ];
 
@@ -101,73 +134,66 @@ const projects = [
     name: 'LifeDrop',
     url: 'https://lifedropcam.netlify.app/',
     summary:
-      'WhatsApp-native blood donor matching network. Asynchronous webhooks with idempotent request queues; MTN MoMo payment integration; English/French bilingual flows. Built to survive 2G.',
-    tags: ['WhatsApp Cloud API', 'JavaScript', 'MTN MoMo', 'Health-tech'],
+      'Emergency blood donor dispatch system operating under extreme cellular data constraints. Asynchronous WhatsApp Cloud API webhooks with idempotent queues, donor-proximity heuristics, and zero-install triage.',
+    tags: ['WhatsApp Cloud API', 'Python', 'Node.js', 'Docker', 'Redis'],
+  },
+  {
+    name: 'CoastClear',
+    url: undefined,
+    summary:
+      'Multilingual coastal waste monitoring and cleanup logistics platform for conservation teams. Real-time spatial density heatmaps and photographic waste classification.',
+    tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Computer Vision APIs', 'i18n'],
   },
   {
     name: 'AI Clinical Decision-Making Research',
     url: undefined,
     summary:
-      '387-respondent cross-sectional study at Buea Regional Hospital on nurse AI readiness. KoboCollect data pipeline → SPSS analysis → PRISMA-compliant write-up. 92.4% response rate.',
-    tags: ['KoboCollect', 'SPSS', 'Clinical research', 'scikit-learn'],
+      '387-respondent cross-sectional study at Buea Regional Hospital on clinician AI readiness. KoboCollect pipeline → SPSS analysis → PRISMA-compliant write-up (92.4% response rate).',
+    tags: ['KoboCollect', 'SPSS', 'Clinical research', 'PRISMA'],
   },
   {
     name: 'Maternal Health Risk Predictor',
     url: undefined,
     summary:
-      'scikit-learn logistic regression model trained on anonymised clinical records. Risk stratification across 5 maternal outcome variables. Deployed as a lightweight REST endpoint for midwife tablet use.',
+      'scikit-learn logistic regression model trained on anonymised clinical records. Risk stratification across 5 maternal outcome variables deployed as a lightweight REST endpoint for midwife tablets.',
     tags: ['Python', 'scikit-learn', 'REST API', 'Clinical ML'],
   },
   {
     name: 'MORIA Nurse Intern Assistant',
     url: undefined,
     summary:
-      'Offline-first React Native reference tool for newly posted nurse interns. Three core flows: drug dosage, emergency protocol, and patient handover checklist. Works with no internet connection.',
+      'Offline-first React Native mobile reference tool for nurse interns: drug dosage calculation, emergency resuscitation protocols, and patient handover checklists.',
     tags: ['React Native', 'Expo', 'SQLite', 'Offline-first'],
-  },
-  {
-    name: 'CoastClear',
-    url: undefined,
-    summary:
-      'Trilingual (English / French / Pidgin) beach-cleanup coordination platform. Role-based access for NGOs and municipal partners; offline-capable event reporting.',
-    tags: ['Next.js', 'Astro', 'Supabase', 'Multilingual'],
-  },
-  {
-    name: 'Abortion Safety Georegistry (Demo)',
-    url: undefined,
-    summary:
-      'Geospatial mapping platform for safe abortion service access. Entirely on synthetic data. Built to demonstrate the architecture for policy researchers, not as a clinical service.',
-    tags: ['Next.js', 'Mapbox', 'Supabase', 'Synthetic data'],
   },
   {
     name: 'VIAC Chatbots',
     url: undefined,
     summary:
-      'Bilingual health information chatbots deployed for an NGO cervical cancer awareness campaign. n8n automation, WhatsApp Business API; handled 200+ patient queries in the pilot month.',
+      'Bilingual health information chatbots deployed for an NGO cervical cancer awareness campaign. n8n automation, WhatsApp Cloud API; handled 200+ patient queries in the pilot month.',
     tags: ['n8n', 'WhatsApp Cloud API', 'Health-tech'],
   },
 ];
 
 const skills = [
   {
-    group: 'Languages & Runtimes',
-    items: ['JavaScript / TypeScript', 'Python', 'HTML5 / CSS3', 'SQL'],
+    group: 'Languages & Systems',
+    items: ['TypeScript', 'JavaScript', 'Python', 'HTML5 / CSS3', 'SQL'],
   },
   {
     group: 'Frameworks & Libraries',
-    items: ['Astro', 'Next.js (App Router)', 'React Native / Expo', 'scikit-learn', 'Tailwind CSS'],
+    items: ['Astro', 'Next.js (App Router)', 'React Native / Expo', 'Tailwind CSS', 'scikit-learn'],
   },
   {
-    group: 'Platforms & APIs',
-    items: ['WhatsApp Cloud API', 'MTN Mobile Money API', 'Firebase / Firestore', 'Supabase', 'n8n automation', 'Google Gemini API'],
+    group: 'Platforms & Protocols',
+    items: ['WhatsApp Cloud API', 'Docker', 'Redis', 'Firebase / Firestore', 'Supabase', 'DHIS2', 'n8n', 'Google Gemini API'],
   },
   {
-    group: 'Clinical & Research',
-    items: ['SPSS', 'KoboCollect', 'PRISMA', 'Clinical data management', 'PMTCT workflows', 'Emergency nursing'],
+    group: 'Clinical & Health Data',
+    items: ['SPSS', 'KoboCollect', 'PRISMA', 'Clinical Data Management', 'PMTCT Cohorts', 'Health Informatics'],
   },
   {
-    group: 'Tools & Practices',
-    items: ['Git / GitHub', 'Vercel', 'Figma', 'Offline-first architecture', 'Low-bandwidth optimisation', 'Technical writing'],
+    group: 'Engineering Operations',
+    items: ['Git / GitHub', 'Vercel', 'Figma', 'Offline-First Workflows', 'Low-Bandwidth Optimization', 'Technical Writing'],
   },
 ];
 
@@ -182,14 +208,16 @@ const certifications = [
 
 const speaking = [
   {
-    event: 'PyCon Cameroon 2026',
-    topic: 'Building Health Technology in Low-Bandwidth Environments',
-    year: '2026',
+    event: 'PyCon & UbuCon Cameroon 2026 (Yaoundé)',
+    topic: 'Building WhatsApp-Based Health Tech Networks in Low-Connectivity Environments',
+    year: 'September 2026',
+    note: 'Delivered live keynote presentation and automated system demonstration.',
   },
   {
-    event: 'UbuCon Cameroon 2026',
-    topic: 'Open Source Tools for Clinical Data Management in Africa',
-    year: '2026',
+    event: 'Cameroon Innovative Health Conference (CAMIHN / HETEFA)',
+    topic: 'Youth-Led Health Technology and Offline Clinical Information Systems',
+    year: '2025',
+    note: 'Keynote panel moderator and workshop leader.',
   },
 ];
 ---
@@ -202,7 +230,7 @@ const speaking = [
   <!-- Print controls -->
   <div class="shell py-6 print:hidden">
     <div class="flex flex-wrap items-center justify-between gap-4">
-      <p class="body-sm text-slate">
+      <p class="body-sm text-zinc-500 dark:text-zinc-400">
         Full CV · Updated October 2026
       </p>
       <div class="flex gap-3">
@@ -237,36 +265,36 @@ const speaking = [
     </a>
   </div>
 
-  <section class="shell border-t border-line py-10 sm:py-14 print:py-6">
+  <section class="shell border-t border-zinc-200 dark:border-zinc-800 py-10 sm:py-14 print:py-6">
     <div class="grid gap-6 sm:grid-cols-[1fr_auto]">
       <div>
-        <h1 class="font-display text-5xl font-bold leading-none uppercase sm:text-6xl">
+        <h1 class="font-display text-5xl font-bold leading-none uppercase sm:text-6xl text-zinc-900 dark:text-zinc-100">
           Chifen Sama <span class="text-accent">Nduma</span>
         </h1>
-        <p class="mt-3 text-lg font-medium text-slate">
+        <p class="mt-3 text-lg font-medium text-zinc-700 dark:text-zinc-300">
           Software Engineer · Health Technology Innovator · Technical Writer
         </p>
-        <p class="mt-1 text-sm text-slate-light">{site.location}</p>
+        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{site.location}</p>
       </div>
-      <div class="flex flex-col gap-1.5 text-sm text-slate print:text-xs">
-        <a href={`mailto:${site.emails[0]}`} class="hover:text-accent transition-colors">
+      <div class="flex flex-col gap-1.5 text-sm text-zinc-600 dark:text-zinc-400 print:text-xs">
+        <a href={`mailto:${site.emails[0]}`} class="hover:text-accent transition-colors text-zinc-700 dark:text-zinc-300">
           {site.emails[0]}
         </a>
-        <a href={site.whatsapp[0].href} class="hover:text-accent transition-colors">
+        <a href={site.whatsapp[0].href} class="hover:text-accent transition-colors text-zinc-700 dark:text-zinc-300">
           {site.whatsapp[0].label}
         </a>
-        <a href={site.linkedin} class="hover:text-accent transition-colors">
+        <a href={site.linkedin} class="hover:text-accent transition-colors text-zinc-700 dark:text-zinc-300">
           linkedin.com/in/chif3n
         </a>
-        <a href={site.github} class="hover:text-accent transition-colors">
+        <a href={site.github} class="hover:text-accent transition-colors text-zinc-700 dark:text-zinc-300">
           github.com/chifensama01-coder
         </a>
-        <span class="mt-1 text-slate-light">chifen.is-a.dev</span>
+        <span class="mt-1 text-zinc-500 dark:text-zinc-400">chifen.is-a.dev</span>
       </div>
     </div>
 
     <!-- Engineering headline -->
-    <blockquote class="mt-8 border-l-4 border-accent pl-5 text-lg leading-relaxed text-slate print:mt-4">
+    <blockquote class="mt-8 border-l-4 border-accent pl-5 text-lg leading-relaxed text-zinc-700 dark:text-zinc-300 print:mt-4 italic">
       Registered nurse and software engineer. I build digital health infrastructure for settings
       with unreliable power, low bandwidth, and no margin for system failure. Clinical domain
       knowledge from the inside — not inferred from user interviews.
@@ -275,31 +303,50 @@ const speaking = [
 
   <!-- Experience -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Experience</h2>
+    <h2 class="eyebrow text-accent">Professional & Engineering Experience</h2>
     <ul class="mt-8 space-y-10 print:mt-4 print:space-y-6">
       {
         experience.map((job, i) => (
           <li data-reveal style={`--reveal-delay:${i * 50}ms`} class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
             <div>
               <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span class="font-display text-xl font-semibold">{job.role}</span>
+                <span class="font-display text-xl font-bold text-zinc-900 dark:text-zinc-100">{job.role}</span>
                 <span class="text-xs font-semibold tracking-wider text-accent uppercase rounded-full border border-accent/30 bg-accent/8 px-2.5 py-0.5">
                   {job.type}
                 </span>
               </div>
-              <p class="mt-0.5 text-sm text-slate">
+              <p class="mt-0.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
                 {job.org} &middot; {job.location}
               </p>
               <ul class="mt-3 space-y-1.5">
                 {job.items.map((item) => (
-                  <li class="flex gap-2.5 text-sm leading-relaxed text-slate">
+                  <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
                     <span class="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" aria-hidden="true" />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <p class="ordinal shrink-0 text-right text-sm text-slate-light">{job.period}</p>
+            <p class="ordinal shrink-0 text-right text-sm text-zinc-500 dark:text-zinc-400">{job.period}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Volunteer & Ecosystem Leadership -->
+  <section class="shell band band-line print:py-4">
+    <h2 class="eyebrow text-accent">Volunteer & Ecosystem Leadership</h2>
+    <ul class="mt-8 space-y-6 print:mt-4 print:space-y-4">
+      {
+        volunteer.map((item, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 40}ms`} class="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-start">
+            <div>
+              <p class="font-display text-lg font-bold text-zinc-900 dark:text-zinc-100">{item.role}</p>
+              <p class="text-sm font-semibold text-accent">{item.org}</p>
+              <p class="mt-1 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{item.description}</p>
+            </div>
+            <p class="ordinal shrink-0 text-right text-sm text-zinc-500 dark:text-zinc-400">{item.period}</p>
           </li>
         ))
       }
@@ -308,20 +355,21 @@ const speaking = [
 
   <!-- Speaking -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Speaking</h2>
+    <h2 class="eyebrow text-accent">Conference Speaking & Keynotes</h2>
     <ul class="mt-8 space-y-4 print:mt-4">
       {
         speaking.map((talk, i) => (
           <li
             data-reveal
             style={`--reveal-delay:${i * 50}ms`}
-            class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-line pb-4 last:border-0"
+            class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-zinc-200 dark:border-zinc-800 pb-4 last:border-0"
           >
             <div>
-              <p class="font-display font-semibold">{talk.event}</p>
-              <p class="mt-0.5 text-sm text-slate">{talk.topic}</p>
+              <p class="font-display font-bold text-zinc-900 dark:text-zinc-100">{talk.event}</p>
+              <p class="mt-0.5 text-sm text-zinc-700 dark:text-zinc-300">{talk.topic}</p>
+              {talk.note && <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{talk.note}</p>}
             </div>
-            <span class="ordinal text-sm text-slate-light">{talk.year}</span>
+            <span class="ordinal text-sm text-zinc-500 dark:text-zinc-400">{talk.year}</span>
           </li>
         ))
       }
@@ -337,26 +385,28 @@ const speaking = [
           <li
             data-reveal
             style={`--reveal-delay:${i * 40}ms`}
-            class="card-flat p-5"
+            class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 shadow-sm"
           >
             <div class="flex items-start justify-between gap-3">
-              <p class="display-card text-base">{project.name}</p>
+              <p class="font-display text-base font-bold text-zinc-900 dark:text-zinc-100">{project.name}</p>
               {project.url && (
                 <a
                   href={project.url}
                   target="_blank"
                   rel="noopener"
-                  class="shrink-0 text-xs text-accent underline-offset-4 hover:underline"
+                  class="shrink-0 text-xs font-semibold text-accent underline-offset-4 hover:underline"
                   aria-label={`Visit ${project.name}`}
                 >
                   Live &rarr;
                 </a>
               )}
             </div>
-            <p class="mt-2 text-sm leading-relaxed text-slate">{project.summary}</p>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{project.summary}</p>
             <ul class="mt-3 flex flex-wrap gap-1.5">
               {project.tags.map((tag) => (
-                <li class="rounded-full bg-ink/5 px-2 py-0.5 text-xs text-slate">{tag}</li>
+                <li class="rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 px-2.5 py-0.5 text-xs font-medium">
+                  {tag}
+                </li>
               ))}
             </ul>
           </li>
@@ -373,27 +423,27 @@ const speaking = [
 
   <!-- Education -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Education</h2>
+    <h2 class="eyebrow text-accent">Education & Academic Record</h2>
     <ul class="mt-8 space-y-8 print:mt-4 print:space-y-4">
       {
         education.map((edu, i) => (
           <li data-reveal style={`--reveal-delay:${i * 50}ms`} class="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-start">
             <div>
-              <p class="font-display text-xl font-semibold">{edu.degree}</p>
-              <p class="mt-0.5 text-sm text-slate">
+              <p class="font-display text-xl font-bold text-zinc-900 dark:text-zinc-100">{edu.degree}</p>
+              <p class="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">
                 {edu.institution}
-                {edu.note && <span class="text-slate-light"> &middot; {edu.note}</span>}
+                {edu.note && <span class="text-zinc-500 dark:text-zinc-500"> &middot; {edu.note}</span>}
               </p>
               <ul class="mt-3 space-y-1">
                 {edu.highlights.map((h) => (
-                  <li class="flex gap-2.5 text-sm text-slate">
+                  <li class="flex gap-2.5 text-sm text-zinc-700 dark:text-zinc-300">
                     <span class="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" aria-hidden="true" />
                     {h}
                   </li>
                 ))}
               </ul>
             </div>
-            <p class="ordinal shrink-0 text-right text-sm text-slate-light">{edu.period}</p>
+            <p class="ordinal shrink-0 text-right text-sm text-zinc-500 dark:text-zinc-400">{edu.period}</p>
           </li>
         ))
       }
@@ -402,17 +452,17 @@ const speaking = [
 
   <!-- Skills -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Skills</h2>
+    <h2 class="eyebrow text-accent">Technical & Clinical Skills</h2>
     <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 print:mt-4 print:grid-cols-3">
       {
         skills.map((section, i) => (
           <div data-reveal style={`--reveal-delay:${i * 40}ms`}>
-            <h3 class="text-xs font-semibold tracking-widest text-accent uppercase">
+            <h3 class="text-xs font-bold tracking-widest text-accent uppercase">
               {section.group}
             </h3>
-            <ul class="mt-3 space-y-1">
+            <ul class="mt-3 space-y-1.5">
               {section.items.map((item) => (
-                <li class="text-sm text-slate">{item}</li>
+                <li class="text-sm text-zinc-700 dark:text-zinc-300">{item}</li>
               ))}
             </ul>
           </div>
@@ -430,10 +480,10 @@ const speaking = [
           <li
             data-reveal
             style={`--reveal-delay:${i * 40}ms`}
-            class="rounded-xl border border-ink/10 bg-white/60 px-5 py-4"
+            class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 px-5 py-4"
           >
-            <p class="font-display font-medium text-sm">{cert.name}</p>
-            <p class="mt-1 text-xs text-slate-light">{cert.issuer}</p>
+            <p class="font-display font-bold text-sm text-zinc-900 dark:text-zinc-100">{cert.name}</p>
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{cert.issuer}</p>
           </li>
         ))
       }
@@ -444,7 +494,7 @@ const speaking = [
   <section class="shell py-12 print:hidden">
     <div class="rounded-[var(--radius-card)] bg-ink p-8 text-paper sm:p-10">
       <p class="eyebrow text-paper/50">Working on something in health or digital infrastructure?</p>
-      <h2 class="mt-3 font-display text-3xl font-bold uppercase sm:text-4xl">
+      <h2 class="mt-3 font-display text-3xl font-bold uppercase sm:text-4xl text-paper">
         Let's talk.
       </h2>
       <div class="mt-6 flex flex-wrap gap-3">
@@ -452,7 +502,7 @@ const speaking = [
           Get in touch
           <span aria-hidden="true">&rarr;</span>
         </a>
-        <button onclick="window.print()" class="btn btn-ghost" type="button">
+        <button onclick="window.print()" class="btn btn-ghost text-paper border-paper/20 hover:border-paper" type="button">
           Download PDF
         </button>
       </div>
@@ -519,10 +569,10 @@ const speaking = [
     }
 
     /* ── Typography tweaks for print density ─────────────────────────────── */
-    h1 { font-size: 22pt !important; line-height: 1 !important; }
+    h1 { font-size: 22pt !important; line-height: 1 !important; color: #000 !important; }
     h2 { font-size: 12pt !important; margin-top: 0.4rem !important; }
     h3 { font-size: 10pt !important; }
-    p, li { font-size: 9pt !important; }
+    p, li { font-size: 9pt !important; color: #222 !important; }
 
     /* ── Accent colour survives print ─────────────────────────────────────── */
     .text-accent { color: #6d28d9 !important; }

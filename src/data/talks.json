@@ -1,0 +1,38 @@
+[
+  {
+    "id": "pycon-2026",
+    "title": "Building WhatsApp-Based Health Tech Networks in Low-Connectivity Environments",
+    "event": "PyCon & UbuCon Cameroon 2026",
+    "location": "Yaoundé, Cameroon",
+    "date": "September 2026",
+    "abstract": "Delivered live keynote presentation and automated system demonstration of LifeDrop's architecture: asynchronous WhatsApp Cloud API webhooks, idempotent request queues for unreliable 2G connections, and zero-downtime health data alerting. Covers blood donor matching heuristics, MTN MoMo payment integration, and English/French bilingual conversational flows — all built to survive connectivity degradation.",
+    "embedUrl": "https://docs.google.com/presentation/d/e/2PACX-1vT1dZ-6OHnCv6OpI0eVEdm9Ug4SLHzsHqLBMvdT7fXUh8A/embed?start=false&loop=false&delayms=3000",
+    "deckUrl": "https://docs.google.com/presentation/d/1dZ-6OHnCv6OpI0eVEdm9Ug4SLHzsHqLBMvdT7fXUh8A/edit?usp=sharing",
+    "videoUrl": "",
+    "tags": ["Python", "WhatsApp Cloud API", "Docker", "Healthcare Data Systems", "PyCon 2026"]
+  },
+  {
+    "id": "lifedrop-demo",
+    "title": "LifeDrop End-to-End Demo",
+    "event": "Live Architecture Demo",
+    "location": "Buea, Cameroon",
+    "date": "2026",
+    "abstract": "Full donor dispatch flow: WhatsApp prompt → matching heuristic → triage alert → MTN MoMo confirmation. Recorded on a 3G connection to demonstrate real-world resilience.",
+    "embedUrl": "",
+    "deckUrl": "",
+    "videoUrl": "",
+    "tags": ["WhatsApp Cloud API", "MTN MoMo", "Blood Donor Matching"]
+  },
+  {
+    "id": "coastclear-demo",
+    "title": "CoastClear Architecture Walkthrough",
+    "event": "System Demo",
+    "location": "Limbe, Cameroon",
+    "date": "2025",
+    "abstract": "Multilingual AI waste coordination: English/French/Pidgin UI, photo-based waste classification, and community cleanup dispatch. Covers the Mapbox integration and synthetic training data pipeline.",
+    "embedUrl": "",
+    "deckUrl": "",
+    "videoUrl": "",
+    "tags": ["Next.js", "Mapbox", "AI Classification", "Multilingual"]
+  }
+]

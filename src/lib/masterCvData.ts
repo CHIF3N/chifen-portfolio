@@ -1,7 +1,7 @@
 /**
  * masterCvData.ts
  * ───────────────────────────────────────────────────────────────────────────
- * Single source of truth for career records and AI CV tailoring.
+ * Single source of truth for career records and CV data in Astro frontend.
  * Every claim here is verified against source documents.
  *
  * Fanaka principles applied:
