@@ -35,9 +35,9 @@ const journey = [
     body: 'Top-up BSc through GHIE, mentored by the University of Bamenda. Ran a 387-respondent cross-sectional study at Buea Regional Hospital on whether health workers are ready for AI in clinical decision-making. 92.4% response rate.',
   },
   {
-    year: '2025',
-    title: 'District Data Manager & PMTCT Head',
-    body: 'Appointed District Data Manager for the Kumba South Health District and head of the PMTCT programme. Managing patient cohort data from antenatal enrolment through 18-month infant outcome across multiple facilities.',
+    year: '2025 – 2026',
+    title: 'District Data Manager & PMTCT Departmental Head',
+    body: 'Appointed District Data Manager for the Kumba South Health District and headed the PMTCT programme. Supervised regional health information systems, restructured weekly facility reporting pipelines, audited electronic PMTCT registries, and implemented automated local-to-cloud sync workflows for DHIS2 reporting.',
   },
   {
     year: '2026',
@@ -150,9 +150,9 @@ const pillars = [
             under scrutiny.
           </p>
           <p>
-            The current work is the District Data Manager and PMTCT Head role for Kumba South
-            Health District, while running LifeDrop and continuing to write. Three lanes, one
-            direction.
+            Following the conclusion of my mandate as District Data Manager and PMTCT Head for Kumba South
+            Health District, my engineering focus is on LifeDrop's WhatsApp emergency dispatch architecture,
+            CoastClear's conservation logistics, and INKWAVE's technical storytelling. Three lanes, one direction.
           </p>
         </div>
 
@@ -261,17 +261,17 @@ const pillars = [
 
   <!-- Awards -->
   <section class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
-    <h2 class="font-display text-3xl font-semibold sm:text-4xl" data-reveal>Awards</h2>
+    <h2 class="font-display text-3xl font-semibold sm:text-4xl text-zinc-900 dark:text-zinc-100" data-reveal>Awards</h2>
     <ul class="mt-8 grid gap-3 sm:grid-cols-2">
       {
         awards.map((award, i) => (
           <li
-            class="flex items-center gap-3 rounded-xl border border-ink/10 bg-white/60 px-5 py-4"
+            class="flex items-center gap-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 px-5 py-4"
             data-reveal
             style={`--reveal-delay:${i * 50}ms`}
           >
             <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-            <span class="font-display font-medium">{award}</span>
+            <span class="font-display font-medium text-zinc-900 dark:text-zinc-100">{award}</span>
           </li>
         ))
       }
@@ -281,17 +281,17 @@ const pillars = [
   <!-- Certifications -->
   <section class="border-t border-ink/10 bg-paper-dim/60">
     <div class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
-      <h2 class="font-display text-3xl font-semibold sm:text-4xl" data-reveal>Certifications</h2>
+      <h2 class="font-display text-3xl font-semibold sm:text-4xl text-zinc-900 dark:text-zinc-100" data-reveal>Certifications</h2>
       <ul class="mt-8 grid gap-3 sm:grid-cols-2">
         {
           certifications.map((cert, i) => (
             <li
-              class="rounded-xl border border-ink/10 bg-white/60 px-5 py-4"
+              class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 px-5 py-4"
               data-reveal
               style={`--reveal-delay:${i * 50}ms`}
             >
-              <p class="font-display font-medium">{cert.name}</p>
-              <p class="mt-1 text-sm text-slate-light">{cert.issuer}</p>
+              <p class="font-display font-medium text-zinc-900 dark:text-zinc-100">{cert.name}</p>
+              <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{cert.issuer}</p>
             </li>
           ))
         }
