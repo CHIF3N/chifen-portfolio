@@ -222,7 +222,21 @@ const speaking = [
     </div>
   </div>
 
-  <!-- CV Header -->
+  <!-- Talks callout — screen only -->
+  <div class="shell print:hidden">
+    <a
+      href={withBase('/talks')}
+      class="flex items-center gap-3 rounded-xl border border-accent/30 bg-accent/8 px-5 py-3.5 text-sm font-semibold text-accent transition-colors hover:bg-accent/12"
+    >
+      <span aria-hidden="true">▶</span>
+      <span>
+        For interactive slide decks and live architecture demos, visit
+        <span class="underline underline-offset-2">chifen.is-a.dev/talks</span>
+      </span>
+      <span aria-hidden="true" class="ml-auto">&rarr;</span>
+    </a>
+  </div>
+
   <section class="shell border-t border-line py-10 sm:py-14 print:py-6">
     <div class="grid gap-6 sm:grid-cols-[1fr_auto]">
       <div>
@@ -448,14 +462,70 @@ const speaking = [
 
 <style>
   @media print {
+    /* ── Page setup: A4 Portrait, tight margins ─────────────────────────────── */
+    @page {
+      size: A4 portrait;
+      margin: 10mm 12mm;
+    }
+
+    /* ── Base reset for print ─────────────────────────────────────────────── */
     :root {
       --ink: #000;
       --paper: #fff;
       --slate: #333;
       --accent: #6d28d9;
     }
-    .print\:hidden {
+    body {
+      background: white !important;
+      color: #111827 !important;
+      font-size: 9.5pt !important;
+      line-height: 1.35 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ── Hide non-print elements ─────────────────────────────────────────── */
+    header,
+    footer,
+    nav,
+    .print\:hidden,
+    .btn-group,
+    button,
+    iframe,
+    [data-engagement],
+    #blog-engagement {
       display: none !important;
     }
+
+    /* ── Layout: fill the full A4 width ─────────────────────────────────── */
+    .shell {
+      max-width: 100% !important;
+      padding-inline: 0 !important;
+      margin-inline: 0 !important;
+    }
+    .band {
+      padding-block: 0.6rem !important;
+    }
+
+    /* ── CV entry: never split across pages ─────────────────────────────── */
+    .cv-entry,
+    article,
+    section {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    section + section {
+      margin-top: 0.6rem;
+    }
+
+    /* ── Typography tweaks for print density ─────────────────────────────── */
+    h1 { font-size: 22pt !important; line-height: 1 !important; }
+    h2 { font-size: 12pt !important; margin-top: 0.4rem !important; }
+    h3 { font-size: 10pt !important; }
+    p, li { font-size: 9pt !important; }
+
+    /* ── Accent colour survives print ─────────────────────────────────────── */
+    .text-accent { color: #6d28d9 !important; }
+    .border-accent { border-color: #6d28d9 !important; }
   }
 </style>

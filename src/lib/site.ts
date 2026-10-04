@@ -53,7 +53,8 @@ export const site = {
   },
   nav: [
     { label: 'Work', href: '/work' },
-    { label: 'Services', href: '/services' },
+    { label: 'Experience', href: '/experience' },
+    { label: 'Talks', href: '/talks' },
     { label: 'Research', href: '/research' },
     { label: 'Writing', href: '/blog' },
     { label: 'CV', href: '/cv' },
