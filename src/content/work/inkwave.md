@@ -4,6 +4,7 @@ summary: A creative and digital services venture for impact-driven organisations
 role: Founder
 tags: ['web', 'WhatsApp', 'content', 'freelance']
 status: live
+liveUrl: https://inkwave-cm.vercel.app/
 year: 2026
 featured: false
 order: 10

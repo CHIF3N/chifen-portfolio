@@ -10,14 +10,10 @@ import { withBase } from '../lib/url';
  *   clinical   — Clinical & Health Data Systems (Cyan Track)
  *   community  — Community & Strategic Leadership (Green Track)
  *
- * Each milestone records:
- *   - Operational context (the real environment, constraints)
- *   - Effort  (the technical action, architectural choices)
- *   - Value   (concrete outcomes, metrics, system results)
- *   - Stack   (the exact tools and protocols)
- *
- * Fanaka rule: no entry ships without at least one concrete metric or
- * verifiable outcome in the Value field.
+ * Active roles vs. Concluded mandates are strictly separated:
+ *   - Only active tenures carry "Present" and the active status indicator.
+ *   - Concluded roles use past-tense action verbs and state verifiable impact.
+ *   - One-off speaking and workshops live in a compact "Speaking & Civic Engagements" section.
  */
 
 type Track = 'software' | 'clinical' | 'community';
@@ -30,14 +26,37 @@ interface Milestone {
   orgUrl?: string;
   location: string;
   period: string;
-  current?: boolean;
+  current: boolean;
   context: string;
   effort: string[];
   value: string[];
   stack: string[];
 }
 
-const milestones: Milestone[] = [
+// ── Currently Active Roles ONLY ──────────────────────────────────────────
+const activeRoles: Milestone[] = [
+  {
+    id: 'inkwave',
+    track: 'community',
+    role: 'Co-Founder & Chief Executive Officer',
+    org: 'INKWAVE',
+    orgUrl: 'https://inkwave-cm.vercel.app/',
+    location: 'Buea, Cameroon',
+    period: '2023 – Present',
+    current: true,
+    context:
+      'Digital storytelling agency, developer advocacy studio, and tech journalism platform (Tech Chantier, The African Wave) driving regional ecosystem activations across Central and West Africa.',
+    effort: [
+      'Directed developer workshops, hackathons, and community bootcamps across the Silicon Mountain ecosystem.',
+      'Authored technical columns on low-bandwidth architectures, offline systems, and African engineering ecosystems.',
+      'Established international ecosystem partnerships (e.g., ATWCE) and open-source documentation mentorship programs.',
+    ],
+    value: [
+      'Built a thriving network of regional developers and mentored dozens of emerging engineers into global open-source ecosystems.',
+      'Produced technical documentation guides referenced across regional engineering groups.',
+    ],
+    stack: ['Brand Architecture', 'Developer Advocacy', 'Technical Journalism', 'Ecosystem Building'],
+  },
   {
     id: 'lifedrop',
     track: 'software',
@@ -48,16 +67,16 @@ const milestones: Milestone[] = [
     period: '2025 – Present',
     current: true,
     context:
-      'Emergency blood donor dispatch system operating under extreme cellular data constraints across Cameroonian urban centers.',
+      'WhatsApp Cloud API asynchronous webhook architecture for emergency blood donor matching under extreme cellular data constraints across Cameroon.',
     effort: [
       'Architected asynchronous webhooks integrating the WhatsApp Cloud API with Python/Node.js backends and Redis queues, enabling zero-install donor triage.',
-      'Implemented idempotent request queues and retry policies to prevent duplicate donor alerts during 2G packet loss and network reconnects.',
+      'Implemented idempotent request queues and retry policies to prevent duplicate alerts during 2G packet loss and network reconnects.',
       'Engineered compatibility heuristic scoring blood type, geolocation proximity, and recency of last donation to match nearest eligible donors.',
     ],
     value: [
       'Reduced emergency donor matching turnaround time to under 3 minutes per automated dispatch.',
       'Eliminated app-store installation friction by routing triage entirely inside WhatsApp.',
-      'Third place, MTN YaMo Pitch Competition Season 4.',
+      'Awarded Third Place, MTN YaMo Pitch Competition Season 4.',
     ],
     stack: ['Python', 'WhatsApp Cloud API', 'Node.js', 'Docker', 'Webhooks', 'Asynchronous Queues'],
   },
@@ -70,7 +89,7 @@ const milestones: Milestone[] = [
     period: '2025 – Present',
     current: true,
     context:
-      'Multilingual coastal waste monitoring and cleanup logistics platform for conservation teams.',
+      'Multilingual coastal waste coordination platform with computer-vision hotspot analysis for conservation teams.',
     effort: [
       'Engineered responsive web dashboards with full localization (English, French, Cameroonian Pidgin) integrated with lightweight computer-vision models for photographic waste tagging.',
       'Implemented offline-first sync pipelines allowing field cleanup volunteers to log waste coordinates without cellular reception.',
@@ -82,26 +101,28 @@ const milestones: Milestone[] = [
     stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Computer Vision APIs', 'i18n'],
   },
   {
-    id: 'inkwave',
+    id: 'linkedin-local-buea',
     track: 'community',
-    role: 'Co-Founder & Chief Executive Officer',
-    org: 'INKWAVE',
+    role: 'Community Ambassador',
+    org: 'LinkedIn Local Buea',
     location: 'Buea, Cameroon',
-    period: '2023 – Present',
+    period: '2026 – Present',
     current: true,
     context:
-      'Creative technology studio and developer storytelling agency driving technical communication across Central and West Africa.',
+      'Curating cross-disciplinary networking initiatives connecting clinical health practitioners with Silicon Mountain technology founders.',
     effort: [
-      'Directed developer workshops, hackathons, and community bootcamps across the Silicon Mountain ecosystem.',
-      'Authored technical columns for Tech Chantier and The African Wave on low-bandwidth architectures and African developer ecosystems.',
-      'Established international ecosystem partnerships (e.g., ATWCE) and open-source documentation mentorship programs.',
+      'Organized grassroots ecosystem networking meetups across Buea.',
+      'Facilitated panels uniting clinical health researchers with software builders and venture leads.',
     ],
     value: [
-      'Built a thriving network of regional developers and mentored dozens of emerging engineers into global open-source ecosystems.',
-      'Produced technical documentation guides referenced across regional engineering groups.',
+      'Bridged clinical healthcare professionals with Silicon Mountain tech startup founders for localized collaboration.',
     ],
-    stack: ['Brand Architecture', 'Developer Advocacy', 'Technical Journalism', 'Ecosystem Building'],
+    stack: ['Community Leadership', 'Ecosystem Strategy', 'Cross-Disciplinary Convening'],
   },
+];
+
+// ── Concluded Past Mandates (Past Tense Only) ─────────────────────────────
+const concludedRoles: Milestone[] = [
   {
     id: 'kumba-south',
     track: 'clinical',
@@ -118,10 +139,48 @@ const milestones: Milestone[] = [
       'Supervised patient cohort tracking from antenatal enrollment through 18-month infant HIV outcome validation.',
     ],
     value: [
-      'Eliminated paper reporting backlogs across remote facilities and improved district data completeness from ~70% to >95%.',
+      'Automated DHIS2 local-to-cloud facility sync workflows; boosted district reporting data completeness to >95%.',
       'Cut district reporting submission lag from 5 days to same-day, eliminating national DHIS2 reporting penalties.',
     ],
     stack: ['DHIS2', 'Health Informatics', 'SQL Data Auditing', 'PMTCT Cohorts', 'Offline-First Workflows'],
+  },
+  {
+    id: 'camihn',
+    track: 'community',
+    role: 'Founding Board Member & Conference Lead',
+    org: 'Cameroon Innovative Health Network (CAMIHN / HETEFA)',
+    location: 'Cameroon',
+    period: '2025 – 2026',
+    current: false,
+    context:
+      'Digital health advocacy and conference leadership for Cameroonian health workers navigating technology adoption.',
+    effort: [
+      'Co-founded the health-tech network; formulated youth health-tech programs and organized keynote panels for the Cameroon Innovative Health Conference.',
+      'Connected clinical health workers with digital health researchers across regional health boards.',
+    ],
+    value: [
+      'Built a structured community channel for translating health technology research into clinical practice guidelines.',
+    ],
+    stack: ['Digital Health Advocacy', 'Conference Leadership', 'Health Informatics'],
+  },
+  {
+    id: 'viac',
+    track: 'clinical',
+    role: 'Digital Health Field Volunteer',
+    org: 'Vision in Action Cameroon (VIAC)',
+    location: 'South West Region, Cameroon',
+    period: '2025 – 2026',
+    current: false,
+    context:
+      'Field health data operations supporting community outreach and mobile data capture for youth health interventions.',
+    effort: [
+      'Advised community outreach teams on mobile data collection tools and offline data capture for youth health interventions.',
+      'Deployed mobile survey tools for community health workers operating in low-connectivity rural zones.',
+    ],
+    value: [
+      'Ensured uninterrupted survey data capture during remote field outreach without data loss.',
+    ],
+    stack: ['Mobile Data Collection', 'Offline-First Workflows', 'Field Operations'],
   },
   {
     id: 'ayodah',
@@ -138,54 +197,39 @@ const milestones: Milestone[] = [
       'Conducted user research across clinical wards and emergency units to identify donor communication failure modes.',
     ],
     value: [
-      'Validated donor response behaviors across clinical wards, establishing the architectural and operational foundation that directly inspired LifeDrop.',
-      'Built a 400+ donor registry with 310 mediated donations across 3 partner hospitals and 5+ NGOs.',
+      'Built early blood donor registry database schemas and validated donor response behaviors that laid the architectural foundation for LifeDrop.',
+      'Grew network to 400+ registered donors with 310 mediated donations across 3 partner hospitals and 5+ NGOs.',
       'Winner, Silicon Mountain Challenge 2022 (Cameroon’s premier startup competition).',
     ],
     stack: ['Relational Databases', 'System Prototyping', 'Health Tech Strategy', 'Product Discovery'],
   },
 ];
 
-const volunteerItems = [
+// ── Compact Speaking & Civic Engagements ──────────────────────────────────
+const speakingAndCivic = [
   {
-    role: 'Community Ambassador',
-    org: 'LinkedIn Local Buea',
-    period: '2026 – Present',
-    current: true,
-    description:
-      'Organizing grassroots networking initiatives, bridging clinical health professionals with Silicon Mountain tech founders.',
+    role: 'Keynote Speaker',
+    event: 'PyCon & UbuCon Cameroon 2026',
+    location: 'Yaoundé, Cameroon',
+    date: 'September 2026',
+    topic: 'Building WhatsApp-Based Health Tech Networks in Low-Connectivity Environments',
+    artifacts: 'Delivered live keynote presentation and automated system demonstration.',
   },
   {
-    role: 'Co-Founder & Executive Organizer',
-    org: 'Cameroon Innovative Health Network (CAMIHN / HETEFA)',
-    period: '2025 – Present',
-    current: true,
-    description:
-      'Formulated youth health-tech programs and moderated keynote panels at the Cameroon Innovative Health Conference.',
+    role: 'Speaker',
+    event: 'SIC Conference 2025',
+    location: 'Cameroon',
+    date: '2025',
+    topic: 'Youth & STEM Innovation in Regional Ecosystems',
+    artifacts: 'Presented strategies on grassroots technical enablement.',
   },
   {
-    role: 'Digital Health Technical Volunteer',
-    org: 'Vision in Action Cameroon (VIAC)',
-    period: '2025 – 2026',
-    current: false,
-    description:
-      'Advised community outreach teams on mobile data collection tools and offline data capture for youth health interventions.',
-  },
-  {
-    role: 'Invited Conference Speaker',
-    org: 'PyCon & UbuCon Cameroon 2026 (Yaoundé)',
-    period: 'September 2026',
-    current: false,
-    description:
-      'Topic: "Building WhatsApp-Based Health Tech Networks in Low-Connectivity Environments". Delivered live keynote presentation and automated system demonstration.',
-  },
-  {
-    role: 'Civic Leadership & Governance Fellow',
-    org: 'Mandela Washington Fellows Alumni Association / US Embassy Yaoundé',
-    period: '2022',
-    current: false,
-    description:
-      'Grassroots anti-corruption, organizational integrity, and public healthcare ethics.',
+    role: 'Participant',
+    event: 'YALI Anti-Corruption & Civic Leadership Workshop',
+    location: 'Mandela Washington Fellows Alumni Association / US Embassy Yaoundé',
+    date: '2022',
+    topic: 'Grassroots Anti-Corruption, Organizational Integrity & Public Healthcare Ethics',
+    artifacts: 'Fellowship training completion and public sector ethics capstone.',
   },
 ];
 
@@ -210,16 +254,16 @@ const trackIndicatorColors: Record<Track, string> = {
 
 <Base
   title="Experience — Chifen Sama Nduma"
-  description="Interactive timeline of Chifen Sama Nduma's engineering, clinical health data, and ecosystem leadership milestones. Context, effort, and value for every role."
+  description="Interactive record of Chifen Sama Nduma's active engineering tenures, concluded health data mandates, and ecosystem leadership. Context, effort, and value for every role."
 >
   <!-- Hero -->
   <section class="shell band border-b border-line">
-    <p class="eyebrow text-zinc-500 dark:text-zinc-400">Chronological Record</p>
+    <p class="eyebrow text-zinc-500 dark:text-zinc-400">Career Trajectory</p>
     <h1 class="mt-4 font-display text-5xl font-bold uppercase leading-none sm:text-6xl lg:text-7xl text-zinc-900 dark:text-zinc-100">
       Experience
     </h1>
     <p class="mt-6 max-w-2xl text-zinc-700 dark:text-zinc-300 leading-relaxed">
-      Six years spanning software engineering, clinical health data systems, and ecosystem leadership.
+      Active software engineering ventures and community leadership, anchored by concluded clinical data mandates.
       Every entry records the operational constraint, the architectural response, and the concrete outcome.
     </p>
 
@@ -240,17 +284,26 @@ const trackIndicatorColors: Record<Track, string> = {
     </div>
   </section>
 
-  <!-- Timeline -->
-  <section class="shell py-16">
-    <div class="relative" id="experience-timeline">
-      <!-- Vertical track line -->
+  <!-- 1. ACTIVE ROLES SECTION -->
+  <section class="shell pt-16 pb-8">
+    <div class="flex items-center gap-3 mb-8">
+      <span class="relative flex h-2.5 w-2.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      </span>
+      <h2 class="font-display text-2xl font-bold uppercase text-zinc-900 dark:text-zinc-100">
+        Currently Active Roles
+      </h2>
+    </div>
+
+    <div class="relative" id="active-roles-timeline">
       <div
         class="absolute left-6 top-0 bottom-0 w-px bg-zinc-200 dark:bg-zinc-800 md:left-8"
         aria-hidden="true"
       ></div>
 
       <div class="space-y-0">
-        {milestones.map((m) => (
+        {activeRoles.map((m) => (
           <article
             id={m.id}
             class="relative pl-16 pb-12 md:pl-20"
@@ -282,12 +335,11 @@ const trackIndicatorColors: Record<Track, string> = {
             <!-- Card -->
             <div
               class="rounded-[var(--radius-card)] bg-white dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 p-6 transition-shadow hover:shadow-md sm:p-8"
-              style={m.current ? `border-left: 3px solid ${trackIndicatorColors[m.track]};` : ''}
+              style={`border-left: 3px solid ${trackIndicatorColors[m.track]};`}
             >
               <!-- Header -->
               <div class="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <!-- Track badge -->
                   <span
                     class={`mb-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${trackBadgeClasses[m.track]}`}
                   >
@@ -295,9 +347,9 @@ const trackIndicatorColors: Record<Track, string> = {
                     {trackLabels[m.track]}
                   </span>
 
-                  <h2 class="font-display text-xl font-bold uppercase sm:text-2xl text-zinc-900 dark:text-zinc-100">
+                  <h3 class="font-display text-xl font-bold uppercase sm:text-2xl text-zinc-900 dark:text-zinc-100">
                     {m.role}
-                  </h2>
+                  </h3>
 
                   <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-zinc-600 dark:text-zinc-400">
                     {m.orgUrl ? (
@@ -305,7 +357,7 @@ const trackIndicatorColors: Record<Track, string> = {
                         href={m.orgUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="font-semibold text-zinc-900 dark:text-zinc-100 hover:text-accent transition-colors"
+                        class="font-semibold text-accent hover:underline transition-colors"
                       >
                         {m.org} ↗
                       </a>
@@ -321,19 +373,11 @@ const trackIndicatorColors: Record<Track, string> = {
                   <span class="rounded-full border border-zinc-200 dark:border-zinc-800 px-3 py-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
                     {m.period}
                   </span>
-                  {m.current ? (
-                    <span
-                      class="rounded-full px-2.5 py-0.5 text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                    >
-                      Active
-                    </span>
-                  ) : (
-                    <span
-                      class="rounded-full px-2.5 py-0.5 text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
-                    >
-                      Concluded
-                    </span>
-                  )}
+                  <span
+                    class="rounded-full px-2.5 py-0.5 text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                  >
+                    Active
+                  </span>
                 </div>
               </div>
 
@@ -391,40 +435,186 @@ const trackIndicatorColors: Record<Track, string> = {
     </div>
   </section>
 
-  <!-- Volunteer & Ecosystem Leadership Section -->
+  <!-- 2. CONCLUDED PAST MANDATES SECTION -->
   <section class="shell py-12 border-t border-zinc-200 dark:border-zinc-800">
     <div class="mb-8">
-      <p class="eyebrow text-zinc-500 dark:text-zinc-400">Civic & Community Engagement</p>
-      <h2 class="mt-2 font-display text-3xl font-bold uppercase sm:text-4xl text-zinc-900 dark:text-zinc-100">
-        Volunteer & Ecosystem Leadership
+      <p class="eyebrow text-zinc-500 dark:text-zinc-400">Verified Past Tenures</p>
+      <h2 class="mt-2 font-display text-2xl font-bold uppercase text-zinc-900 dark:text-zinc-100">
+        Concluded Mandates
       </h2>
-      <p class="mt-3 text-zinc-700 dark:text-zinc-300 max-w-2xl text-sm leading-relaxed">
-        Grassroots ecosystem building, health-tech convening, and public sector governance across Cameroon.
+      <p class="mt-2 text-zinc-600 dark:text-zinc-400 text-sm max-w-2xl">
+        Completed health district leadership, digital health volunteerism, and foundational digital health platforms. All accomplishments reflect verified outcomes.
       </p>
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {volunteerItems.map((item) => (
+    <div class="relative" id="concluded-roles-timeline">
+      <div
+        class="absolute left-6 top-0 bottom-0 w-px bg-zinc-200 dark:bg-zinc-800 md:left-8"
+        aria-hidden="true"
+      ></div>
+
+      <div class="space-y-0">
+        {concludedRoles.map((m) => (
+          <article
+            id={m.id}
+            class="relative pl-16 pb-12 md:pl-20"
+            data-track={m.track}
+          >
+            <!-- Node icon -->
+            <div
+              class="absolute left-0 flex h-12 w-12 items-center justify-center rounded-full border-2 bg-white dark:bg-zinc-900 md:left-2"
+              style={`border-color: ${trackIndicatorColors[m.track]};`}
+              aria-hidden="true"
+            >
+              {m.track === 'clinical' && (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style={`color:${trackIndicatorColors[m.track]}`}>
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+              )}
+              {m.track === 'software' && (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style={`color:${trackIndicatorColors[m.track]}`}>
+                  <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                </svg>
+              )}
+              {m.track === 'community' && (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style={`color:${trackIndicatorColors[m.track]}`}>
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              )}
+            </div>
+
+            <!-- Card -->
+            <div
+              class="rounded-[var(--radius-card)] bg-white dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 p-6 transition-shadow hover:shadow-md sm:p-8 opacity-90 hover:opacity-100"
+            >
+              <!-- Header -->
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <span
+                    class={`mb-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${trackBadgeClasses[m.track]}`}
+                  >
+                    <span class="h-1.5 w-1.5 rounded-full" style={`background:${trackIndicatorColors[m.track]};`}></span>
+                    {trackLabels[m.track]}
+                  </span>
+
+                  <h3 class="font-display text-xl font-bold uppercase sm:text-2xl text-zinc-900 dark:text-zinc-100">
+                    {m.role}
+                  </h3>
+
+                  <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-zinc-600 dark:text-zinc-400">
+                    <span class="font-semibold text-zinc-900 dark:text-zinc-100">{m.org}</span>
+                    <span>·</span>
+                    <span>{m.location}</span>
+                  </div>
+                </div>
+
+                <div class="flex flex-col items-end gap-2 shrink-0">
+                  <span class="rounded-full border border-zinc-200 dark:border-zinc-800 px-3 py-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                    {m.period}
+                  </span>
+                  <span
+                    class="rounded-full px-2.5 py-0.5 text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
+                  >
+                    Concluded
+                  </span>
+                </div>
+              </div>
+
+              <!-- Context -->
+              <p class="mt-4 text-sm leading-relaxed border-l-2 border-zinc-200 dark:border-zinc-800 pl-3 italic text-zinc-600 dark:text-zinc-400">
+                {m.context}
+              </p>
+
+              <!-- Effort & Value -->
+              <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                <div>
+                  <p class="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                    Effort
+                  </p>
+                  <ul class="space-y-2">
+                    {m.effort.map((item) => (
+                      <li class="flex gap-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                        <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-400 dark:bg-zinc-600"></span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <p class="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                    Value
+                  </p>
+                  <ul class="space-y-2">
+                    {m.value.map((item) => (
+                      <li class="flex gap-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                        <span
+                          class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                          style={`background:${trackIndicatorColors[m.track]};`}
+                        ></span>
+                        <span class="font-medium">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Stack pills -->
+              <div class="mt-5 flex flex-wrap gap-2">
+                {m.stack.map((tag) => (
+                  <span class="rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 px-3 py-1 text-xs font-semibold transition-colors cursor-default">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. COMPACT SPEAKING & CIVIC ENGAGEMENTS SECTION -->
+  <section class="shell py-12 border-t border-zinc-200 dark:border-zinc-800">
+    <div class="mb-8">
+      <p class="eyebrow text-zinc-500 dark:text-zinc-400">Pruned Engagements</p>
+      <h2 class="mt-2 font-display text-2xl font-bold uppercase text-zinc-900 dark:text-zinc-100">
+        Speaking & Civic Engagements
+      </h2>
+      <p class="mt-2 text-zinc-600 dark:text-zinc-400 text-sm max-w-2xl">
+        One-time keynote presentations, academic workshops, and civic leadership programs.
+      </p>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-3">
+      {speakingAndCivic.map((item) => (
         <div class="rounded-[var(--radius-card)] bg-white dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                {item.current ? '● Ongoing' : 'Concluded'}
+              <span class="text-xs font-semibold text-purple-600 dark:text-purple-400">
+                {item.role}
               </span>
               <span class="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-                {item.period}
+                {item.date}
               </span>
             </div>
-            <h3 class="font-display text-lg font-bold uppercase text-zinc-900 dark:text-zinc-100">
-              {item.role}
+            <h3 class="font-display text-base font-bold uppercase text-zinc-900 dark:text-zinc-100">
+              {item.event}
             </h3>
-            <p class="text-xs font-medium text-accent mt-0.5 mb-3">
-              {item.org}
-            </p>
-            <p class="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              {item.description}
+            {item.location && (
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-2">
+                {item.location}
+              </p>
+            )}
+            <p class="text-xs text-zinc-700 dark:text-zinc-300 font-medium mt-2 leading-relaxed">
+              "{item.topic}"
             </p>
           </div>
+          {item.artifacts && (
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+              {item.artifacts}
+            </p>
+          )}
         </div>
       ))}
     </div>
@@ -434,7 +624,7 @@ const trackIndicatorColors: Record<Track, string> = {
   <section class="shell pb-16">
     <div class="rounded-[var(--radius-card)] bg-ink p-8 text-paper sm:p-10">
       <p class="eyebrow text-paper/50">See the full record</p>
-      <h2 class="mt-3 font-display text-3xl font-bold uppercase sm:text-4xl">
+      <h2 class="mt-3 font-display text-3xl font-bold uppercase sm:text-4xl text-paper">
         Download the CV.
       </h2>
       <p class="mt-4 text-paper/70 max-w-lg">
@@ -458,11 +648,11 @@ const trackIndicatorColors: Record<Track, string> = {
 
 <script>
   /**
-   * Track filter: clicking a legend badge filters the timeline to that track.
-   * Clicking again (or a different badge) resets to showing all.
+   * Track filter: clicking a legend badge filters all milestones across active & concluded to that track.
+   * Clicking again resets to showing all.
    */
   const legendBadges = document.querySelectorAll<HTMLElement>('[data-filter-track]');
-  const articles = document.querySelectorAll<HTMLElement>('#experience-timeline article');
+  const articles = document.querySelectorAll<HTMLElement>('article[data-track]');
 
   let activeTrack: string | null = null;
 
