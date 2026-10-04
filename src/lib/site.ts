@@ -2,17 +2,18 @@ import siteConfig from '../data/siteConfig.json';
 
 export const site = {
   name: siteConfig.name || 'Chifen Sama Nduma',
-  shortName: 'CHIF3N',
+  shortName: siteConfig.creativeIdentity || 'CHIF3N',
+  brand: 'The Nurse Who Codes',
   /** The two-word public version used in navigation and most contexts. */
-  displayName: 'Chifen Sama',
-  role: siteConfig.role || 'Software Engineer · Health Technology Innovator · Technical Writer',
+  displayName: siteConfig.displayName || 'Chifen Sama',
+  role: siteConfig.role || 'The Nurse Who Codes · Software Engineer · Health Technology Researcher',
   location: siteConfig.location || 'Buea / Yaoundé, Cameroon',
   description:
     siteConfig.pitch ||
-    'Software engineer and registered nurse architecting resilient digital health platforms, low-bandwidth communication networks, and scalable web backends across Cameroon.',
+    'Registered nurse (BSc Nursing Science) and software engineer with four years in technology, two in health technology infrastructure. Building digital health systems for settings with unreliable power, low bandwidth, and no margin for failure.',
   headline:
     siteConfig.tagline ||
-    'Architecting resilient digital health platforms, low-bandwidth communication networks, and scalable web backends.',
+    'The Nurse Who Codes: Architecting resilient digital health platforms, clinical AI, and low-bandwidth communication networks across Africa.',
   vision:
     'To build technologies that make quality healthcare more accessible, intelligent, and equitable across Africa.',
   emails: [siteConfig.email || 'chifensama0@gmail.com'],
@@ -21,10 +22,7 @@ export const site = {
   linkedin: siteConfig.linkedin || 'https://www.linkedin.com/in/chif3n/',
 
   /**
-   * Share/tracking parameters are stripped: the `igsh` token on an Instagram
-   * share link and the `fbclid` on a Facebook one identify the person who
-   * shared it, and neither is needed for the profile to resolve.
-   *
+   * Share/tracking parameters are stripped.
    * `compact` marks the ones that ride in the header; the rest appear in the
    * footer and on the contact page.
    */
@@ -43,11 +41,6 @@ export const site = {
     },
   ],
 
-  /**
-   * Cal.com booking. `username` is the handle from cal.com/<username>, and each
-   * event slug is the last part of its public link. Nothing renders until the
-   * username is real, so the section cannot ship pointing at a dead calendar.
-   */
   booking: {
     username: '',
     events: [
@@ -57,19 +50,24 @@ export const site = {
   },
   nav: [
     { label: 'Work', href: '/work' },
-    { label: 'Experience', href: '/experience' },
-    { label: 'Talks', href: '/talks' },
+    { label: 'About', href: '/about' },
+    { label: 'Journey', href: '/journey' },
+    { label: 'Archive', href: '/archive' },
     { label: 'Research', href: '/research' },
     { label: 'Writing', href: '/blog' },
+    { label: 'Experience', href: '/experience' },
+    { label: 'Talks', href: '/talks' },
     { label: 'CV', href: '/cv' },
-    { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
   ],
 
-  /** Per-page accent, the way the reference recolours itself section to section. */
+  /** Per-page accent */
   accents: {
     home: '#08b9d4',
     work: '#ff083d',
+    about: '#08b9d4',
+    journey: '#8b5cf6',
+    archive: '#f59e0b',
     services: '#2fd643',
     research: '#08b9d4',
     cv: '#8b5cf6',
