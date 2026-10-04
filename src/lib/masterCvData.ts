@@ -21,25 +21,51 @@ export const masterCvData = {
     github: 'https://github.com/chifensama01-coder',
     linkedin: 'https://www.linkedin.com/in/chif3n/',
     website: 'https://chifen.is-a.dev',
+    inkwave: 'https://inkwave-cm.vercel.app/',
   },
 
   summary: `Registered nurse (HND + BSc) and self-taught software engineer with four years in technology,
 two in health technology infrastructure. Build digital health systems for settings with unreliable power,
 low bandwidth, and no margin for failure. Clinical domain knowledge comes from inside the workflow,
-not from user research interviews. Speaker at PyCon and UbuCon Cameroon 2026. Lead Architect of LifeDrop,
-an asynchronous WhatsApp-native emergency blood donor dispatch system in Cameroon.`,
+not from user research interviews. Lead Architect of LifeDrop (WhatsApp emergency blood dispatch),
+Lead Engineer at CoastClear, and Co-Founder & CEO of INKWAVE.`,
 
-  experience: [
+  /**
+   * ACTIVE ROLES ONLY
+   * Only these roles carry the "Present" / active designation.
+   */
+  activeRoles: [
+    {
+      role: 'Co-Founder & Chief Executive Officer',
+      org: 'INKWAVE',
+      orgUrl: 'https://inkwave-cm.vercel.app/',
+      location: 'Buea, Cameroon',
+      period: '2023 – Present',
+      current: true,
+      track: 'community',
+      trackLabel: 'Community & Strategic Leadership (Green)',
+      focus: 'Digital storytelling agency, developer advocacy, tech journalism (Tech Chantier, The African Wave), and regional ecosystem activations.',
+      effort: [
+        'Directed developer workshops, hackathons, and community bootcamps across the Silicon Mountain ecosystem.',
+        'Authored technical columns for Tech Chantier and The African Wave on low-bandwidth architectures and African developer ecosystems.',
+        'Established international ecosystem partnerships (e.g., ATWCE) and open-source documentation mentorship programs.',
+      ],
+      value: [
+        'Built a thriving network of regional developers and mentored dozens of emerging engineers into global open-source ecosystems.',
+        'Produced technical documentation guides referenced across regional engineering groups.',
+      ],
+      skills: ['Brand Architecture', 'Developer Advocacy', 'Technical Journalism', 'Ecosystem Building'],
+    },
     {
       role: 'Lead Architect & Systems Developer',
       org: 'LifeDrop',
+      orgUrl: 'https://lifedropcam.netlify.app/',
       location: 'Buea / Yaoundé, Cameroon',
       period: '2025 – Present',
       current: true,
       track: 'software',
-      trackLabel: 'Software Engineering (Purple Track)',
-      context:
-        'Emergency blood donor dispatch system operating under extreme cellular data constraints across Cameroonian urban centers.',
+      trackLabel: 'Software Engineering (Purple)',
+      focus: 'WhatsApp Cloud API asynchronous webhook architecture for emergency blood donor matching across Cameroon.',
       effort: [
         'Architected asynchronous webhooks integrating the WhatsApp Cloud API with Python/Node.js backends and Redis queues, enabling zero-install donor triage.',
         'Implemented idempotent request queues and retry policies to prevent duplicate donor alerts during 2G packet loss and network reconnects.',
@@ -59,9 +85,8 @@ an asynchronous WhatsApp-native emergency blood donor dispatch system in Cameroo
       period: '2025 – Present',
       current: true,
       track: 'software',
-      trackLabel: 'Software Engineering (Purple Track)',
-      context:
-        'Multilingual coastal waste monitoring and cleanup logistics platform for conservation teams.',
+      trackLabel: 'Software Engineering (Purple)',
+      focus: 'Multilingual coastal waste coordination platform with computer-vision hotspot analysis.',
       effort: [
         'Engineered responsive web dashboards with full localization (English, French, Cameroonian Pidgin) integrated with lightweight computer-vision models for photographic waste tagging.',
         'Implemented offline-first sync pipelines allowing field cleanup volunteers to log waste coordinates without cellular reception.',
@@ -73,26 +98,30 @@ an asynchronous WhatsApp-native emergency blood donor dispatch system in Cameroo
       skills: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Computer Vision APIs', 'i18n'],
     },
     {
-      role: 'Co-Founder & Chief Executive Officer',
-      org: 'INKWAVE',
+      role: 'Community Ambassador',
+      org: 'LinkedIn Local Buea',
       location: 'Buea, Cameroon',
-      period: '2023 – Present',
+      period: '2026 – Present',
       current: true,
       track: 'community',
-      trackLabel: 'Community & Strategic Leadership (Green Track)',
-      context:
-        'Creative technology studio and developer storytelling agency driving technical communication across Central and West Africa.',
+      trackLabel: 'Ecosystem & Community (Green)',
+      focus: 'Curating cross-disciplinary networking connecting health practitioners with tech founders.',
       effort: [
-        'Directed developer workshops, hackathons, and community bootcamps across the Silicon Mountain ecosystem.',
-        'Authored technical columns for Tech Chantier and The African Wave on low-bandwidth architectures and African developer ecosystems.',
-        'Established international ecosystem partnerships (e.g., ATWCE) and open-source documentation mentorship programs.',
+        'Organized grassroots ecosystem networking meetups across Buea.',
+        'Facilitated panels uniting clinical health researchers with software builders and venture leads.',
       ],
       value: [
-        'Built a thriving network of regional developers and mentored dozens of emerging engineers into global open-source ecosystems.',
-        'Produced technical documentation guides referenced across Cameroonian tech communities.',
+        'Bridged clinical healthcare professionals with Silicon Mountain tech startup founders for localized collaboration.',
       ],
-      skills: ['Brand Architecture', 'Developer Advocacy', 'Technical Journalism', 'Ecosystem Building'],
+      skills: ['Community Leadership', 'Ecosystem Strategy', 'Cross-Disciplinary Convening'],
     },
+  ],
+
+  /**
+   * CONCLUDED PAST MANDATES
+   * Past tense verbs only.
+   */
+  concludedRoles: [
     {
       role: 'District Data Manager & PMTCT Departmental Head',
       org: 'Kumba South District Health Service',
@@ -100,9 +129,8 @@ an asynchronous WhatsApp-native emergency blood donor dispatch system in Cameroo
       period: '2025 – 2026',
       current: false,
       track: 'clinical',
-      trackLabel: 'Clinical & Health Data Systems (Cyan Track)',
-      context:
-        'Supervised regional health information systems across district clinical facilities facing intermittent power and network degradation.',
+      trackLabel: 'Clinical & Health Data Systems (Cyan)',
+      impact: 'Automated DHIS2 local-to-cloud facility sync workflows; boosted reporting data completeness to >95%.',
       effort: [
         'Restructured weekly facility reporting pipelines and audited electronic PMTCT registries across peripheral health facilities.',
         'Implemented automated local-to-cloud sync workflows for DHIS2 reporting, replacing paper-to-spreadsheet bottlenecks.',
@@ -115,15 +143,50 @@ an asynchronous WhatsApp-native emergency blood donor dispatch system in Cameroo
       skills: ['DHIS2', 'Health Informatics', 'SQL Data Auditing', 'PMTCT Cohorts', 'Offline-First Workflows'],
     },
     {
+      role: 'Founding Board Member & Conference Lead',
+      org: 'Cameroon Innovative Health Network (CAMIHN / HETEFA)',
+      location: 'Cameroon',
+      period: '2025 – 2026',
+      current: false,
+      track: 'community',
+      trackLabel: 'Community & Digital Health Advocacy',
+      impact: 'Co-founded the health-tech network; organized and moderated panels for the Cameroon Innovative Health Conference.',
+      effort: [
+        'Formulated youth health-tech programs and organized keynote panels at the Cameroon Innovative Health Conference.',
+        'Connected clinical health workers with digital health researchers across regional health boards.',
+      ],
+      value: [
+        'Built a structured community channel for translating health technology research into clinical practice guidelines.',
+      ],
+      skills: ['Digital Health Advocacy', 'Conference Leadership', 'Health Informatics'],
+    },
+    {
+      role: 'Digital Health Field Volunteer',
+      org: 'Vision in Action Cameroon (VIAC)',
+      location: 'South West Region, Cameroon',
+      period: '2025 – 2026',
+      current: false,
+      track: 'clinical',
+      trackLabel: 'Health Field Operations',
+      impact: 'Advised youth health teams on offline-first survey and mobile data collection tools.',
+      effort: [
+        'Advised community outreach teams on mobile data collection tools and offline data capture for youth health interventions.',
+        'Deployed mobile survey tools for community health workers operating in low-connectivity rural zones.',
+      ],
+      value: [
+        'Ensured uninterrupted survey data capture during remote field outreach without data loss.',
+      ],
+      skills: ['Mobile Data Collection', 'Offline-First Workflows', 'Field Operations'],
+    },
+    {
       role: 'Co-Founder & CTO / Project Manager',
       org: 'Ayodah',
       location: 'Buea, Cameroon',
       period: '2020 – 2023',
       current: false,
       track: 'software',
-      trackLabel: 'Software Engineering (Purple Track)',
-      context:
-        'Early digital health initiative addressing critical blood shortages in Cameroon via volunteer database registries.',
+      trackLabel: 'Software Engineering (Purple)',
+      impact: 'Built early blood donor registry database schemas that laid the foundation for LifeDrop.',
       effort: [
         'Designed relational database schemas, managed early web application prototyping, and coordinated hospital blood bank outreach.',
         'Conducted user research across clinical wards and emergency units to identify donor communication failure modes.',
@@ -137,47 +200,44 @@ an asynchronous WhatsApp-native emergency blood donor dispatch system in Cameroo
     },
   ],
 
-  volunteer: [
+  /**
+   * Combined experience getter for backwards compatibility
+   */
+  get experience() {
+    return [...this.activeRoles, ...this.concludedRoles];
+  },
+
+  /**
+   * SPEAKING & CIVIC ENGAGEMENTS (Compact section)
+   * Pruned one-off workshops and speaking events.
+   */
+  speakingAndCivic: [
     {
-      role: 'Community Ambassador',
-      org: 'LinkedIn Local Buea',
-      period: '2026 – Present',
-      current: true,
-      description:
-        'Organizing grassroots networking initiatives, bridging clinical health professionals with Silicon Mountain tech founders.',
-    },
-    {
-      role: 'Co-Founder & Executive Organizer',
-      org: 'Cameroon Innovative Health Network (CAMIHN / HETEFA)',
-      period: '2025 – Present',
-      current: true,
-      description:
-        'Formulated youth health-tech programs and moderated keynote panels at the Cameroon Innovative Health Conference.',
-    },
-    {
-      role: 'Digital Health Technical Volunteer',
-      org: 'Vision in Action Cameroon (VIAC)',
-      period: '2025 – 2026',
-      current: false,
-      description:
-        'Advised community outreach teams on mobile data collection tools and offline data capture for youth health interventions.',
-    },
-    {
-      role: 'Invited Conference Speaker',
-      org: 'PyCon & UbuCon Cameroon 2026 (Yaoundé)',
-      period: 'September 2026',
-      current: false,
+      role: 'Keynote Speaker',
+      event: 'PyCon & UbuCon Cameroon 2026 (Yaoundé)',
+      date: 'September 2026',
       topic: 'Building WhatsApp-Based Health Tech Networks in Low-Connectivity Environments',
       artifacts: 'Delivered live keynote presentation and automated system demonstration.',
     },
     {
-      role: 'Civic Leadership & Governance Fellow',
+      role: 'Speaker',
+      event: 'SIC Conference 2025',
+      date: '2025',
+      topic: 'Youth & STEM Innovation in Regional Ecosystems',
+      artifacts: 'Presented strategies on grassroots tech enablement.',
+    },
+    {
+      role: 'Participant',
+      event: 'YALI Anti-Corruption & Civic Leadership Workshop',
       org: 'Mandela Washington Fellows Alumni Association / US Embassy Yaoundé',
-      period: '2022',
-      current: false,
-      topic: 'Grassroots anti-corruption, organizational integrity, and public healthcare ethics.',
+      date: '2022',
+      topic: 'Grassroots Anti-Corruption, Organizational Integrity & Public Healthcare Ethics',
     },
   ],
+
+  get speaking() {
+    return this.speakingAndCivic;
+  },
 
   projects: [
     {
@@ -192,7 +252,14 @@ an asynchronous WhatsApp-native emergency blood donor dispatch system in Cameroo
       url: null,
       tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Computer Vision APIs', 'i18n'],
       description:
-        'Multilingual coastal waste monitoring and cleanup logistics platform. Real-time spatial density heatmaps and photographic waste classification.',
+        'Multilingual coastal waste monitoring and cleanup logistics platform for conservation teams. Real-time spatial density heatmaps and photographic waste classification.',
+    },
+    {
+      name: 'INKWAVE Platform',
+      url: 'https://inkwave-cm.vercel.app/',
+      tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Brand Architecture', 'CMS'],
+      description:
+        'Digital storytelling agency and developer advocacy platform driving technical communication and regional ecosystem activations across Central and West Africa.',
     },
     {
       name: 'AI Clinical Decision-Making Research',
@@ -253,21 +320,6 @@ an asynchronous WhatsApp-native emergency blood donor dispatch system in Cameroo
         'Best Creative Thinker',
         'Proactive Student Award',
       ],
-    },
-  ],
-
-  speaking: [
-    {
-      event: 'PyCon & UbuCon Cameroon 2026 (Yaoundé)',
-      topic: 'Building WhatsApp-Based Health Tech Networks in Low-Connectivity Environments',
-      year: 'September 2026',
-      artifacts: 'Delivered live keynote presentation and automated system demonstration.',
-    },
-    {
-      event: 'Cameroon Innovative Health Conference (CAMIHN / HETEFA)',
-      topic: 'Youth-Led Health Technology and Offline Clinical Information Systems',
-      year: '2025',
-      artifacts: 'Keynote panel moderator and workshop leader.',
     },
   ],
 
