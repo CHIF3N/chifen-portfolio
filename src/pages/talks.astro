@@ -1,0 +1,221 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/url';
+
+/*
+ * Talks & Media Showcase
+ *
+ * Houses embedded slide decks, video recordings, and demo links.
+ * Verified events only — no placeholder credentials per Fanaka rules.
+ */
+
+const talks = [
+  {
+    id: 'pycon-2026',
+    event: 'PyCon & UbuCon Cameroon 2026',
+    location: 'Yaoundé, Cameroon',
+    date: '2026',
+    title: 'Building WhatsApp-Based Health Tech Networks in Low-Connectivity Environments',
+    abstract:
+      'A technical walkthrough of LifeDrop\'s architecture: asynchronous WhatsApp Cloud API webhooks, idempotent request queues for unreliable 2G connections, and zero-downtime health data alerting. Covers blood donor matching heuristics, MTN MoMo payment integration, and English/French bilingual conversational flows — all built to survive connectivity degradation.',
+    slides: {
+      embedUrl:
+        'https://docs.google.com/presentation/d/e/2PACX-1vT1dZ-6OHnCv6OpI0eVEdm9Ug4SLHzsHqLBMvdT7fXUh8A/embed?start=false&loop=false&delayms=3000',
+      directUrl:
+        'https://docs.google.com/presentation/d/1dZ-6OHnCv6OpI0eVEdm9Ug4SLHzsHqLBMvdT7fXUh8A/edit?usp=sharing',
+    },
+    tags: ['Python', 'WhatsApp Cloud API', 'Docker', 'Healthcare Data Systems', 'PyCon 2026'],
+    featured: true,
+  },
+];
+
+const demos = [
+  {
+    id: 'lifedrop-demo',
+    title: 'LifeDrop End-to-End Demo',
+    description:
+      'Full donor dispatch flow: WhatsApp prompt → matching heuristic → triage alert → MTN MoMo confirmation. Recorded on a 3G connection to demonstrate real-world resilience.',
+    videoUrl: '', // Add Loom/YouTube URL when recorded
+    tags: ['WhatsApp Cloud API', 'MTN MoMo', 'Blood Donor Matching'],
+  },
+  {
+    id: 'coastclear-demo',
+    title: 'CoastClear Architecture Walkthrough',
+    description:
+      'Multilingual AI waste coordination: English/French/Pidgin UI, photo-based waste classification, and community cleanup dispatch. Covers the Mapbox integration and synthetic training data pipeline.',
+    videoUrl: '', // Add Loom/YouTube URL when recorded
+    tags: ['Next.js', 'Mapbox', 'AI Classification', 'Multilingual'],
+  },
+];
+---
+
+<Base
+  title="Talks & Demos — Chifen Sama Nduma"
+  description="Slide decks, recorded demos, and architecture walkthroughs from Chifen Sama Nduma's conference talks and engineering presentations."
+>
+  <!-- Hero -->
+  <section class="shell band border-b border-line">
+    <p class="eyebrow">Media & Presentations</p>
+    <h1 class="mt-4 font-display text-5xl font-bold uppercase leading-none sm:text-6xl lg:text-7xl">
+      Talks &<br />Demos
+    </h1>
+    <p class="mt-6 max-w-2xl text-slate">
+      Conference presentations, architecture walkthroughs, and live product demos.
+      Engineering for low-bandwidth environments, clinical health systems, and community networks.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href={withBase('/cv')} class="btn btn-accent">
+        View full CV <span aria-hidden="true">&rarr;</span>
+      </a>
+      <a
+        href="https://github.com/CHIF3N"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-ghost"
+      >
+        GitHub
+      </a>
+    </div>
+  </section>
+
+  <!-- Featured Talks -->
+  {talks.map((talk) => (
+    <article class="band band-line" id={talk.id}>
+      <div class="shell">
+        <!-- Meta -->
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          <span class="eyebrow">{talk.event}</span>
+          <span class="text-slate text-sm">·</span>
+          <span class="text-slate text-sm">{talk.location}</span>
+          <span class="text-slate text-sm">·</span>
+          <span class="text-slate text-sm">{talk.date}</span>
+        </div>
+
+        <!-- Title -->
+        <h2 class="font-display text-3xl font-bold uppercase sm:text-4xl max-w-3xl leading-tight">
+          {talk.title}
+        </h2>
+
+        <!-- Abstract -->
+        <p class="mt-5 max-w-2xl text-slate leading-relaxed">
+          {talk.abstract}
+        </p>
+
+        <!-- Tags -->
+        <div class="mt-5 flex flex-wrap gap-2">
+          {talk.tags.map((tag) => (
+            <span class="rounded-full border border-accent/30 bg-accent/8 px-3 py-1 text-xs font-semibold text-accent">
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <!-- Embedded Slides -->
+        <div class="mt-8 w-full">
+          <div
+            class="relative w-full overflow-hidden rounded-2xl border border-line shadow-2xl bg-paper-dim"
+            style="aspect-ratio: 16/9;"
+          >
+            <iframe
+              src={talk.slides.embedUrl}
+              frameborder="0"
+              width="100%"
+              height="100%"
+              allowfullscreen={true}
+              title={`${talk.event} — ${talk.title}`}
+              class="absolute inset-0 w-full h-full"
+              loading="lazy"
+            ></iframe>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a
+            href={talk.slides.directUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-accent btn-sm"
+          >
+            Open in Google Slides <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  ))}
+
+  <!-- Live Demos -->
+  <section class="band band-line">
+    <div class="shell">
+      <p class="eyebrow">Architecture Demos</p>
+      <h2 class="mt-4 font-display text-3xl font-bold uppercase sm:text-4xl">
+        Live Walkthroughs
+      </h2>
+      <p class="mt-4 text-slate max-w-xl">
+        Recorded demos of production systems. Each shows the real constraint — 2G bandwidth,
+        multilingual UX, clinical workflow — not a polished happy path.
+      </p>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-2">
+        {demos.map((demo) => (
+          <div
+            id={demo.id}
+            class="rounded-[var(--radius-card)] border border-line p-6 flex flex-col gap-4"
+          >
+            <div>
+              <h3 class="font-display text-xl font-bold uppercase">{demo.title}</h3>
+              <p class="mt-2 text-sm text-slate leading-relaxed">{demo.description}</p>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              {demo.tags.map((tag) => (
+                <span class="rounded-full border border-line px-2.5 py-0.5 text-xs font-semibold text-slate">
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {demo.videoUrl ? (
+              <div class="relative w-full overflow-hidden rounded-xl border border-line bg-paper-dim" style="aspect-ratio:16/9">
+                <iframe
+                  src={demo.videoUrl}
+                  frameborder="0"
+                  width="100%"
+                  height="100%"
+                  class="absolute inset-0 w-full h-full"
+                  allowfullscreen={true}
+                  title={demo.title}
+                  loading="lazy"
+                ></iframe>
+              </div>
+            ) : (
+              <div class="flex items-center justify-center rounded-xl border border-dashed border-line py-10 text-sm text-slate-light">
+                Recording coming soon
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="shell py-12">
+    <div class="rounded-[var(--radius-card)] bg-ink p-8 text-paper sm:p-10">
+      <p class="eyebrow text-paper/50">Building health tech or community infrastructure?</p>
+      <h2 class="mt-3 font-display text-3xl font-bold uppercase sm:text-4xl">Let's talk.</h2>
+      <p class="mt-4 text-paper/70 max-w-lg">
+        Available for keynotes, technical workshops, and architecture reviews on low-bandwidth health systems,
+        WhatsApp API integrations, and African digital infrastructure.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href={withBase('/contact')} class="btn btn-accent">
+          Get in touch <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a href={withBase('/cv')} class="btn btn-ghost text-paper border-paper/20 hover:border-paper">
+          View CV <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
