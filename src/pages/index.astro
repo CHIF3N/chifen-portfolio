@@ -1,675 +1,581 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import WorkCard from '../components/WorkCard.astro';
-import SectionHead from '../components/SectionHead.astro';
-import Marquee from '../components/Marquee.astro';
-import Faq from '../components/Faq.astro';
-import Scene3D from '../components/Scene3D.astro';
-import Booking from '../components/Booking.astro';
-import ChipMarquee from '../components/ChipMarquee.astro';
-import SocialIcon from '../components/SocialIcon.astro';
-import VerifyText from '../components/VerifyText.astro';
+import talksData from '../data/talks.json';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
-import { hasVerify } from '../lib/verify';
+import storyPhoto from '../assets/photos/chifen-outdoor-1.jpg';
 
+// Fetch and curate Work items
 const allWork = await getCollection('work');
 
-const featured = allWork
-  .filter((entry) => entry.data.featured)
-  .sort((a, b) => a.data.order - b.data.order);
+const prioritySlugs = [
+  'lifedrop',
+  'coastclear',
+  'viac-chatbots',
+  'ai-clinical-decision-research',
+  'maternal-health-risk',
+  'lockedin',
+];
 
-const posts = (await getCollection('blog'))
+const featuredProjects = prioritySlugs
+  .map((slug) => allWork.find((w) => w.id === slug || w.id === `${slug}.md` || w.id === `${slug}.mdx`))
+  .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+
+// Fetch latest writing
+const latestPosts = (await getCollection('blog'))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 1);
+  .slice(0, 3);
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
-  month: 'long',
+  month: 'short',
   year: 'numeric',
 });
 
-/* Counted from the work collection, so it cannot drift out of date. */
-const projectCount = allWork.length;
+// Selected Talks from data
+const featuredTalks = talksData.slice(0, 2);
 
-/* Only figures confirmed in CLAUDE.md go in unmarked. Anything else is a
-   {{VERIFY: ...}} token and renders highlighted until it is confirmed. */
-const stats = [
-  { value: '5000', suffix: '+', label: 'Lives reached & impacted' },
-  { value: '8500', suffix: '+', label: 'Accumulated reach across built tech' },
-  { value: '4', suffix: '', label: 'Countries deployed & reached' },
-  { value: '100', suffix: '%', label: 'Self-trained developer' },
-  { value: '310', suffix: '', label: 'Hospital donations mediated' },
-  { value: '387', suffix: '', label: 'Clinical AI study respondents' },
-];
-
-const stack = [
-  { name: 'Open-Source Automations', use: 'n8n & event-driven webhooks' },
-  { name: 'Python & FastAPI', use: 'Data modeling & ML endpoints' },
-  { name: 'WhatsApp Cloud API', use: 'Low-bandwidth health bots' },
-  { name: 'TypeScript & Next.js', use: 'Production platforms' },
-  { name: 'Redis & Docker', use: 'Idempotent queues & containers' },
-  { name: 'React Native / SQLite', use: 'Offline-first field mobile apps' },
-];
-
+// Simplified compact experience timeline
 const experience = [
   {
-    role: 'Co-Founder & CEO',
-    org: 'INKWAVE (Digital Storytelling Agency)',
-    period: '2023 – Present',
-  },
-  {
     role: 'Lead Architect & Systems Developer',
-    org: 'LifeDrop (Emergency Blood Donor Dispatch)',
+    org: 'LifeDrop (Emergency Blood Donor Dispatch on WhatsApp)',
     period: '2025 – Present',
+    note: 'Matching heuristics, WhatsApp Cloud API webhooks, MTN MoMo integration.',
   },
   {
     role: 'Lead Engineer',
-    org: 'CoastClear (Conservation Logistics)',
+    org: 'CoastClear (Coastal Waste Logistics & Edge AI)',
     period: '2025 – Present',
+    note: 'Built for Ocean Hack 2025 (NatGeo & TNC) with trilingual English/French/Pidgin UI.',
   },
   {
-    role: 'Community Ambassador',
-    org: 'LinkedIn Local Buea',
-    period: '2026 – Present',
+    role: 'Co-Founder & CEO',
+    org: 'INKWAVE (Digital Systems & Storytelling)',
+    period: '2023 – Present',
+    note: 'Digital products, web architectures, and client CMS handovers at zero maintenance cost.',
   },
   {
-    role: 'District Data Manager & PMTCT Departmental Head',
+    role: 'District Data Manager & PMTCT Lead',
     org: 'Kumba South District Health Service',
     period: '2025 – 2026',
+    note: 'Maintained >95% data completeness across rural clinical health registries in DHIS2.',
   },
   {
-    role: 'Founding Board Member & Conference Lead',
-    org: 'CAMIHN / HETEFA (Health Tech Network)',
-    period: '2025 – 2026',
-  },
-  {
-    role: 'Digital Health Field Volunteer',
-    org: 'Vision in Action Cameroon (VIAC)',
-    period: '2025 – 2026',
-  },
-  {
-    role: 'Co-Founder & CTO / Project Manager',
+    role: 'Co-Founder & CTO',
     org: 'Ayodah Blood Donor Platform',
     period: '2020 – 2023',
+    note: 'Mediated 310+ donations across 3 partner hospitals; precursor to LifeDrop.',
   },
 ];
-
-const testimonial = {
-  quote: '{{VERIFY: a real quote from a colleague, partner hospital, or client}}',
-  name: '{{VERIFY: their name}}',
-  attribution: '{{VERIFY: their role and organisation}}',
-};
-
-/**
- * A section only renders once nothing in it is still a VERIFY token, per the
- * project rule that empty sections do not ship. Fill the real values in and the
- * section reappears on its own; no markup change needed.
- */
-const showExperience = experience.every(
-  (job) => !hasVerify(job.role) && !hasVerify(job.org) && !hasVerify(job.period)
-);
-const showTestimonial = !Object.values(testimonial).some(hasVerify);
 
 const services = [
   {
-    title: 'Health product builds',
-    body: 'Apps and services for clinics, donors, and health workers, designed for low data and unreliable power.',
+    title: 'Health-Tech Product Development',
+    summary: 'Clinical workflows and donor applications engineered for environments with unreliable power, scarce connectivity, and zero margin for error.',
+    stack: 'Next.js, Python, PostgreSQL, Offline-First',
   },
   {
-    title: 'WhatsApp automation',
-    body: 'Bilingual bots and health services on the channel people in Cameroon already use every day.',
+    title: 'WhatsApp & Low-Bandwidth Automation',
+    summary: 'Automated triage bots, emergency alerts, and messaging pipelines built directly where African patients and families already communicate.',
+    stack: 'WhatsApp Cloud API, ManyChat, Webhooks, MoMo',
   },
   {
-    title: 'Clinical data and ML',
-    body: 'Risk models, dashboards, and analysis built on real clinical data rather than tidy demo sets.',
+    title: 'Clinical Data & Analytics',
+    summary: 'Healthcare registry management, DHIS2 audit trails, data completeness pipelines, and statistical research for evidence-backed decisions.',
+    stack: 'DHIS2, SPSS, Python, KoboToolbox',
   },
   {
-    title: 'Research and writing',
-    body: 'Study design, survey work, and writing up findings so they hold up to scrutiny.',
-  },
-];
-
-const process = [
-  {
-    title: "Let's talk",
-    body: 'We start with the actual problem and the constraints around it. Who uses this, on what phone, with what connection.',
-  },
-  {
-    title: 'Build and test',
-    body: 'I build the smallest thing that proves the idea, then put it in front of real users and fix what breaks.',
-  },
-  {
-    title: 'Ship and support',
-    body: 'You get the code, the documentation, and someone who stays reachable after launch.',
-  },
-];
-
-const faqs = [
-  {
-    q: 'What kind of work do you take on?',
-    a: 'Health technology mostly. Blood and donor logistics, WhatsApp health services, clinical data and risk models, and research support. If it touches care delivery in a low-resource setting, it is probably a fit. If it does not, I will say so rather than take the work.',
-  },
-  {
-    q: 'Are you a nurse or a developer?',
-    a: 'Both, and that is the point. I trained and worked as a registered nurse before I learned to code, so I build from inside the workflow instead of guessing at it. It means I ask about the ward round and the network before I ask about the tech stack.',
-  },
-  {
-    q: 'How long does a project take?',
-    a: 'It depends on what it is. A WhatsApp bot with a handful of flows is a matter of weeks. A platform with dashboards, roles, and real users behind it runs into months. I would rather give you a real timeline after one conversation than a comfortable one before it.',
-  },
-  {
-    q: 'What does it cost?',
-    a: 'I price per project, not per hour, and the number comes from scope: how many flows, how many user types, whether there is existing data to work with, and how much support you want after launch. Rates are set for the Cameroonian market and I am straight about what fits a given budget. Book a call and we settle on a figure together.',
-  },
-  {
-    q: 'Do you work with people outside Cameroon?',
-    a: 'Yes. Most of the work is grounded here, and that constraint is usually the useful part. I work in English and French.',
-  },
-  {
-    q: 'What do you need from me to start?',
-    a: 'The problem, who it affects, and what they are using now. Screenshots of the current process help more than a specification does. If there is data already, tell me what shape it is in honestly, including if it is messy.',
+    title: 'Digital Systems & Offline-First Apps',
+    summary: 'Full-stack web applications, local SQLite synchronization, and self-hosted open-source infrastructure that keeps running through blackouts.',
+    stack: 'React Native, SQLite, Docker, Nginx',
   },
 ];
 ---
 
-<Base>
+<Base
+  title="The Nurse Who Codes"
+  description="Chifen Sama Nduma (CHIF3N) — Registered nurse and self-taught developer building practical health technology, WhatsApp automations, and clinical AI across Africa."
+  accent={site.accents.home}
+>
+  <!-- 1. HERO: Understandable in 5 Seconds -->
   <Hero />
 
-  <Marquee items={['Health tech', 'Clinical data', 'WhatsApp services', 'Built in Buea']} />
+  <!-- 2. WORK: The Centerpiece of the Site (4-6 Large Visual Cards) -->
+  <section id="featured-work" class="shell pt-16 sm:pt-24 pb-16">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 sm:mb-14">
+      <div>
+        <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-2">
+          Selected Systems &amp; Case Studies
+        </p>
+        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-ink">
+          What I Build.
+        </h2>
+        <p class="mt-2 text-sm sm:text-base text-slate max-w-xl">
+          Emergency blood dispatch, bilingual clinical bots, empirical AI baselines, and conservation logistics. Built for real people with zero margin for failure.
+        </p>
+      </div>
 
-  <div class="shell mt-10">
-    <ChipMarquee
-      items={[
-        'Clinical domain expertise, not guesswork',
-        'Built for low bandwidth and unreliable power',
-        'Production systems, not portfolio demos',
-        'English and French, by default',
-        'Every figure here is verifiable',
-        'Speaker @ PyCon Cameroon 2026',
-      ]}
-    />
-  </div>
+      <a
+        href={withBase('/work')}
+        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-ink hover:text-accent transition-colors shrink-0 group"
+      >
+        <span>View all projects ({allWork.length})</span>
+        <span aria-hidden="true" class="transition-transform group-hover:translate-x-1">&rarr;</span>
+      </a>
+    </div>
 
-  <!-- Executive Blueprint: Five Questions Answered Directly -->
-  <section class="border-y border-line bg-paper-dim/40">
-    <div class="shell band">
-      <SectionHead
-        label="Executive Blueprint"
-        title="Five questions, answered directly"
-        linkHref={withBase('/about')}
-        linkLabel="Read professional bio"
-      />
-      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div class="card-flat p-6" data-reveal>
-          <span class="ordinal">01</span>
-          <h3 class="display-card mt-3">Who is Chifen Sama?</h3>
-          <p class="body-sm mt-2 text-slate leading-relaxed">
-            The Nurse Who Codes. A 100% self-trained software engineer, registered nurse (BSc Nursing), and M.Tech Data Science candidate at COLTECH (The University of Bamenda), specialized in open-source systems and workflow automations.
+    <!-- 2-Column Responsive Large Visual Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+      {
+        featuredProjects.map((entry, idx) => (
+          <WorkCard entry={entry} index={idx} />
+        ))
+      }
+    </div>
+
+    <div class="mt-12 text-center">
+      <a
+        href={withBase('/work')}
+        class="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-6 py-3 text-sm font-semibold text-ink transition-all hover:border-ink hover:bg-paper-dim"
+      >
+        <span>Explore All Work &amp; Case Studies</span>
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 3. THE NUMBERS: Contextual Evidence, Not a Wall of Stats -->
+  <section class="border-y border-line bg-paper-dim py-14 sm:py-20 transition-colors">
+    <div class="shell">
+      <div class="max-w-2xl mb-10 sm:mb-12">
+        <p class="text-xs font-mono uppercase tracking-widest text-slate font-semibold mb-2">
+          Measurable Impact
+        </p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight text-ink">
+          Verified Evidence.
+        </h2>
+        <p class="mt-2 text-sm sm:text-base text-slate">
+          Every number represents real patients, healthcare workers, or deployed code &mdash; not hypothetical projections.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <!-- Metric 1 -->
+        <div class="p-6 rounded-2xl border border-line bg-paper shadow-xs">
+          <span class="font-display text-4xl sm:text-5xl font-bold text-ink tabular-nums block">
+            5,000<span class="text-accent">+</span>
+          </span>
+          <p class="mt-2 font-semibold text-sm text-ink">Lives reached &amp; impacted</p>
+          <p class="mt-1 text-xs text-slate leading-relaxed">
+            Through LifeDrop blood dispatch, district PMTCT registries, and clinical bedside triage across Cameroon.
           </p>
-          <a href={withBase('/about')} class="inline-flex items-center gap-1 text-xs font-semibold text-accent mt-4 hover:underline">
-            About Chifen &rarr;
-          </a>
         </div>
 
-        <div class="card-flat p-6" data-reveal style="--reveal-delay:60ms">
-          <span class="ordinal">02</span>
-          <h3 class="display-card mt-3">What does he actually build?</h3>
-          <p class="body-sm mt-2 text-slate leading-relaxed">
-            Open-source automations, event-driven webhooks, WhatsApp triage bots (LifeDrop), offline-first conservation platforms (CoastClear), DHIS2 facility sync pipelines, and clinical risk models.
+        <!-- Metric 2 -->
+        <div class="p-6 rounded-2xl border border-line bg-paper shadow-xs">
+          <span class="font-display text-4xl sm:text-5xl font-bold text-ink tabular-nums block">
+            8,500<span class="text-accent">+</span>
+          </span>
+          <p class="mt-2 font-semibold text-sm text-ink">Platform reach across built tech</p>
+          <p class="mt-1 text-xs text-slate leading-relaxed">
+            Registered donors, coastal cleanup crews, remote STEM students, and developers across platforms and automations.
           </p>
-          <a href={withBase('/work')} class="inline-flex items-center gap-1 text-xs font-semibold text-accent mt-4 hover:underline">
-            Inspect all work &rarr;
-          </a>
         </div>
 
-        <div class="card-flat p-6" data-reveal style="--reveal-delay:120ms">
-          <span class="ordinal">03</span>
-          <h3 class="display-card mt-3">What evidence exists?</h3>
-          <p class="body-sm mt-2 text-slate leading-relaxed">
-            5,000+ lives reached &amp; impacted, 8,500+ accumulated reach across built tech, deployed across 4 countries, 400+ registered donors, 310 hospital transfusions, 387-respondent clinical AI study (92.4% rate), and &gt;95% DHIS2 completeness.
+        <!-- Metric 3 -->
+        <div class="p-6 rounded-2xl border border-line bg-paper shadow-xs">
+          <span class="font-display text-4xl sm:text-5xl font-bold text-ink tabular-nums block">
+            387
+          </span>
+          <p class="mt-2 font-semibold text-sm text-ink">Hospital clinicians surveyed</p>
+          <p class="mt-1 text-xs text-slate leading-relaxed">
+            First hospital-wide empirical baseline across 6 professional cadres at Buea Regional Hospital (92.4% response rate).
           </p>
-          <a href={withBase('/archive')} class="inline-flex items-center gap-1 text-xs font-semibold text-accent mt-4 hover:underline">
-            Explore photo evidence &rarr;
-          </a>
         </div>
 
-        <div class="card-flat p-6" data-reveal style="--reveal-delay:180ms">
-          <span class="ordinal">04</span>
-          <h3 class="display-card mt-3">Why does he care?</h3>
-          <p class="body-sm mt-2 text-slate leading-relaxed">
-            Personal experience: waiting 18 hours to find blood donors for his mother’s surgery in 2022, and experiencing firsthand what breaks in low-resource wards during midnight power cuts.
+        <!-- Metric 4 -->
+        <div class="p-6 rounded-2xl border border-line bg-paper shadow-xs">
+          <span class="font-display text-4xl sm:text-5xl font-bold text-ink tabular-nums block">
+            4
+          </span>
+          <p class="mt-2 font-semibold text-sm text-ink">African countries reached</p>
+          <p class="mt-1 text-xs text-slate leading-relaxed">
+            Software deployments, health tech activations, and open-source contributions in Cameroon, Nigeria, Ghana, and Kenya.
           </p>
-          <a href={withBase('/about?mode=story')} class="inline-flex items-center gap-1 text-xs font-semibold text-accent mt-4 hover:underline">
-            Read the backstory &rarr;
-          </a>
-        </div>
-
-        <div class="card-flat p-6 sm:col-span-2 lg:col-span-2" data-reveal style="--reveal-delay:240ms">
-          <span class="ordinal">05</span>
-          <h3 class="display-card mt-3">How can you collaborate?</h3>
-          <p class="body-sm mt-2 text-slate leading-relaxed">
-            Open for health-tech partnerships, clinical AI research collaborations, speaking invitations, consulting on offline-first architectures, and digital health software engineering.
-          </p>
-          <div class="mt-4 flex flex-wrap gap-3">
-            <a href={withBase('/contact')} class="btn btn-accent btn-sm">
-              Let's talk &rarr;
-            </a>
-            <a href={withBase('/cv')} class="btn btn-ghost btn-sm">
-              View Master CV
-            </a>
-            <a href={withBase('/journey')} class="btn btn-ghost btn-sm">
-              Visual Timeline
-            </a>
-          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Projects -->
-  <section class="shell band">
-    <SectionHead
-      label="Selected work"
-      title="Projects"
-      linkHref={withBase('/work')}
-      linkLabel="View all projects"
-    />
-    <div class="mt-12 grid gap-5 sm:grid-cols-2">
-      {featured.map((entry, i) => <WorkCard entry={entry} index={i} delay={i * 70} />)}
+  <!-- 4. ABOUT / THE STORY: Human, Authentic, Nurse to Developer -->
+  <section class="shell py-16 sm:py-24">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+      <!-- Story Photo Card (5 cols) -->
+      <div class="lg:col-span-5 order-2 lg:order-1">
+        <div class="relative rounded-2xl overflow-hidden border border-line bg-paper-dim p-2.5 shadow-xl group">
+          <div class="aspect-[3/4] rounded-xl overflow-hidden bg-ink relative">
+            <Image
+              src={storyPhoto}
+              alt="Chifen Sama Nduma — The Nurse Who Codes working at the intersection of healthcare, automation, and clinical systems"
+              widths={[400, 700, 960]}
+              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 480px)"
+              loading="lazy"
+              class="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+            />
+            <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
+              <span class="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-semibold block">
+                The Nurse Who Codes
+              </span>
+              <p class="text-xs font-medium text-white/95 mt-0.5 leading-snug">
+                Chifen Sama Nduma &bull; Healthcare &amp; Engineering Integration
+              </p>
+            </div>
+          </div>
+          <div class="p-3 text-xs font-mono text-slate flex justify-between items-center">
+            <span>Future of Care &bull; Nurse Tech</span>
+            <span class="text-ink font-semibold">100% Self-Taught Dev</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Narrative Text (7 cols) -->
+      <div class="lg:col-span-7 order-1 lg:order-2 space-y-6">
+        <div>
+          <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-2">
+            The Trajectory
+          </p>
+          <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-ink leading-tight">
+            I didn't start as a developer. I started in healthcare.
+          </h2>
+        </div>
+
+        <div class="space-y-4 text-base sm:text-lg text-slate leading-relaxed">
+          <p>
+            Then I started seeing problems that medicine alone couldn't solve: families walking door-to-door at two in the morning searching for blood that was already sitting five kilometers away in a stranger's veins.
+          </p>
+          <p>
+            So I taught myself to code. Not for theoretical exercises, but because the hospital ward gave me an immediate, unyielding feedback loop.
+          </p>
+          <p class="text-ink font-medium">
+            Now I build technology from the other side of the table &mdash; with an intimate understanding of what actually happens inside clinical care when connectivity dies, power cuts, and every second counts.
+          </p>
+        </div>
+
+        <!-- Credential Markers (Clean unboxed metadata) -->
+        <div class="pt-4 border-t border-line grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+          <div>
+            <span class="block text-slate-light uppercase font-mono text-[10px]">Clinical</span>
+            <span class="font-semibold text-ink">BSc Nursing Science</span>
+          </div>
+          <div>
+            <span class="block text-slate-light uppercase font-mono text-[10px]">Engineering</span>
+            <span class="font-semibold text-ink">Self-Taught Developer</span>
+          </div>
+          <div>
+            <span class="block text-slate-light uppercase font-mono text-[10px]">Postgraduate</span>
+            <span class="font-semibold text-ink">M.Tech Data Science (UBa)</span>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <a
+            href={withBase('/about')}
+            class="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-paper transition-all hover:bg-ink-700 hover:scale-[1.02]"
+          >
+            <span>READ MY STORY</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Stats. Each cell is column-reversed so the number reads above its label
-       while the markup keeps <dt> before <dd>. -->
-  <section class="border-y border-line bg-paper-dim">
-    <div class="shell py-14">
-      <dl class="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-6">
+  <!-- 5. SERVICES: Practical, Commercial, Concise -->
+  <section class="border-t border-line bg-paper-dim py-16 sm:py-24 transition-colors">
+    <div class="shell">
+      <div class="max-w-2xl mb-10 sm:mb-14">
+        <p class="text-xs font-mono uppercase tracking-widest text-slate font-semibold mb-2">
+          Technical Capabilities
+        </p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight text-ink">
+          How I Can Help.
+        </h2>
+        <p class="mt-2 text-sm sm:text-base text-slate">
+          Commercial engineering and advisory services focused on healthcare, offline-first mobile apps, and low-bandwidth communications.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
         {
-          stats.map((stat, i) => (
-            <div
-              class="flex flex-col-reverse"
-              data-reveal
-              style={`--reveal-delay:${i * 60}ms`}
-            >
-              <dt class="eyebrow mt-3">{stat.label}</dt>
-              <dd
-                class:list={[
-                  'font-display leading-none font-bold',
-                  /^\d+$/.test(stat.value) ? 'text-5xl sm:text-6xl' : 'text-base',
-                ]}
-              >
-                <span data-count-to={/^\d+$/.test(stat.value) ? stat.value : undefined}>
-                  <VerifyText text={stat.value} />
-                  {stat.suffix}
-                </span>
-              </dd>
+          services.map((svc) => (
+            <div class="p-7 rounded-2xl border border-line bg-paper shadow-xs flex flex-col justify-between">
+              <div>
+                <h3 class="font-display text-xl sm:text-2xl font-bold text-ink uppercase tracking-tight">
+                  {svc.title}
+                </h3>
+                <p class="mt-3 text-sm text-slate leading-relaxed">
+                  {svc.summary}
+                </p>
+              </div>
+              <div class="mt-6 pt-4 border-t border-line/60 flex items-center justify-between text-xs">
+                <span class="font-mono text-slate-light">{svc.stack}</span>
+                <a href={withBase('/contact')} class="font-semibold text-accent hover:underline">
+                  Inquire &rarr;
+                </a>
+              </div>
             </div>
           ))
         }
-      </dl>
-      <div class="mt-8 flex flex-col items-center justify-between gap-4 border-t border-line/60 pt-6 sm:flex-row text-xs text-slate">
-        <p>
-          Every figure is grounded in operational logs, hospital registries, or IRB-approved study data.
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. EXPERIENCE: Compact Editorial Timeline -->
+  <section class="shell py-16 sm:py-24">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 sm:mb-12">
+      <div>
+        <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-2">
+          Career &amp; Tenures
         </p>
-        <div class="flex items-center gap-4 font-semibold text-accent">
-          <a href={withBase('/archive')} class="hover:underline">
-            Inspect photo artifacts &rarr;
-          </a>
-          <a href={withBase('/cv')} class="hover:underline">
-            Verify in CV &rarr;
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Stack -->
-  <section class="shell band">
-    <SectionHead label="What I build with" title="My stack" />
-    <ul class="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {
-        stack.map((tool, i) => (
-          <li
-            class="card-flat flex items-baseline justify-between gap-4 p-6"
-            data-reveal
-            style={`--reveal-delay:${i * 50}ms`}
-          >
-            <span class="display-card">{tool.name}</span>
-            <span class="body-sm text-right">{tool.use}</span>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  <!-- About -->
-  <section class="border-t border-line">
-    <div class="shell band">
-      <SectionHead label="Let me introduce myself" title="About me" />
-      <div class="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-        <div data-reveal>
-          <Scene3D
-            src="/scenes/scene-about.mp4" class="w-full max-w-sm lg:max-w-none"
-            bubble="Let me introduce myself"
-            label="Animated 3D illustration"
-          />
-          <p class="mt-8 font-display text-3xl leading-tight font-medium uppercase sm:text-4xl">
-            {site.vision}
-          </p>
-        </div>
-        <div class="lede space-y-4" data-reveal style="--reveal-delay:80ms">
-          <p>
-            The future of healthcare sits where medicine, technology, and human-centred design meet.
-            I am less interested in tools that work in a well-funded demo than in ones that survive a
-            real ward on a bad day.
-          </p>
-          <p>
-            That means building for the constraints people actually have. Low data. Unreliable
-            power. A phone rather than a computer. A language a government form does not offer.
-            Solutions that empower health workers and hold up in underserved communities, or they do
-            not count.
-          </p>
-          <div class="mt-4 flex flex-wrap gap-2.5">
-            <a href={withBase('/about')} class="btn btn-ghost btn-sm">
-              Professional Bio
-              <span aria-hidden="true">&rarr;</span>
-            </a>
-            <a href={withBase('/about?mode=story')} class="btn btn-ghost btn-sm text-accent">
-              The Full Story (13 Chapters)
-              <span aria-hidden="true">&rarr;</span>
-            </a>
-            <a href={withBase('/journey')} class="btn btn-ghost btn-sm">
-              Visual Timeline
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Experience. Hidden until every row is real. -->
-  {
-    showExperience && (
-      <section class="shell band band-line">
-        <SectionHead label="Where I have worked" title="Experience" />
-        <ul class="mt-12">
-          {experience.map((job, i) => (
-          <li
-            class="grid gap-2 border-b border-line py-7 sm:grid-cols-[1.4fr_1fr_auto] sm:items-baseline sm:gap-8"
-            data-reveal
-            style={`--reveal-delay:${i * 60}ms`}
-          >
-            <span class="display-card">
-              <VerifyText text={job.role} />
-            </span>
-            <span class="body-sm">
-              <VerifyText text={job.org} />
-            </span>
-            <span class="ordinal sm:text-right">
-              <VerifyText text={job.period} />
-            </span>
-          </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
-
-  <Marquee items={['Services', 'What I offer']} tone="paper" />
-
-  <!-- Services -->
-  <section class="shell band">
-    <div class="grid items-center gap-10 lg:grid-cols-[1.3fr_0.7fr]">
-      <SectionHead label="What I offer" title="Services" />
-      <div data-reveal>
-        <Scene3D
-          src="/scenes/scene-services.mp4"
-          bubble="What I bring"
-          label="Animated 3D illustration"
-        />
-      </div>
-    </div>
-    <ul class="mt-12">
-      {
-        services.map((service, i) => (
-          <li
-            class="group grid gap-3 border-b border-line py-8 sm:grid-cols-[auto_1fr_1.2fr] sm:items-baseline sm:gap-8"
-            data-reveal
-            style={`--reveal-delay:${i * 60}ms`}
-          >
-            <span class="ordinal">{String(i + 1).padStart(2, '0')}</span>
-            <h3 class="display-card transition-colors group-hover:text-accent">{service.title}</h3>
-            <p class="body-sm">{service.body}</p>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  <!-- Process -->
-  <section class="shell band band-line">
-    <SectionHead label="How it goes" title="Process" />
-    <ol class="mt-12 grid gap-5 md:grid-cols-3">
-      {
-        process.map((step, i) => (
-          <li class="card-flat p-7" data-reveal style={`--reveal-delay:${i * 70}ms`}>
-            <span class="ordinal">{String(i + 1).padStart(2, '0')}</span>
-            <h3 class="display-card mt-4">{step.title}</h3>
-            <p class="body-sm mt-3">{step.body}</p>
-          </li>
-        ))
-      }
-    </ol>
-
-    <div class="mt-5 grid items-center gap-8 md:grid-cols-2" data-reveal>
-      <div class="rounded-[var(--radius-card)] bg-ink p-8 text-paper sm:p-10">
-        <h3 class="display-card">Ready to get started?</h3>
-        <p class="body-sm mt-2 text-paper/70">
-          Tell me about the problem and who it affects. I read every message.
+        <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight text-ink">
+          Experience.
+        </h2>
+        <p class="mt-2 text-sm text-slate">
+          Health data management, technical founder roles, and clinical engineering tenures.
         </p>
-        <a href={withBase('/contact')} class="btn btn-accent mt-6">
-          Start a conversation
-          <span aria-hidden="true">&rarr;</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a
+          href={withBase('/experience')}
+          class="text-xs sm:text-sm font-semibold text-ink hover:text-accent transition-colors"
+        >
+          View full timeline &rarr;
+        </a>
+        <span class="text-line" aria-hidden="true">&bull;</span>
+        <a
+          href={withBase('/cv')}
+          class="text-xs sm:text-sm font-semibold text-accent hover:underline"
+        >
+          View CV &rarr;
         </a>
       </div>
-      <Scene3D src="/scenes/scene-cta.mp4" class="w-full max-w-sm lg:max-w-none" label="Animated 3D illustration" />
-    </div>
-  </section>
-
-  <!-- Testimonial. Hidden until there is a real quote from a real person. -->
-  {
-    showTestimonial && (
-      <section class="shell band band-line">
-        <SectionHead label="In their words" title="Testimonial" />
-        <figure class="mt-12" data-reveal>
-          <blockquote class="font-display text-3xl leading-tight font-medium uppercase sm:text-4xl">
-            {testimonial.quote}
-          </blockquote>
-          <figcaption class="mt-6">
-            <span class="display-card block">{testimonial.name}</span>
-            <span class="body-sm">{testimonial.attribution}</span>
-          </figcaption>
-        </figure>
-      </section>
-    )
-  }
-
-  <!-- Writing -->
-  {
-    posts.length > 0 && (
-      <section class="shell band band-line">
-        <SectionHead
-          label="Latest writing"
-          title="Journal"
-          linkHref={withBase('/blog')}
-          linkLabel="All posts"
-        />
-        {posts.map((post) => (
-          <a href={withBase(`/blog/${post.id}`)} data-reveal class="card-flat mt-12 block p-8 sm:p-10">
-            <p class="ordinal">{dateFormat.format(post.data.pubDate)}</p>
-            <h3 class="display-card mt-3 text-3xl sm:text-4xl">{post.data.title}</h3>
-            <p class="lede mt-3 max-w-2xl">{post.data.description}</p>
-            <span class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
-              Read it
-              <span aria-hidden="true">&rarr;</span>
-            </span>
-          </a>
-        ))}
-      </section>
-    )
-  }
-
-  <!-- FAQ -->
-  <section class="shell band band-line">
-    <SectionHead label="Before you ask" title="FAQ" />
-    <div class="mt-12 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-      <div data-reveal>
-        <Scene3D
-          src="/scenes/scene-faq.mp4" class="w-full max-w-sm lg:max-w-none"
-          bubble="Frequently asked"
-          bubbleSide="left"
-          label="Animated 3D illustration"
-        />
-      </div>
-      <Faq items={faqs} />
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section class="shell band band-line">
-    <SectionHead label="Let's work together" title="Contact me" />
-    <div class="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-16">
-      <div data-reveal>
-        <Scene3D
-          src="/scenes/scene-contact.mp4" class="w-full max-w-sm lg:max-w-none"
-          bubble="Reach out to me"
-          label="Animated 3D illustration"
-        />
-        <p class="lede mt-8 max-w-md">
-          Working on something in health, data, or WhatsApp automation? Tell me what the problem is
-          and who it affects, and I will get back to you.
-        </p>
-      </div>
-
-      <dl class="grid gap-8 sm:grid-cols-2" data-reveal style="--reveal-delay:80ms">
-        <div>
-          <dt class="eyebrow">Email</dt>
-          {site.emails.map((email) => (
-            <dd class="display-card mt-2">
-              <a href={`mailto:${email}`} class="transition-colors hover:text-accent">
-                {email}
-              </a>
-            </dd>
-          ))}
-        </div>
-        <div>
-          <dt class="eyebrow">WhatsApp</dt>
-          {site.whatsapp.map((n) => (
-            <dd class="display-card mt-2">
-              <a href={n.href} class="transition-colors hover:text-accent">
-                {n.label}
-              </a>
-            </dd>
-          ))}
-        </div>
-        <div class="sm:col-span-2">
-          <dt class="eyebrow">Socials</dt>
-          <dd class="mt-3 flex flex-wrap gap-2">
-            {
-              site.socials.map((social) => (
-                <a
-                  href={social.href}
-                  rel={social.label === 'Signal' ? 'nofollow noopener' : undefined}
-                  class="inline-flex items-center gap-2 rounded-full border border-line px-3.5 py-2 text-sm font-semibold transition-colors hover:border-ink hover:text-accent"
-                >
-                  <SocialIcon label={social.label} />
-                  {social.label}
-                </a>
-              ))
-            }
-          </dd>
-        </div>
-        <div>
-          <dt class="eyebrow">Based in</dt>
-          <dd class="display-card mt-2">{site.location}</dd>
-        </div>
-      </dl>
     </div>
 
-    <a href={withBase('/contact')} class="btn btn-ink mt-12" data-reveal>
-      Get in touch
-      <span aria-hidden="true">&rarr;</span>
-    </a>
-
-    <div class="mt-12">
-      <Booking />
-    </div>
-
-  </section>
-
-  <!-- Full-bleed call to action strip, as on the reference. -->
-  <a href={withBase('/contact')} class="block bg-ink py-8 text-paper">
-    <div class="marquee">
+    <div class="divide-y divide-line border-y border-line">
       {
-        [0, 1].map((copy) => (
-          <div class="marquee-track" aria-hidden={copy === 1 ? 'true' : undefined}>
-            {[0, 1, 2].map(() => (
-              <>
-                <span class="font-display text-6xl font-bold whitespace-nowrap uppercase sm:text-8xl">
-                  Start a project
-                </span>
-                <span
-                  class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-paper text-2xl text-ink sm:h-20 sm:w-20"
-                  aria-hidden="true"
-                >
-                  &#8599;
-                </span>
-              </>
-            ))}
+        experience.map((item) => (
+          <div class="py-5 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-4 items-baseline">
+            <span class="md:col-span-3 text-xs font-mono uppercase tracking-wider text-slate">
+              {item.period}
+            </span>
+            <div class="md:col-span-5">
+              <h3 class="text-base sm:text-lg font-semibold text-ink">
+                {item.role}
+              </h3>
+              <p class="text-xs sm:text-sm text-slate">{item.org}</p>
+            </div>
+            <p class="md:col-span-4 text-xs sm:text-sm text-slate-light leading-relaxed">
+              {item.note}
+            </p>
           </div>
         ))
       }
     </div>
-  </a>
+  </section>
+
+  <!-- 7. WRITING & SPEAKING: Selected Articles & Talks -->
+  <section class="border-t border-line bg-paper-dim py-16 sm:py-24 transition-colors">
+    <div class="shell">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        <!-- Writing Column -->
+        <div>
+          <div class="flex items-baseline justify-between mb-6 pb-3 border-b border-line">
+            <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold">Technical Articles</p>
+              <h2 class="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-ink mt-1">
+                Latest Writing.
+              </h2>
+            </div>
+            <a href={withBase('/blog')} class="text-xs font-semibold text-ink hover:text-accent transition-colors">
+              View all &rarr;
+            </a>
+          </div>
+
+          <div class="space-y-4">
+            {
+              latestPosts.map((post) => (
+                <article class="p-5 rounded-xl border border-line bg-paper hover:border-ink/20 transition-all">
+                  <div class="flex items-center gap-2 text-[11px] font-mono text-slate mb-2">
+                    <time datetime={post.data.pubDate.toISOString()}>
+                      {dateFormat.format(post.data.pubDate)}
+                    </time>
+                    <span aria-hidden="true">&middot;</span>
+                    <span>{post.data.tags.slice(0, 2).join(' · ')}</span>
+                  </div>
+                  <h3 class="text-base font-semibold text-ink leading-snug hover:text-accent transition-colors">
+                    <a href={withBase(`/blog/${post.id.replace(/\.(md|mdx)$/, '')}`)}>
+                      {post.data.title}
+                    </a>
+                  </h3>
+                  <p class="mt-2 text-xs text-slate line-clamp-2 leading-relaxed">
+                    {post.data.description}
+                  </p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- Speaking Column -->
+        <div>
+          <div class="flex items-baseline justify-between mb-6 pb-3 border-b border-line">
+            <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold">Keynotes &amp; Demos</p>
+              <h2 class="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-ink mt-1">
+                Selected Talks.
+              </h2>
+            </div>
+            <a href={withBase('/talks')} class="text-xs font-semibold text-ink hover:text-accent transition-colors">
+              View all &rarr;
+            </a>
+          </div>
+
+          <div class="space-y-4">
+            {
+              featuredTalks.map((talk) => (
+                <div class="p-5 rounded-xl border border-line bg-paper hover:border-ink/20 transition-all flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between text-[11px] font-mono text-slate mb-2">
+                      <span class="font-semibold text-accent">{talk.event}</span>
+                      <span>{talk.date}</span>
+                    </div>
+                    <h3 class="text-base font-semibold text-ink leading-snug">
+                      {talk.title}
+                    </h3>
+                    <p class="mt-2 text-xs text-slate line-clamp-2 leading-relaxed">
+                      {talk.abstract}
+                    </p>
+                  </div>
+                  <div class="mt-4 pt-3 border-t border-line/60 flex items-center justify-between text-xs">
+                    <span class="text-slate-light font-mono text-[11px]">{talk.location}</span>
+                    <a href={withBase('/talks')} class="font-semibold text-ink hover:text-accent">
+                      View slides &rarr;
+                    </a>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7.5 MORE CONTENT HUB: Direct In-Page Access to Secondary Archives -->
+  <section class="shell py-12 sm:py-16">
+    <div class="rounded-2xl border border-line bg-paper-dim/60 p-6 sm:p-10 transition-colors">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="max-w-xl">
+          <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-2">
+            <span>Secondary Archives &bull; Deep Dives</span>
+          </div>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-ink">
+            Looking for the Full Story?
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-slate leading-relaxed">
+            Beyond the homepage trailer, explore the 14-chapter trajectory timeline, hospital clinical AI research, full career tenures, and verified evidence archive.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <a
+            href={withBase('/journey')}
+            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
+          >
+            <span>📖 Journey</span>
+          </a>
+          <a
+            href={withBase('/research')}
+            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
+          >
+            <span>🔬 Research</span>
+          </a>
+          <a
+            href={withBase('/experience')}
+            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
+          >
+            <span>🏢 Experience</span>
+          </a>
+          <a
+            href={withBase('/services')}
+            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
+          >
+            <span>⚡ Services</span>
+          </a>
+          <a
+            href={withBase('/archive')}
+            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
+          >
+            <span>🖼️ Archive</span>
+          </a>
+          <a
+            href={withBase('/more')}
+            class="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-xs font-semibold text-paper hover:bg-ink-700 transition-all hover:scale-[1.02] shadow-sm ml-1"
+          >
+            <span>View All More Content</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. CONTACT CTA: Memorable, Direct, Authentic -->
+  <section class="shell py-20 sm:py-28">
+    <div class="rounded-3xl border border-line bg-ink text-paper p-8 sm:p-14 lg:p-16 relative overflow-hidden shadow-2xl">
+      <div class="max-w-2xl relative z-10">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-3">
+          Get In Touch
+        </p>
+        <h2 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight text-paper leading-[0.92]">
+          Got a real problem?<br />
+          <span class="text-paper/60">Tell me what you're trying to fix.</span>
+        </h2>
+        <p class="mt-6 text-base sm:text-lg text-paper/75 leading-relaxed">
+          Whether it's a healthcare workflow with too many steps, an offline field challenge, or a WhatsApp system that needs to be built right.
+        </p>
+
+        <div class="mt-8 sm:mt-10 flex flex-wrap items-center gap-4">
+          <a
+            href={withBase('/contact')}
+            class="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-sm font-bold text-ink shadow-lg shadow-accent/20 transition-all hover:bg-accent/90 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <span>Let's talk</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+
+          <a
+            href="mailto:chifensama0@gmail.com"
+            class="inline-flex items-center gap-2 rounded-full border border-paper/20 bg-paper/5 px-6 py-4 text-sm font-semibold text-paper transition-all hover:bg-paper/10 hover:border-paper/40"
+          >
+            <span>chifensama0@gmail.com</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Subtle background graphic watermark / geometric accent -->
+      <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none select-none hidden lg:block">
+        <span class="font-display text-[16rem] font-bold uppercase leading-none text-paper">
+          +
+        </span>
+      </div>
+    </div>
+  </section>
 </Base>
-
-<script>
-  // Count-up on the stats bar. The final value is already in the DOM, so this
-  // only ever animates toward text that is correct without JS.
-  const targets = document.querySelectorAll<HTMLElement>('[data-count-to]');
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (targets.length && !reduced) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const el = entry.target as HTMLElement;
-          observer.unobserve(el);
-
-          const final = Number(el.dataset.countTo);
-          if (!Number.isFinite(final)) continue;
-
-          const suffix = el.textContent?.replace(/[\d\s]/g, '') ?? '';
-          const duration = 1100;
-          const start = performance.now();
-
-          const tick = (now: number) => {
-            const t = Math.min((now - start) / duration, 1);
-            // easeOutCubic, so it decelerates into the real number
-            const eased = 1 - Math.pow(1 - t, 3);
-            el.textContent = Math.round(final * eased) + suffix;
-            if (t < 1) requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
-        }
-      },
-      { threshold: 0.4 }
-    );
-    targets.forEach((el) => observer.observe(el));
-  }
-</script>

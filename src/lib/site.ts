@@ -51,13 +51,18 @@ export const site = {
   nav: [
     { label: 'Work', href: '/work' },
     { label: 'About', href: '/about' },
-    { label: 'Journey', href: '/journey' },
-    { label: 'Archive', href: '/archive' },
-    { label: 'Research', href: '/research' },
     { label: 'Writing', href: '/blog' },
-    { label: 'Experience', href: '/experience' },
-    { label: 'Talks', href: '/talks' },
+    { label: 'Speaking', href: '/talks' },
     { label: 'CV', href: '/cv' },
+    { label: 'More', href: '/more' },
+  ],
+
+  secondaryNav: [
+    { label: 'Journey', href: '/journey' },
+    { label: 'Research', href: '/research' },
+    { label: 'Archive', href: '/archive' },
+    { label: 'Experience', href: '/experience' },
+    { label: 'Services', href: '/services' },
     { label: 'Contact', href: '/contact' },
   ],
 

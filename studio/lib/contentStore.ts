@@ -340,3 +340,112 @@ export async function deleteBlogPost(slug: string): Promise<boolean> {
 
   return deleted;
 }
+
+// ── Media Library ──────────────────────────────────────────────────────────
+
+export interface MediaAsset {
+  id: string;
+  filename: string;
+  name: string;
+  category: 'hero' | 'covers' | 'screenshots' | 'research' | 'scenes' | 'uploads';
+  url: string;
+  dimensions?: string;
+  sizeBytes?: number;
+  sizeFormatted: string;
+  format: string;
+  usedIn: string;
+  activeUsage?: 'hero' | 'story' | 'project' | '';
+}
+
+export async function listMediaAssets(): Promise<MediaAsset[]> {
+  const root = getAstroRoot();
+  const assets: MediaAsset[] = [];
+
+  const targetDirs = [
+    { dir: path.join(root, 'public', 'photos'), cat: 'hero' as const, prefix: '/photos/' },
+    { dir: path.join(root, 'public', 'covers'), cat: 'covers' as const, prefix: '/covers/' },
+    { dir: path.join(root, 'public', 'work'), cat: 'screenshots' as const, prefix: '/work/' },
+    { dir: path.join(root, 'public', 'scenes'), cat: 'scenes' as const, prefix: '/scenes/' },
+    { dir: path.join(root, 'public', 'uploads'), cat: 'uploads' as const, prefix: '/uploads/' },
+  ];
+
+  function formatBytes(bytes: number) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function getFormat(ext: string) {
+    const clean = ext.toLowerCase().replace('.', '');
+    if (clean === 'jpg' || clean === 'jpeg') return 'JPEG';
+    if (clean === 'png') return 'PNG';
+    if (clean === 'webp') return 'WEBP';
+    if (clean === 'svg') return 'SVG';
+    if (clean === 'mp4') return 'MP4 Video';
+    return clean.toUpperCase();
+  }
+
+  function getUsageLabel(name: string, cat: string) {
+    if (name.includes('portrait')) return 'Homepage Hero Persona & Meta';
+    if (name.includes('outdoor-1')) return 'Homepage Story Card (2nd Image Down)';
+    if (name.includes('outdoor-2')) return 'About Page Clinical Story';
+    if (name.includes('signature')) return 'Official Endorsement Signature';
+    if (name.includes('lifedrop')) return 'LifeDrop System Cover';
+    if (name.includes('coastclear')) return 'CoastClear Project Cover';
+    if (name.includes('maternal')) return 'Maternal Health ML Study';
+    if (name.includes('ayodah')) return 'Ayodah Blood Donor App';
+    if (name.includes('lockedin')) return 'LockedIn Productivity Tool';
+    if (name.includes('fig1')) return 'Research Figure: Risk Distribution';
+    if (name.includes('fig4')) return 'Research Figure: Blood Sugar Histogram';
+    if (name.includes('fig5')) return 'Research Figure: Correlation Heatmap';
+    if (cat === 'scenes') return '3D Motion Scene Loop';
+    return 'Portfolio Asset';
+  }
+
+  function getActiveUsage(name: string): 'hero' | 'story' | 'project' | '' {
+    if (name.includes('portrait')) return 'hero';
+    if (name.includes('outdoor-1')) return 'story';
+    if (name.includes('lifedrop') || name.includes('coastclear') || name.includes('maternal')) return 'project';
+    return '';
+  }
+
+  for (const { dir, cat, prefix } of targetDirs) {
+    if (!fs.existsSync(dir)) continue;
+
+    function walkDir(currentDir: string, currentPrefix: string) {
+      try {
+        const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+        for (const entry of entries) {
+          const fullPath = path.join(currentDir, entry.name);
+          if (entry.isDirectory()) {
+            walkDir(fullPath, `${currentPrefix}${entry.name}/`);
+          } else if (/\.(jpg|jpeg|png|webp|svg|mp4)$/i.test(entry.name)) {
+            const stats = fs.statSync(fullPath);
+            const ext = path.extname(entry.name);
+            const url = `${currentPrefix}${entry.name}`;
+            const itemCat = entry.name.startsWith('fig') ? 'research' : cat;
+
+            assets.push({
+              id: `media-${entry.name.replace(/[^a-zA-Z0-9_-]/g, '_')}`,
+              filename: entry.name,
+              name: entry.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
+              category: itemCat,
+              url,
+              sizeBytes: stats.size,
+              sizeFormatted: formatBytes(stats.size),
+              format: getFormat(ext),
+              usedIn: getUsageLabel(entry.name, itemCat),
+              activeUsage: getActiveUsage(entry.name),
+            });
+          }
+        }
+      } catch (err) {
+        console.error(`Error reading media dir ${currentDir}:`, err);
+      }
+    }
+
+    walkDir(dir, prefix);
+  }
+
+  return assets;
+}

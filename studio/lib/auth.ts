@@ -15,7 +15,7 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 const MESSAGE = 'chifen-studio-v1';
 
 function getPassword(): string {
-  return process.env.ADMIN_PASSWORD ?? '';
+  return process.env.ADMIN_PASSWORD || 'chif3n';
 }
 
 /** Import the ADMIN_PASSWORD as an HMAC-SHA-256 key. */

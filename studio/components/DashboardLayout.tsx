@@ -13,6 +13,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { name: 'Overview', href: '/admin', icon: '📊' },
+  { name: 'Media Library', href: '/admin/media', icon: '🖼️' },
   { name: 'Blog Manager', href: '/admin/blog', icon: '✍️' },
   { name: 'Talks & Media', href: '/admin/talks', icon: '🎤' },
   { name: 'Site & Pitch Settings', href: '/admin/settings', icon: '⚙️' },
