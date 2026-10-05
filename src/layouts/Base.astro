@@ -283,8 +283,22 @@ const finalSchemas = schema
     {ogImage && <meta name="twitter:image" content={new URL(withBase(ogImage), Astro.site)} />}
 
     <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify(finalSchemas)} />
+    <script type="application/ld+json" set:html={JSON.stringify(finalSchemas).replace(/</g, '\\u003c')} />
 
+    <link
+      rel="preload"
+      href={withBase('/fonts/clash-display-600.woff2')}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href={withBase('/fonts/general-sans-500.woff2')}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link
       rel="preload"
       href={withBase('/fonts/big-shoulders-600.woff2')}
