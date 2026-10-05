@@ -1,0 +1,2752 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import siteConfig from '../../data/siteConfig.json';
+import { masterCvData } from '../../lib/masterCvData';
+import { storyChapters, professionalBio } from '../../data/storyData';
+import { impactMetrics } from '../../data/metrics';
+import talksData from '../../data/talks.json';
+import { archiveItems, archiveCategories } from '../../data/archiveData';
+import { withBase } from '../../lib/url';
+
+// Load all content collections
+const workEntries = await getCollection('work');
+const blogEntries = await getCollection('blog');
+const researchEntries = await getCollection('research');
+
+// Package initial data for client-side administration
+const initialMasterData = {
+  siteConfig,
+  masterCvData,
+  professionalBio,
+  storyChapters,
+  impactMetrics,
+  talks: talksData,
+  archiveItems,
+  archiveCategories,
+  projects: workEntries.map(e => ({
+    id: e.id,
+    slug: e.id.replace(/\.(md|mdx)$/, ''),
+    title: e.data.title,
+    summary: e.data.summary,
+    role: e.data.role,
+    tags: e.data.tags,
+    status: e.data.status,
+    year: e.data.year,
+    liveUrl: e.data.liveUrl || '',
+    repoUrl: e.data.repoUrl || '',
+    featured: e.data.featured || false,
+    metrics: e.data.metrics || [],
+    order: e.data.order ?? 100,
+    note: e.data.note || '',
+    researchSlug: e.data.researchSlug || '',
+    body: e.body || ''
+  })),
+  research: researchEntries.map(e => ({
+    id: e.id,
+    slug: e.id.replace(/\.(md|mdx)$/, ''),
+    title: e.data.title,
+    summary: e.data.summary,
+    institution: e.data.institution,
+    year: e.data.year,
+    tags: e.data.tags,
+    kind: e.data.kind,
+    status: e.data.status,
+    abstractUrl: e.data.abstractUrl || '',
+    pdfUrl: e.data.pdfUrl || '',
+    supervisor: e.data.supervisor || '',
+    site: e.data.site || '',
+    body: e.body || ''
+  })),
+  blogPosts: blogEntries.map(e => ({
+    id: e.id,
+    slug: e.id.replace(/\.(md|mdx)$/, ''),
+    title: e.data.title,
+    description: e.data.description,
+    pubDate: e.data.pubDate ? new Date(e.data.pubDate).toISOString().slice(0, 10) : '',
+    updated: e.data.updated ? new Date(e.data.updated).toISOString().slice(0, 10) : '',
+    tags: e.data.tags || [],
+    draft: Boolean(e.data.draft),
+    cover: e.data.cover || '',
+    body: e.body || ''
+  }))
+};
+---
+
+<Base
+  title="Admin Control Suite"
+  description="Comprehensive Admin Studio to manage content, projects, research, experience, and site configurations for chifen.is-a.dev"
+  accent="#8b5cf6"
+>
+  <div class="min-h-screen bg-zinc-950 text-zinc-100 font-sans pb-24" id="admin-app-root">
+    <!-- Top Bar -->
+    <header class="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-900/90 backdrop-blur-md px-4 py-3 sm:px-6">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <a href={withBase('/')} class="flex items-center gap-2 group">
+            <span class="font-display text-xl font-bold tracking-tight uppercase">
+              Chif<span class="text-accent">3</span>n
+            </span>
+            <span class="rounded bg-accent/20 px-2 py-0.5 text-[11px] font-mono font-semibold text-accent border border-accent/30">
+              STUDIO ADMIN
+            </span>
+          </a>
+          <span class="hidden md:inline-block text-xs text-zinc-500">|</span>
+          <div class="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-400">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="storage-status-indicator">Storage: Local Engine</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <button
+            id="btn-export-backup"
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-xs font-semibold text-zinc-200 transition-colors hover:bg-zinc-700 hover:text-white"
+            title="Download full JSON snapshot of all custom data"
+          >
+            <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Export Backup
+          </button>
+
+          <label
+            for="input-import-backup"
+            class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-xs font-semibold text-zinc-200 transition-colors hover:bg-zinc-700 hover:text-white"
+            title="Upload previously exported JSON backup"
+          >
+            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+            Import Backup
+            <input type="file" id="input-import-backup" accept=".json" class="hidden" />
+          </label>
+
+          <a
+            href={withBase('/')}
+            target="_blank"
+            class="inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-transform hover:scale-[1.02]"
+          >
+            <span>Live Site</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+
+          <button
+            id="btn-admin-logout"
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-950/30 px-2.5 py-1.5 text-xs font-semibold text-red-300 transition-colors hover:bg-red-900/50 hover:text-white"
+            title="Lock Studio and Sign Out"
+          >
+            <svg class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            <span>Lock</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Fullscreen Unique Password Gate for direct /admin visits -->
+    <div id="admin-auth-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950 p-4">
+      <div class="w-full max-w-md rounded-2xl border border-purple-500/30 bg-zinc-900/90 p-8 shadow-2xl backdrop-blur-xl text-center space-y-6">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/30">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="font-display text-2xl font-bold uppercase text-white tracking-tight">Studio Admin Protection</h2>
+          <p class="text-xs text-zinc-400 mt-2 leading-relaxed">
+            This administration suite is password protected. Enter your unique admin password to unlock the studio dashboard.
+          </p>
+        </div>
+        <form id="admin-gate-form" class="space-y-4 text-left">
+          <div>
+            <label for="admin-gate-password" class="admin-label">Unique Admin Password</label>
+            <input
+              type="password"
+              id="admin-gate-password"
+              required
+              placeholder="Enter unique admin password..."
+              class="admin-input text-sm"
+              autocomplete="current-password"
+            />
+            <p id="admin-gate-error" class="hidden mt-2 text-xs text-red-400 font-medium">
+              ✕ <span id="admin-gate-error-text">Incorrect admin password. Access denied.</span>
+            </p>
+          </div>
+          <button
+            type="submit"
+            id="admin-gate-submit-btn"
+            class="w-full rounded-xl bg-purple-600 py-2.5 text-xs font-bold text-white shadow-lg transition-transform hover:scale-[1.01] hover:bg-purple-500 disabled:opacity-50"
+          >
+            Unlock &amp; Enter Studio &rarr;
+          </button>
+          <div class="text-center pt-2">
+            <a href={withBase('/')} class="text-xs text-zinc-500 hover:text-zinc-300">
+              &larr; Return to public site
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="border-b border-zinc-800 bg-zinc-900/60 sticky top-[57px] z-30 overflow-x-auto no-scrollbar">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <nav class="flex space-x-1 py-2 text-xs font-medium" id="admin-tabs-nav" aria-label="Admin Navigation">
+          <button class="admin-tab active" data-target="tab-overview">
+            <span>📊 Dashboard</span>
+          </button>
+          <button class="admin-tab" data-target="tab-profile">
+            <span>👤 Profile & Links</span>
+          </button>
+          <button class="admin-tab" data-target="tab-projects">
+            <span>💼 Projects</span>
+            <span class="count-pill" id="badge-projects-count">11</span>
+          </button>
+          <button class="admin-tab" data-target="tab-blog">
+            <span>✍️ Blog Posts</span>
+            <span class="count-pill" id="badge-blog-count">8</span>
+          </button>
+          <button class="admin-tab" data-target="tab-experience">
+            <span>🏢 Career & Gigs</span>
+            <span class="count-pill" id="badge-exp-count">8</span>
+          </button>
+          <button class="admin-tab" data-target="tab-education">
+            <span>🎓 Education & Credentials</span>
+          </button>
+          <button class="admin-tab" data-target="tab-research">
+            <span>🔬 Research</span>
+            <span class="count-pill" id="badge-research-count">2</span>
+          </button>
+          <button class="admin-tab" data-target="tab-talks">
+            <span>🎤 Talks</span>
+            <span class="count-pill" id="badge-talks-count">3</span>
+          </button>
+          <button class="admin-tab" data-target="tab-story">
+            <span>📖 Story Timeline</span>
+            <span class="count-pill" id="badge-story-count">14</span>
+          </button>
+          <button class="admin-tab" data-target="tab-archive">
+            <span>🖼️ Evidence Archive</span>
+            <span class="count-pill" id="badge-archive-count">18</span>
+          </button>
+          <button class="admin-tab" data-target="tab-metrics">
+            <span>📈 Verified Metrics</span>
+          </button>
+          <button class="admin-tab" data-target="tab-sync">
+            <span>💾 Code Sync & Export</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+      <!-- Toast Notification Container -->
+      <div id="admin-toast" class="fixed top-20 right-6 z-50 transform transition-all duration-300 translate-y-[-150%] opacity-0 pointer-events-none rounded-xl border border-emerald-500/40 bg-zinc-900/95 p-4 shadow-2xl text-emerald-300 text-sm flex items-center gap-3 backdrop-blur-md">
+        <svg class="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="toast-message">Action successful!</span>
+      </div>
+
+      <!-- TAB 1: OVERVIEW & DASHBOARD -->
+      <section id="tab-overview" class="admin-tab-pane space-y-6">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 hover:border-zinc-700 transition-colors">
+            <div class="flex items-center justify-between text-zinc-400">
+              <span class="text-xs uppercase tracking-wider font-semibold">Active Ventures</span>
+              <span class="h-2 w-2 rounded-full bg-purple-500"></span>
+            </div>
+            <p class="mt-3 text-3xl font-display font-bold text-white">4</p>
+            <p class="mt-1 text-xs text-zinc-400">LifeDrop, CoastClear, INKWAVE, LinkedIn Local</p>
+          </div>
+
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 hover:border-zinc-700 transition-colors">
+            <div class="flex items-center justify-between text-zinc-400">
+              <span class="text-xs uppercase tracking-wider font-semibold">Postgraduate Status</span>
+              <span class="h-2 w-2 rounded-full bg-cyan-400"></span>
+            </div>
+            <p class="mt-3 text-xl font-display font-bold text-cyan-300">COLTECH UBa</p>
+            <p class="mt-1 text-xs text-zinc-400">M.Tech Data Science (2026–Present)</p>
+          </div>
+
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 hover:border-zinc-700 transition-colors">
+            <div class="flex items-center justify-between text-zinc-400">
+              <span class="text-xs uppercase tracking-wider font-semibold">Engineering Path</span>
+              <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+            </div>
+            <p class="mt-3 text-xl font-display font-bold text-amber-300">Self-Taught</p>
+            <p class="mt-1 text-xs text-zinc-400">Autodidactic Dev + Bedside Clinical Grit</p>
+          </div>
+
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 hover:border-zinc-700 transition-colors">
+            <div class="flex items-center justify-between text-zinc-400">
+              <span class="text-xs uppercase tracking-wider font-semibold">Verified Metrics</span>
+              <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+            </div>
+            <p class="mt-3 text-3xl font-display font-bold text-emerald-400" id="dash-metrics-count">14</p>
+            <p class="mt-1 text-xs text-zinc-400">387 study respondents, 92.4% rate, &gt;95% DHIS2</p>
+          </div>
+        </div>
+
+        <!-- Banner for recent update -->
+        <div class="rounded-2xl border border-purple-900/40 bg-purple-950/20 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="rounded-full bg-purple-500/20 px-2.5 py-0.5 text-xs font-semibold text-purple-300 border border-purple-500/30">
+                Latest Academic & Career Sync
+              </span>
+              <span class="text-xs text-zinc-400">October 2026</span>
+            </div>
+            <h3 class="text-base font-semibold text-white">Master of Technology in Data Science & Self-Trained Engineering</h3>
+            <p class="text-xs text-zinc-300 max-w-2xl leading-relaxed">
+              Updated: College of Technology (COLTECH), The University of Bamenda (UBa) Data Science Masters, explicit self-taught software background, old gigs categorized as voluntary, and GitHub profile set to <code class="font-mono text-cyan-300">https://github.com/CHIF3N</code>.
+            </p>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <button class="btn btn-sm btn-accent" onclick="document.querySelector('[data-target=\'tab-profile\']').click()">
+              Edit Profile
+            </button>
+            <button class="btn btn-sm border border-zinc-700 bg-zinc-800 text-zinc-200" onclick="document.querySelector('[data-target=\'tab-projects\']').click()">
+              Manage Work
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Summary Table -->
+        <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-400 mb-4">Site Architecture & Direct Admin Control</h3>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-xs">
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-zinc-900/80 border border-zinc-800">
+              <span class="text-lg">⚡</span>
+              <div>
+                <strong class="text-white block font-medium">Zero-Code Updates</strong>
+                <span class="text-zinc-400">Add, edit, or delete items right in this studio. Changes take effect across all pages.</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-zinc-900/80 border border-zinc-800">
+              <span class="text-lg">🔒</span>
+              <div>
+                <strong class="text-white block font-medium">Automatic Local Persistence</strong>
+                <span class="text-zinc-400">Edits are securely stored in your browser and automatically synchronized with the frontend.</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-zinc-900/80 border border-zinc-800">
+              <span class="text-lg">📦</span>
+              <div>
+                <strong class="text-white block font-medium">Full Backup & Code Export</strong>
+                <span class="text-zinc-400">Export clean JSON or git-ready TypeScript files whenever you want to commit to GitHub.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: PROFILE & IDENTITY -->
+      <section id="tab-profile" class="admin-tab-pane hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-white">Site Identity & Core Profile</h2>
+            <p class="text-xs text-zinc-400">Manage names, brand, elevator pitch, GitHub, contacts, and public metadata.</p>
+          </div>
+          <button id="btn-save-profile" type="button" class="btn btn-sm btn-accent">
+            Save Profile
+          </button>
+        </div>
+
+        <form id="form-site-profile" class="grid gap-5 md:grid-cols-2 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+          <div>
+            <label class="admin-label">Full Legal Name</label>
+            <input type="text" name="name" id="field-prof-name" class="admin-input" />
+          </div>
+
+          <div>
+            <label class="admin-label">Display Name (Short)</label>
+            <input type="text" name="displayName" id="field-prof-displayName" class="admin-input" />
+          </div>
+
+          <div>
+            <label class="admin-label">Brand Persona</label>
+            <input type="text" name="brand" id="field-prof-brand" class="admin-input" />
+          </div>
+
+          <div>
+            <label class="admin-label">Creative Identity / Alias</label>
+            <input type="text" name="creativeIdentity" id="field-prof-creativeIdentity" class="admin-input" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="admin-label">Professional Role Headline</label>
+            <input type="text" name="role" id="field-prof-role" class="admin-input" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="admin-label">Site Tagline</label>
+            <textarea name="tagline" id="field-prof-tagline" rows="2" class="admin-input"></textarea>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="admin-label">Elevator Pitch / Bio Summary</label>
+            <textarea name="pitch" id="field-prof-pitch" rows="3" class="admin-input"></textarea>
+          </div>
+
+          <div>
+            <label class="admin-label">GitHub URL</label>
+            <input type="url" name="github" id="field-prof-github" class="admin-input text-cyan-300 font-mono text-xs" />
+          </div>
+
+          <div>
+            <label class="admin-label">LinkedIn URL</label>
+            <input type="url" name="linkedin" id="field-prof-linkedin" class="admin-input font-mono text-xs" />
+          </div>
+
+          <div>
+            <label class="admin-label">Primary Email</label>
+            <input type="email" name="email" id="field-prof-email" class="admin-input font-mono text-xs" />
+          </div>
+
+          <div>
+            <label class="admin-label">WhatsApp Contact Number</label>
+            <input type="text" name="whatsapp" id="field-prof-whatsapp" class="admin-input font-mono text-xs" />
+          </div>
+
+          <div>
+            <label class="admin-label">Geographic Location</label>
+            <input type="text" name="location" id="field-prof-location" class="admin-input" />
+          </div>
+
+          <div>
+            <label class="admin-label">INKWAVE Platform URL</label>
+            <input type="url" name="inkwave" id="field-prof-inkwave" class="admin-input font-mono text-xs" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="admin-label">Software Background Specification</label>
+            <input type="text" name="softwareBackground" id="field-prof-softwareBackground" class="admin-input" placeholder="e.g. 100% self-trained software engineer..." />
+          </div>
+
+          <!-- Admin Security & Password Control Card -->
+          <div class="md:col-span-2 rounded-xl border border-purple-500/30 bg-purple-950/20 p-5 mt-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="flex h-6 w-6 items-center justify-center rounded-md bg-purple-500/20 text-purple-400">
+                  🔒
+                </span>
+                <h4 class="text-sm font-bold text-white uppercase tracking-wider">Admin Security &amp; Custom Password</h4>
+              </div>
+              <span class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                SHA-256 Protected
+              </span>
+            </div>
+            <p class="text-xs text-zinc-300 mb-4 leading-relaxed">
+              Set your own custom unique admin password. It will be cryptographically hashed with SHA-256 and used to unlock the Admin Studio from both the footer button and direct URL.
+            </p>
+            <div class="grid gap-3 sm:grid-cols-3 items-end">
+              <div>
+                <label class="admin-label">New Unique Password</label>
+                <input type="password" id="input-new-admin-pass" placeholder="Enter new custom password..." class="admin-input text-xs" />
+              </div>
+              <div>
+                <label class="admin-label">Confirm New Password</label>
+                <input type="password" id="input-confirm-admin-pass" placeholder="Confirm password..." class="admin-input text-xs" />
+              </div>
+              <div class="flex gap-2">
+                <button type="button" id="btn-update-admin-pass" class="btn btn-sm btn-accent w-full justify-center">
+                  Update Password
+                </button>
+                <button type="button" id="btn-reset-admin-pass" class="btn btn-sm border border-zinc-700 bg-zinc-800 text-zinc-300 hover:text-white" title="Reset to default password">
+                  Reset
+                </button>
+              </div>
+            </div>
+            <p id="admin-pass-status" class="text-xs mt-2 hidden"></p>
+          </div>
+        </form>
+      </section>
+
+      <!-- TAB 3: PROJECTS & WORK -->
+      <section id="tab-projects" class="admin-tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Work & Project Portfolio</h2>
+            <p class="text-xs text-zinc-400">Add, edit, or delete production software, prototypes, and clinical systems.</p>
+          </div>
+          <button id="btn-add-project" type="button" class="btn btn-sm btn-accent inline-flex items-center gap-1.5">
+            <span>+ Add New Project</span>
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="flex items-center gap-3">
+          <input
+            type="text"
+            id="search-projects"
+            placeholder="Search projects by title, stack, status, or tag..."
+            class="admin-input max-w-md text-xs"
+          />
+        </div>
+
+        <!-- Projects Grid / Table -->
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" id="projects-list-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
+      <!-- TAB 4: BLOG & WRITING -->
+      <section id="tab-blog" class="admin-tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Blog & Technical Articles</h2>
+            <p class="text-xs text-zinc-400">Write, edit, and publish technical insights with live markdown preview.</p>
+          </div>
+          <button id="btn-add-blog" type="button" class="btn btn-sm btn-accent inline-flex items-center gap-1.5">
+            <span>+ Write New Post</span>
+          </button>
+        </div>
+
+        <div class="space-y-4" id="blog-list-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
+      <!-- TAB 5: EXPERIENCE & CAREER -->
+      <section id="tab-experience" class="admin-tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Career, Clinical & Volunteer Roles</h2>
+            <p class="text-xs text-zinc-400">Manage active tenures, concluded health data mandates, and voluntary gigs.</p>
+          </div>
+          <button id="btn-add-role" type="button" class="btn btn-sm btn-accent inline-flex items-center gap-1.5">
+            <span>+ Add Career / Volunteer Role</span>
+          </button>
+        </div>
+
+        <div class="space-y-4" id="experience-list-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
+      <!-- TAB 6: EDUCATION & CREDENTIALS -->
+      <section id="tab-education" class="admin-tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Education, Awards & Certifications</h2>
+            <p class="text-xs text-zinc-400">Manage academic degrees (COLTECH UBa Data Science), nursing credentials, and awards.</p>
+          </div>
+          <button id="btn-add-education" type="button" class="btn btn-sm btn-accent inline-flex items-center gap-1.5">
+            <span>+ Add Degree / Certification</span>
+          </button>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <!-- Academic Degrees -->
+          <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-purple-400">Degrees & Postgraduate Record</h3>
+            <div id="education-degrees-container" class="space-y-3">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Awards & Certifications -->
+          <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-amber-400">Awards & Honors</h3>
+            <div id="education-awards-container" class="space-y-2">
+              <!-- Injected via JS -->
+            </div>
+
+            <h3 class="text-sm font-bold uppercase tracking-wider text-cyan-400 pt-4">Professional Certifications</h3>
+            <div id="education-certs-container" class="space-y-2">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: RESEARCH -->
+      <section id="tab-research" class="admin-tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Research Projects & Empirical Studies</h2>
+            <p class="text-xs text-zinc-400">Manage scientific studies (Buea Regional Hospital AI study, maternal risk predictors).</p>
+          </div>
+          <button id="btn-add-research" type="button" class="btn btn-sm btn-accent inline-flex items-center gap-1.5">
+            <span>+ Add Research Study</span>
+          </button>
+        </div>
+
+        <div class="space-y-4" id="research-list-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
+      <!-- TAB 8: TALKS & SPEAKING -->
+      <section id="tab-talks" class="admin-tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Keynotes, Talks & Architecture Demos</h2>
+            <p class="text-xs text-zinc-400">Manage conference presentations, live demos, and slide links.</p>
+          </div>
+          <button id="btn-add-talk" type="button" class="btn btn-sm btn-accent inline-flex items-center gap-1.5">
+            <span>+ Add Speaking Event</span>
+          </button>
+        </div>
+
+        <div class="space-y-4" id="talks-list-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
+      <!-- TAB 9: STORY TIMELINE -->
+      <section id="tab-story" class="admin-tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">The 14 Chapters Journey Timeline</h2>
+            <p class="text-xs text-zinc-400">Manage the comprehensive documentary chapters of The Nurse Who Codes.</p>
+          </div>
+          <button id="btn-add-chapter" type="button" class="btn btn-sm btn-accent inline-flex items-center gap-1.5">
+            <span>+ Add Timeline Chapter</span>
+          </button>
+        </div>
+
+        <div class="space-y-3" id="story-list-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
+      <!-- TAB 10: EVIDENCE ARCHIVE -->
+      <section id="tab-archive" class="admin-tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Photo Evidence &amp; Project Artifacts</h2>
+            <p class="text-xs text-zinc-400">Manage photo archives, hardware experiments, clinical wards, and animated GIFs.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-manage-categories" type="button" class="btn btn-sm border border-zinc-700 bg-zinc-800 text-zinc-200 hover:text-white inline-flex items-center gap-1.5">
+              <span>📁 Manage Categories / Albums</span>
+            </button>
+            <button id="btn-add-artifact" type="button" class="btn btn-sm btn-accent inline-flex items-center gap-1.5">
+              <span>+ Add Photo / GIF Artifact</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter and Search bar -->
+        <div class="flex flex-wrap items-center gap-3">
+          <input
+            type="text"
+            id="search-archive"
+            placeholder="Search artifacts by title, location, or tag..."
+            class="admin-input max-w-sm text-xs"
+          />
+          <select id="filter-archive-category" class="admin-input max-w-xs text-xs">
+            <option value="all">All Categories</option>
+            <!-- Injected via JavaScript -->
+          </select>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" id="archive-list-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
+      <!-- TAB 11: VERIFIED METRICS -->
+      <section id="tab-metrics" class="admin-tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Impact Metrics & Proof Points</h2>
+            <p class="text-xs text-zinc-400">Concrete, verified numbers powering the Fanaka proof bar across the portfolio.</p>
+          </div>
+          <button id="btn-add-metric" type="button" class="btn btn-sm btn-accent inline-flex items-center gap-1.5">
+            <span>+ Add Metric</span>
+          </button>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" id="metrics-list-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </section>
+
+      <!-- TAB 12: SYNC & EXPORT CODE -->
+      <section id="tab-sync" class="admin-tab-pane hidden space-y-6">
+        <div>
+          <h2 class="text-lg font-bold text-white">Code Export & Backup Synchronization</h2>
+          <p class="text-xs text-zinc-400">Download formatted files to commit directly to your GitHub repository or reset your changes.</p>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>📦</span>
+              <span>Complete Site Data Backup</span>
+            </h3>
+            <p class="text-xs text-zinc-400 leading-relaxed">
+              Export all your customizations into a single JSON file. You can restore this file on any device or browser to instantly reinstate your changes.
+            </p>
+            <div class="flex gap-3">
+              <button id="btn-export-json-file" type="button" class="btn btn-sm btn-accent">
+                Download JSON Backup
+              </button>
+              <button id="btn-clear-all-overrides" type="button" class="btn btn-sm border border-red-500/40 text-red-400 hover:bg-red-500/10">
+                Reset to Defaults
+              </button>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>📋</span>
+              <span>Copy Formatted Code</span>
+            </h3>
+            <p class="text-xs text-zinc-400 leading-relaxed">
+              Generate formatted TypeScript / JSON code for your repository files based on your current edits.
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <button class="btn btn-xs border border-zinc-700 bg-zinc-800 text-zinc-200" onclick="copyCodeSnippet('siteConfig')">
+                siteConfig.json
+              </button>
+              <button class="btn btn-xs border border-zinc-700 bg-zinc-800 text-zinc-200" onclick="copyCodeSnippet('masterCv')">
+                masterCvData.ts
+              </button>
+              <button class="btn btn-xs border border-zinc-700 bg-zinc-800 text-zinc-200" onclick="copyCodeSnippet('metrics')">
+                metrics.ts
+              </button>
+              <button class="btn btn-xs border border-zinc-700 bg-zinc-800 text-zinc-200" onclick="copyCodeSnippet('talks')">
+                talks.json
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Code Viewer Box -->
+        <div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-zinc-400" id="code-snippet-title">Generated Code Preview</span>
+            <button class="btn btn-xs btn-accent" id="btn-copy-code-preview">
+              Copy to Clipboard
+            </button>
+          </div>
+          <pre class="rounded-xl bg-zinc-950 p-4 text-xs font-mono text-zinc-300 overflow-x-auto max-h-96 border border-zinc-800/80" id="code-snippet-pre">Select a file above to preview formatted code.</pre>
+        </div>
+      </section>
+    </main>
+
+    <!-- UNIVERSAL EDIT MODAL / DRAWER -->
+    <div id="admin-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
+      <div class="w-full max-w-3xl rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl space-y-5 my-8">
+        <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
+          <h3 class="text-base font-bold text-white" id="modal-title">Edit Item</h3>
+          <button id="modal-close-btn" class="text-zinc-400 hover:text-white p-1" aria-label="Close Modal">
+            ✕
+          </button>
+        </div>
+        <div id="modal-body" class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+          <!-- Dynamic Form Controls Injected Here -->
+        </div>
+        <div class="flex items-center justify-between border-t border-zinc-800 pt-4">
+          <button id="modal-delete-btn" type="button" class="btn btn-sm border border-red-500/40 text-red-400 hover:bg-red-500/10 hidden">
+            Delete Item
+          </button>
+          <div class="flex items-center gap-3 ml-auto">
+            <button id="modal-cancel-btn" type="button" class="btn btn-sm border border-zinc-700 bg-zinc-800 text-zinc-300">
+              Cancel
+            </button>
+            <button id="modal-save-btn" type="button" class="btn btn-sm btn-accent">
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Embed Master Data for Client Engine -->
+  <script id="admin-initial-data" type="application/json" is:inline set:html={JSON.stringify(initialMasterData)}></script>
+
+  <!-- Client-Side Admin Application Logic -->
+  <script is:inline>
+    (() => {
+      const STORAGE_KEY = 'chifen_site_overrides';
+      const AUTH_KEY = 'chifen_admin_authenticated';
+      const AUTH_EXPIRY_KEY = 'chifen_admin_auth_expiry';
+      const FAIL_COUNT_KEY = 'chifen_admin_fail_count';
+      const LOCKOUT_KEY = 'chifen_admin_lockout_until';
+      const CUSTOM_HASH_KEY = 'chifen_custom_admin_hash';
+
+      // SHA-256 hashes of authorized administrative passphrases
+      const VALID_HASHES = [
+        'fefae624ed8b9244b84cc4dbd60b88ada0fbdb600e886735e4bd670d6d52f6b8', // chif3n-admin-2026
+        '5d69aa0e2e0b898f1b2973e5c091a92fdd8b245dca4cb004b517a4b8401fb271', // chifen2026!
+        '5456005152ac4f1f7485ce16e27fd74a14df81cfbf91c9780a76471f157a6441'  // chif3n2026
+      ];
+
+      const authGate = document.getElementById('admin-auth-gate');
+      const gateForm = document.getElementById('admin-gate-form');
+      const gateInput = document.getElementById('admin-gate-password');
+      const gateError = document.getElementById('admin-gate-error');
+      const gateErrorText = document.getElementById('admin-gate-error-text');
+      const gateSubmitBtn = document.getElementById('admin-gate-submit-btn');
+      const logoutBtn = document.getElementById('btn-admin-logout');
+
+      async function sha256(str) {
+        const buf = new TextEncoder().encode(str);
+        const digest = await window.crypto.subtle.digest('SHA-256', buf);
+        return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      function isSessionValid() {
+        const authed = sessionStorage.getItem(AUTH_KEY) === 'true';
+        const expiry = parseInt(sessionStorage.getItem(AUTH_EXPIRY_KEY) || '0', 10);
+        return authed && expiry > Date.now();
+      }
+
+      function checkLockout() {
+        const lockoutUntil = parseInt(sessionStorage.getItem(LOCKOUT_KEY) || '0', 10);
+        const now = Date.now();
+        if (lockoutUntil > now) {
+          const remainingSecs = Math.ceil((lockoutUntil - now) / 1000);
+          if (gateErrorText) {
+            gateErrorText.textContent = `Security lockout active: please wait ${remainingSecs}s.`;
+          }
+          if (gateError) gateError.classList.remove('hidden');
+          if (gateInput) gateInput.disabled = true;
+          if (gateSubmitBtn) gateSubmitBtn.disabled = true;
+          return true;
+        }
+        if (gateInput) gateInput.disabled = false;
+        if (gateSubmitBtn) gateSubmitBtn.disabled = false;
+        return false;
+      }
+
+      function checkAuth() {
+        if (isSessionValid()) {
+          if (authGate) authGate.classList.add('hidden');
+        } else {
+          if (authGate) {
+            authGate.classList.remove('hidden');
+            if (checkLockout()) return;
+            if (gateInput) {
+              gateInput.value = '';
+              setTimeout(() => gateInput.focus(), 60);
+            }
+          }
+        }
+      }
+
+      gateForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (checkLockout()) return;
+
+        const entered = gateInput?.value?.trim() || '';
+        if (!entered) return;
+
+        const hashed = await sha256(entered);
+        const customHash = localStorage.getItem(CUSTOM_HASH_KEY);
+        const isMatch = VALID_HASHES.includes(hashed) || (customHash && customHash === hashed);
+
+        if (isMatch) {
+          sessionStorage.removeItem(FAIL_COUNT_KEY);
+          sessionStorage.removeItem(LOCKOUT_KEY);
+          sessionStorage.setItem(AUTH_KEY, 'true');
+          sessionStorage.setItem(AUTH_EXPIRY_KEY, String(Date.now() + 8 * 60 * 60 * 1000));
+          if (authGate) authGate.classList.add('hidden');
+          showToast('Welcome back, Chifen! Studio unlocked.');
+        } else {
+          let fails = parseInt(sessionStorage.getItem(FAIL_COUNT_KEY) || '0', 10) + 1;
+          sessionStorage.setItem(FAIL_COUNT_KEY, String(fails));
+          if (fails >= 5) {
+            sessionStorage.setItem(LOCKOUT_KEY, String(Date.now() + 60 * 1000));
+            checkLockout();
+          } else {
+            if (gateErrorText) {
+              gateErrorText.textContent = `Incorrect admin password. (${5 - fails} attempts remaining)`;
+            }
+            if (gateError) gateError.classList.remove('hidden');
+          }
+          gateInput?.focus();
+        }
+      });
+
+      logoutBtn?.addEventListener('click', () => {
+        if (confirm('Lock Admin Studio and sign out?')) {
+          sessionStorage.removeItem(AUTH_KEY);
+          sessionStorage.removeItem(AUTH_EXPIRY_KEY);
+          checkAuth();
+        }
+      });
+
+      // Custom Admin Password updates
+      const updatePassBtn = document.getElementById('btn-update-admin-pass');
+      const resetPassBtn = document.getElementById('btn-reset-admin-pass');
+      const newPassInput = document.getElementById('input-new-admin-pass');
+      const confirmPassInput = document.getElementById('input-confirm-admin-pass');
+      const passStatus = document.getElementById('admin-pass-status');
+
+      updatePassBtn?.addEventListener('click', async () => {
+        const p1 = newPassInput?.value?.trim() || '';
+        const p2 = confirmPassInput?.value?.trim() || '';
+        if (!p1) {
+          alert('Please enter a new password.');
+          return;
+        }
+        if (p1.length < 8) {
+          alert('Password should be at least 8 characters long.');
+          return;
+        }
+        if (p1 !== p2) {
+          alert('Passwords do not match. Please re-enter.');
+          return;
+        }
+        const hash = await sha256(p1);
+        localStorage.setItem(CUSTOM_HASH_KEY, hash);
+        if (passStatus) {
+          passStatus.textContent = '✓ Custom admin password successfully saved! Protected with SHA-256.';
+          passStatus.className = 'text-xs mt-2 text-emerald-400 font-semibold';
+          passStatus.classList.remove('hidden');
+        }
+        if (newPassInput) newPassInput.value = '';
+        if (confirmPassInput) confirmPassInput.value = '';
+        showToast('Admin password updated successfully.');
+      });
+
+      resetPassBtn?.addEventListener('click', () => {
+        if (confirm('Reset custom password and restore default administrative passwords?')) {
+          localStorage.removeItem(CUSTOM_HASH_KEY);
+          if (passStatus) {
+            passStatus.textContent = '✓ Custom password removed. Default admin keys active.';
+            passStatus.className = 'text-xs mt-2 text-cyan-400 font-semibold';
+            passStatus.classList.remove('hidden');
+          }
+          showToast('Admin password reset to default.');
+        }
+      });
+
+      checkAuth();
+      
+      // Load raw data
+      const rawInitial = document.getElementById('admin-initial-data')?.textContent;
+      const initialData = rawInitial ? JSON.parse(rawInitial) : {};
+
+      // Load overrides from localStorage
+      function loadActiveState() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            return {
+              ...initialData,
+              ...parsed,
+              siteConfig: { ...initialData.siteConfig, ...(parsed.siteConfig || {}) },
+              masterCvData: { ...initialData.masterCvData, ...(parsed.masterCvData || {}) },
+              projects: parsed.projects || initialData.projects || [],
+              blogPosts: parsed.blogPosts || initialData.blogPosts || [],
+              research: parsed.research || initialData.research || [],
+              talks: parsed.talks || initialData.talks || [],
+              storyChapters: parsed.storyChapters || initialData.storyChapters || [],
+              archiveItems: parsed.archiveItems || initialData.archiveItems || [],
+              archiveCategories: parsed.archiveCategories || initialData.archiveCategories || [],
+              impactMetrics: parsed.impactMetrics || initialData.impactMetrics || [],
+            };
+          }
+        } catch (e) {
+          console.error('Error loading stored overrides', e);
+        }
+        return JSON.parse(JSON.stringify(initialData));
+      }
+
+      let state = loadActiveState();
+
+      // Persist state to localStorage and update indicators
+      function persistState(message = 'Changes saved successfully!') {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          showToast(message);
+          updateBadges();
+          const ind = document.getElementById('storage-status-indicator');
+          if (ind) ind.textContent = 'Storage: Sync Saved (' + new Date().toLocaleTimeString() + ')';
+        } catch (e) {
+          console.error('Error saving state', e);
+          showToast('Failed to save to localStorage', true);
+        }
+      }
+
+      function showToast(msg, isError = false) {
+        const toast = document.getElementById('admin-toast');
+        const txt = document.getElementById('toast-message');
+        if (!toast || !txt) return;
+        txt.textContent = msg;
+        if (isError) {
+          toast.classList.remove('border-emerald-500/40', 'text-emerald-300');
+          toast.classList.add('border-red-500/40', 'text-red-300');
+        } else {
+          toast.classList.remove('border-red-500/40', 'text-red-300');
+          toast.classList.add('border-emerald-500/40', 'text-emerald-300');
+        }
+        toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        setTimeout(() => {
+          toast.classList.add('translate-y-[-150%]', 'opacity-0');
+          toast.classList.remove('translate-y-0', 'opacity-100');
+        }, 3200);
+      }
+
+      // Tab Switching
+      const tabButtons = document.querySelectorAll('.admin-tab');
+      const tabPanes = document.querySelectorAll('.admin-tab-pane');
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.target;
+          tabButtons.forEach(b => b.classList.remove('active'));
+          tabPanes.forEach(p => p.classList.add('hidden'));
+          btn.classList.add('active');
+          document.getElementById(target)?.classList.remove('hidden');
+        });
+      });
+
+      // Populate Profile Form
+      function populateProfile() {
+        const cfg = state.siteConfig || {};
+        const fields = ['name', 'displayName', 'brand', 'creativeIdentity', 'role', 'tagline', 'pitch', 'github', 'linkedin', 'email', 'whatsapp', 'location', 'inkwave', 'softwareBackground'];
+        fields.forEach(f => {
+          const el = document.getElementById('field-prof-' + f);
+          if (el) el.value = cfg[f] || '';
+        });
+      }
+
+      document.getElementById('btn-save-profile')?.addEventListener('click', () => {
+        const fields = ['name', 'displayName', 'brand', 'creativeIdentity', 'role', 'tagline', 'pitch', 'github', 'linkedin', 'email', 'whatsapp', 'location', 'inkwave', 'softwareBackground'];
+        state.siteConfig = state.siteConfig || {};
+        fields.forEach(f => {
+          const el = document.getElementById('field-prof-' + f);
+          if (el) state.siteConfig[f] = el.value.trim();
+        });
+        persistState('Site Profile saved successfully!');
+      });
+
+      // Update badge counts
+      function updateBadges() {
+        const setVal = (id, count) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = String(count);
+        };
+        setVal('badge-projects-count', (state.projects || []).length);
+        setVal('badge-blog-count', (state.blogPosts || []).length);
+        setVal('badge-exp-count', (state.masterCvData?.activeRoles?.length || 0) + (state.masterCvData?.concludedRoles?.length || 0));
+        setVal('badge-research-count', (state.research || []).length);
+        setVal('badge-talks-count', (state.talks || []).length);
+        setVal('badge-story-count', (state.storyChapters || []).length);
+        setVal('badge-archive-count', (state.archiveItems || []).length);
+        setVal('dash-metrics-count', (state.impactMetrics || []).length);
+      }
+
+      // RENDER: PROJECTS
+      function renderProjects(filterText = '') {
+        const container = document.getElementById('projects-list-container');
+        if (!container) return;
+        const list = state.projects || [];
+        const term = filterText.toLowerCase();
+        const filtered = list.filter(p => 
+          !term || 
+          p.title?.toLowerCase().includes(term) || 
+          p.summary?.toLowerCase().includes(term) || 
+          p.tags?.some(t => t.toLowerCase().includes(term)) ||
+          p.status?.toLowerCase().includes(term)
+        );
+
+        if (!filtered.length) {
+          container.innerHTML = '<div class="col-span-full py-8 text-center text-xs text-zinc-500">No matching projects found. Click "+ Add New Project" to create one.</div>';
+          return;
+        }
+
+        container.innerHTML = filtered.map(p => `
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 flex flex-col justify-between hover:border-zinc-700 transition-colors">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="rounded bg-zinc-800 px-2 py-0.5 text-[10px] font-mono font-semibold uppercase text-zinc-300">
+                  ${p.status}
+                </span>
+                <span class="text-xs font-mono text-zinc-500">${p.year}</span>
+              </div>
+              <h4 class="text-base font-bold text-white">${escapeHtml(p.title)}</h4>
+              <p class="mt-2 text-xs text-zinc-400 line-clamp-3 leading-relaxed">${escapeHtml(p.summary || '')}</p>
+              <div class="mt-3 flex flex-wrap gap-1">
+                ${(p.tags || []).slice(0, 4).map(t => `<span class="rounded bg-zinc-800/80 px-1.5 py-0.5 text-[10px] text-zinc-400">${escapeHtml(t)}</span>`).join('')}
+              </div>
+            </div>
+            <div class="mt-5 pt-3 border-t border-zinc-800/80 flex items-center justify-between">
+              <span class="text-[11px] font-mono text-zinc-500">${p.role || ''}</span>
+              <div class="flex items-center gap-2">
+                <button class="btn-edit-project text-xs font-semibold text-purple-400 hover:text-purple-300 px-2 py-1 rounded bg-purple-950/40 border border-purple-900/50" data-id="${p.id}">
+                  Edit
+                </button>
+                <button class="btn-del-project text-xs text-red-400 hover:text-red-300 px-1.5 py-1" data-id="${p.id}" title="Delete project">
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        container.querySelectorAll('.btn-edit-project').forEach(b => {
+          b.addEventListener('click', () => openProjectModal(b.dataset.id));
+        });
+        container.querySelectorAll('.btn-del-project').forEach(b => {
+          b.addEventListener('click', () => deleteProject(b.dataset.id));
+        });
+      }
+
+      document.getElementById('search-projects')?.addEventListener('input', e => {
+        renderProjects(e.target.value);
+      });
+
+      function openProjectModal(id = null) {
+        const isNew = !id;
+        const item = isNew ? {
+          id: 'project-' + Date.now(),
+          slug: '',
+          title: '',
+          summary: '',
+          role: 'Lead Architect',
+          tags: ['TypeScript', 'Node.js'],
+          status: 'live',
+          year: new Date().getFullYear(),
+          liveUrl: '',
+          repoUrl: 'https://github.com/CHIF3N',
+          featured: false,
+          metrics: [],
+          order: 100,
+          body: ''
+        } : (state.projects.find(p => p.id === id) || {});
+
+        const html = `
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label class="admin-label">Project Title</label>
+              <input type="text" id="m-proj-title" value="${escapeHtml(item.title || '')}" class="admin-input" required />
+            </div>
+            <div>
+              <label class="admin-label">Role / Mandate</label>
+              <input type="text" id="m-proj-role" value="${escapeHtml(item.role || '')}" class="admin-input" />
+            </div>
+            <div>
+              <label class="admin-label">Status</label>
+              <select id="m-proj-status" class="admin-input">
+                <option value="live" ${item.status === 'live' ? 'selected' : ''}>Live</option>
+                <option value="shipped" ${item.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                <option value="in-progress" ${item.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                <option value="concept" ${item.status === 'concept' ? 'selected' : ''}>Concept</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-label">Year</label>
+              <input type="number" id="m-proj-year" value="${item.year || 2026}" class="admin-input" />
+            </div>
+            <div>
+              <label class="admin-label">Order Priority (Lower = higher on page)</label>
+              <input type="number" id="m-proj-order" value="${item.order ?? 100}" class="admin-input" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="admin-label">Summary / Description</label>
+              <textarea id="m-proj-summary" rows="3" class="admin-input">${escapeHtml(item.summary || '')}</textarea>
+            </div>
+            <div>
+              <label class="admin-label">Live URL</label>
+              <input type="url" id="m-proj-live" value="${escapeHtml(item.liveUrl || '')}" class="admin-input text-xs font-mono" />
+            </div>
+            <div>
+              <label class="admin-label">GitHub Repo URL</label>
+              <input type="url" id="m-proj-repo" value="${escapeHtml(item.repoUrl || '')}" class="admin-input text-xs font-mono" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="admin-label">Tech Stack Tags (comma-separated)</label>
+              <input type="text" id="m-proj-tags" value="${escapeHtml((item.tags || []).join(', '))}" class="admin-input" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="admin-label">Proof Metrics (comma-separated bullets)</label>
+              <input type="text" id="m-proj-metrics" value="${escapeHtml((item.metrics || []).join(' | '))}" class="admin-input" placeholder="387 respondents | 92.4% response rate" />
+            </div>
+            <div class="sm:col-span-2 flex items-center gap-2 pt-2">
+              <input type="checkbox" id="m-proj-featured" ${item.featured ? 'checked' : ''} class="rounded bg-zinc-800 text-accent focus:ring-accent" />
+              <label for="m-proj-featured" class="text-xs text-zinc-300">Feature this project prominently on the homepage</label>
+            </div>
+          </div>
+        `;
+
+        openModal(isNew ? 'Create New Project' : 'Edit: ' + item.title, html, () => {
+          const title = document.getElementById('m-proj-title')?.value.trim();
+          if (!title) return alert('Title is required');
+          const updated = {
+            ...item,
+            title,
+            role: document.getElementById('m-proj-role')?.value.trim(),
+            status: document.getElementById('m-proj-status')?.value,
+            year: Number(document.getElementById('m-proj-year')?.value) || 2026,
+            order: Number(document.getElementById('m-proj-order')?.value) || 100,
+            summary: document.getElementById('m-proj-summary')?.value.trim(),
+            liveUrl: document.getElementById('m-proj-live')?.value.trim(),
+            repoUrl: document.getElementById('m-proj-repo')?.value.trim(),
+            tags: document.getElementById('m-proj-tags')?.value.split(',').map(s => s.trim()).filter(Boolean),
+            metrics: document.getElementById('m-proj-metrics')?.value.split('|').map(s => s.trim()).filter(Boolean),
+            featured: document.getElementById('m-proj-featured')?.checked
+          };
+
+          if (isNew) {
+            state.projects.unshift(updated);
+          } else {
+            const idx = state.projects.findIndex(p => p.id === id);
+            if (idx >= 0) state.projects[idx] = updated;
+          }
+
+          persistState('Project saved successfully!');
+          renderProjects();
+          closeModal();
+        }, !isNew ? () => deleteProject(id) : null);
+      }
+
+      function deleteProject(id) {
+        if (!confirm('Are you sure you want to delete this project?')) return;
+        state.projects = state.projects.filter(p => p.id !== id);
+        persistState('Project deleted.');
+        renderProjects();
+        closeModal();
+      }
+
+      document.getElementById('btn-add-project')?.addEventListener('click', () => openProjectModal(null));
+
+      // RENDER: BLOG POSTS
+      function renderBlog() {
+        const container = document.getElementById('blog-list-container');
+        if (!container) return;
+        const posts = state.blogPosts || [];
+
+        container.innerHTML = posts.map(p => `
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-zinc-700 transition-colors">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="rounded px-2 py-0.5 text-[10px] font-semibold ${p.draft ? 'bg-amber-950/70 text-amber-300 border border-amber-800' : 'bg-emerald-950/70 text-emerald-300 border border-emerald-800'}">
+                  ${p.draft ? 'DRAFT' : 'PUBLISHED'}
+                </span>
+                <span class="text-xs font-mono text-zinc-500">${p.pubDate || ''}</span>
+              </div>
+              <h4 class="text-sm font-bold text-white hover:text-accent transition-colors">${escapeHtml(p.title)}</h4>
+              <p class="text-xs text-zinc-400 line-clamp-1">${escapeHtml(p.description || '')}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button class="btn-edit-blog text-xs font-semibold text-purple-400 hover:text-purple-300 px-3 py-1.5 rounded-lg bg-purple-950/40 border border-purple-900/50" data-id="${p.id}">
+                Edit Post &amp; Markdown
+              </button>
+              <button class="btn-del-blog text-xs text-red-400 hover:text-red-300 p-1.5" data-id="${p.id}" title="Delete post">
+                ✕
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        container.querySelectorAll('.btn-edit-blog').forEach(b => {
+          b.addEventListener('click', () => openBlogModal(b.dataset.id));
+        });
+        container.querySelectorAll('.btn-del-blog').forEach(b => {
+          b.addEventListener('click', () => deleteBlogPost(b.dataset.id));
+        });
+      }
+
+      function openBlogModal(id = null) {
+        const isNew = !id;
+        const item = isNew ? {
+          id: 'post-' + Date.now() + '.md',
+          title: '',
+          description: '',
+          pubDate: new Date().toISOString().slice(0, 10),
+          tags: ['Health-Tech', 'Engineering'],
+          draft: false,
+          cover: '',
+          body: '# Article Title\n\nWrite your technical article here in Markdown...'
+        } : (state.blogPosts.find(p => p.id === id) || {});
+
+        const html = `
+          <div class="space-y-4">
+            <div>
+              <label class="admin-label">Article Title</label>
+              <input type="text" id="m-blog-title" value="${escapeHtml(item.title || '')}" class="admin-input" required />
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="admin-label">Publish Date (YYYY-MM-DD)</label>
+                <input type="date" id="m-blog-pubDate" value="${item.pubDate || ''}" class="admin-input text-xs font-mono" />
+              </div>
+              <div>
+                <label class="admin-label">Draft Status</label>
+                <select id="m-blog-draft" class="admin-input">
+                  <option value="false" ${!item.draft ? 'selected' : ''}>Published (Visible)</option>
+                  <option value="true" ${item.draft ? 'selected' : ''}>Draft (Hidden)</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="admin-label">Short Description / Subtitle</label>
+              <textarea id="m-blog-desc" rows="2" class="admin-input">${escapeHtml(item.description || '')}</textarea>
+            </div>
+            <div>
+              <label class="admin-label">Tags (comma-separated)</label>
+              <input type="text" id="m-blog-tags" value="${escapeHtml((item.tags || []).join(', '))}" class="admin-input" />
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="admin-label mb-0">Markdown Content</label>
+                <span class="text-[11px] text-zinc-500 font-mono" id="m-blog-wordcount">0 words</span>
+              </div>
+              <textarea id="m-blog-body" rows="12" class="admin-input font-mono text-xs leading-relaxed">${escapeHtml(item.body || '')}</textarea>
+            </div>
+          </div>
+        `;
+
+        openModal(isNew ? 'Write New Blog Post' : 'Edit: ' + item.title, html, () => {
+          const title = document.getElementById('m-blog-title')?.value.trim();
+          if (!title) return alert('Title is required');
+          const updated = {
+            ...item,
+            title,
+            pubDate: document.getElementById('m-blog-pubDate')?.value || new Date().toISOString().slice(0, 10),
+            draft: document.getElementById('m-blog-draft')?.value === 'true',
+            description: document.getElementById('m-blog-desc')?.value.trim(),
+            tags: document.getElementById('m-blog-tags')?.value.split(',').map(s => s.trim()).filter(Boolean),
+            body: document.getElementById('m-blog-body')?.value || ''
+          };
+
+          if (isNew) {
+            state.blogPosts.unshift(updated);
+          } else {
+            const idx = state.blogPosts.findIndex(p => p.id === id);
+            if (idx >= 0) state.blogPosts[idx] = updated;
+          }
+
+          persistState('Blog post saved!');
+          renderBlog();
+          closeModal();
+        }, !isNew ? () => deleteBlogPost(id) : null);
+      }
+
+      function deleteBlogPost(id) {
+        if (!confirm('Are you sure you want to delete this article?')) return;
+        state.blogPosts = state.blogPosts.filter(p => p.id !== id);
+        persistState('Post deleted.');
+        renderBlog();
+        closeModal();
+      }
+
+      document.getElementById('btn-add-blog')?.addEventListener('click', () => openBlogModal(null));
+
+      // RENDER: EXPERIENCE
+      function renderExperience() {
+        const container = document.getElementById('experience-list-container');
+        if (!container) return;
+        const active = state.masterCvData?.activeRoles || [];
+        const concluded = state.masterCvData?.concludedRoles || [];
+
+        container.innerHTML = `
+          <div class="space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Active Roles (Present)</h3>
+            ${active.map((r, i) => `
+              <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="rounded bg-purple-950 px-2 py-0.5 text-[10px] font-semibold text-purple-300 border border-purple-800">${r.trackLabel || r.track}</span>
+                    <span class="text-xs font-mono text-zinc-500">${r.period}</span>
+                  </div>
+                  <h4 class="text-sm font-bold text-white mt-1">${escapeHtml(r.role)} · <span class="text-zinc-300 font-normal">${escapeHtml(r.org)}</span></h4>
+                  <p class="text-xs text-zinc-400 line-clamp-1">${escapeHtml(r.focus || '')}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="btn-edit-role text-xs text-purple-400 px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700" data-type="active" data-index="${i}">Edit</button>
+                  <button class="btn-del-role text-xs text-red-400 p-1" data-type="active" data-index="${i}">✕</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="space-y-3 pt-6 border-t border-zinc-800">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400">Concluded & Volunteer Mandates</h3>
+            ${concluded.map((r, i) => `
+              <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="rounded px-2 py-0.5 text-[10px] font-semibold ${r.track === 'volunteer' ? 'bg-amber-950/70 text-amber-300 border border-amber-800' : 'bg-cyan-950/70 text-cyan-300 border border-cyan-800'}">
+                      ${r.trackLabel || r.track}
+                    </span>
+                    <span class="text-xs font-mono text-zinc-500">${r.period}</span>
+                  </div>
+                  <h4 class="text-sm font-bold text-white mt-1">${escapeHtml(r.role)} · <span class="text-zinc-300 font-normal">${escapeHtml(r.org)}</span></h4>
+                  <p class="text-xs text-zinc-400 line-clamp-1">${escapeHtml(r.impact || (r.value && r.value[0]) || '')}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="btn-edit-role text-xs text-purple-400 px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700" data-type="concluded" data-index="${i}">Edit</button>
+                  <button class="btn-del-role text-xs text-red-400 p-1" data-type="concluded" data-index="${i}">✕</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        container.querySelectorAll('.btn-edit-role').forEach(b => {
+          b.addEventListener('click', () => openRoleModal(b.dataset.type, Number(b.dataset.index)));
+        });
+        container.querySelectorAll('.btn-del-role').forEach(b => {
+          b.addEventListener('click', () => deleteRole(b.dataset.type, Number(b.dataset.index)));
+        });
+      }
+
+      function openRoleModal(type = 'active', index = -1) {
+        const isNew = index === -1;
+        const targetList = type === 'active' ? state.masterCvData.activeRoles : state.masterCvData.concludedRoles;
+        const item = isNew ? {
+          role: '',
+          org: '',
+          location: 'Buea, Cameroon',
+          period: '2026 – Present',
+          current: type === 'active',
+          track: type === 'active' ? 'software' : 'volunteer',
+          trackLabel: 'Volunteer / Pro-Bono (Amber)',
+          focus: '',
+          effort: [],
+          value: [],
+          skills: []
+        } : (targetList[index] || {});
+
+        const html = `
+          <div class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="admin-label">Role Title</label>
+                <input type="text" id="m-role-title" value="${escapeHtml(item.role || '')}" class="admin-input" required />
+              </div>
+              <div>
+                <label class="admin-label">Organization</label>
+                <input type="text" id="m-role-org" value="${escapeHtml(item.org || '')}" class="admin-input" required />
+              </div>
+              <div>
+                <label class="admin-label">Tenure / Period</label>
+                <input type="text" id="m-role-period" value="${escapeHtml(item.period || '')}" class="admin-input" />
+              </div>
+              <div>
+                <label class="admin-label">Track Category</label>
+                <select id="m-role-track" class="admin-input">
+                  <option value="software" ${item.track === 'software' ? 'selected' : ''}>Software Engineering (Purple)</option>
+                  <option value="clinical" ${item.track === 'clinical' ? 'selected' : ''}>Clinical Informatics (Cyan)</option>
+                  <option value="community" ${item.track === 'community' ? 'selected' : ''}>Community Leadership (Green)</option>
+                  <option value="volunteer" ${item.track === 'volunteer' ? 'selected' : ''}>Volunteer &amp; Civic Gigs (Amber)</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="admin-label">Context / Role Overview</label>
+              <textarea id="m-role-focus" rows="2" class="admin-input">${escapeHtml(item.focus || item.context || '')}</textarea>
+            </div>
+            <div>
+              <label class="admin-label">Effort Points (What was done - pipe separated |)</label>
+              <textarea id="m-role-effort" rows="2" class="admin-input">${escapeHtml((item.effort || []).join(' | '))}</textarea>
+            </div>
+            <div>
+              <label class="admin-label">Value Points (Verified outcomes / metrics - pipe separated |)</label>
+              <textarea id="m-role-value" rows="2" class="admin-input">${escapeHtml((item.value || []).join(' | '))}</textarea>
+            </div>
+            <div>
+              <label class="admin-label">Skills &amp; Technologies (comma-separated)</label>
+              <input type="text" id="m-role-skills" value="${escapeHtml((item.skills || []).join(', '))}" class="admin-input" />
+            </div>
+          </div>
+        `;
+
+        openModal(isNew ? 'Add Career or Volunteer Role' : 'Edit: ' + item.role, html, () => {
+          const role = document.getElementById('m-role-title')?.value.trim();
+          const org = document.getElementById('m-role-org')?.value.trim();
+          if (!role || !org) return alert('Role and Organization are required');
+          const track = document.getElementById('m-role-track')?.value;
+          const updated = {
+            ...item,
+            role,
+            org,
+            period: document.getElementById('m-role-period')?.value.trim(),
+            track,
+            trackLabel: track === 'volunteer' ? 'Volunteer / Community Initiative (Amber)' : (track === 'software' ? 'Software Engineering (Purple)' : (track === 'clinical' ? 'Clinical Informatics (Cyan)' : 'Community Leadership (Green)')),
+            focus: document.getElementById('m-role-focus')?.value.trim(),
+            effort: document.getElementById('m-role-effort')?.value.split('|').map(s => s.trim()).filter(Boolean),
+            value: document.getElementById('m-role-value')?.value.split('|').map(s => s.trim()).filter(Boolean),
+            skills: document.getElementById('m-role-skills')?.value.split(',').map(s => s.trim()).filter(Boolean),
+          };
+
+          if (isNew) {
+            targetList.push(updated);
+          } else {
+            targetList[index] = updated;
+          }
+
+          persistState('Role updated!');
+          renderExperience();
+          closeModal();
+        }, !isNew ? () => deleteRole(type, index) : null);
+      }
+
+      function deleteRole(type, index) {
+        if (!confirm('Are you sure you want to delete this role?')) return;
+        const targetList = type === 'active' ? state.masterCvData.activeRoles : state.masterCvData.concludedRoles;
+        targetList.splice(index, 1);
+        persistState('Role removed.');
+        renderExperience();
+        closeModal();
+      }
+
+      document.getElementById('btn-add-role')?.addEventListener('click', () => openRoleModal('concluded', -1));
+
+      // RENDER: EDUCATION & CREDENTIALS
+      function renderEducation() {
+        const degCont = document.getElementById('education-degrees-container');
+        const awdCont = document.getElementById('education-awards-container');
+        const certCont = document.getElementById('education-certs-container');
+
+        if (degCont) {
+          const list = state.masterCvData?.education || [];
+          degCont.innerHTML = list.map((e) => `
+            <div class="p-3 rounded-lg bg-zinc-900 border border-zinc-800 space-y-1">
+              <div class="flex items-center justify-between">
+                <strong class="text-sm font-bold text-white">${escapeHtml(e.degree)}</strong>
+                <span class="text-xs font-mono text-zinc-500">${e.period}</span>
+              </div>
+              <p class="text-xs text-zinc-400">${escapeHtml(e.institution)}</p>
+              <ul class="text-[11px] text-zinc-300 list-disc pl-4 space-y-0.5 pt-1">
+                ${(e.highlights || []).map(h => `<li>${escapeHtml(h)}</li>`).join('')}
+              </ul>
+            </div>
+          `).join('');
+        }
+
+        if (awdCont) {
+          const list = state.masterCvData?.awards || [];
+          awdCont.innerHTML = list.map((a, i) => `
+            <div class="flex items-center justify-between text-xs py-1.5 px-2.5 rounded bg-zinc-900/80 border border-zinc-800">
+              <span class="text-zinc-200">🏆 ${escapeHtml(a)}</span>
+              <button class="text-red-400 hover:text-red-300 text-xs" onclick="deleteAward(${i})">✕</button>
+            </div>
+          `).join('');
+        }
+
+        if (certCont) {
+          const list = state.masterCvData?.certifications || [];
+          certCont.innerHTML = list.map((c, i) => `
+            <div class="flex items-center justify-between text-xs py-1.5 px-2.5 rounded bg-zinc-900/80 border border-zinc-800">
+              <div>
+                <span class="text-zinc-200 font-medium block">📜 ${escapeHtml(c.name)}</span>
+                <span class="text-zinc-500 text-[10px]">${escapeHtml(c.issuer || '')}</span>
+              </div>
+              <button class="text-red-400 hover:text-red-300 text-xs ml-2" onclick="deleteCert(${i})">✕</button>
+            </div>
+          `).join('');
+        }
+      }
+
+      window.deleteAward = function(index) {
+        state.masterCvData.awards.splice(index, 1);
+        persistState('Award removed.');
+        renderEducation();
+      };
+
+      window.deleteCert = function(index) {
+        state.masterCvData.certifications.splice(index, 1);
+        persistState('Certification removed.');
+        renderEducation();
+      };
+
+      document.getElementById('btn-add-education')?.addEventListener('click', () => {
+        const choice = prompt('Enter "1" for Degree, "2" for Award, "3" for Certification:');
+        if (choice === '1') {
+          const deg = prompt('Degree Name (e.g. M.Tech in Data Science):');
+          const inst = prompt('Institution (e.g. COLTECH University of Bamenda):');
+          const per = prompt('Period (e.g. 2026 - Present):');
+          if (deg && inst) {
+            state.masterCvData.education.unshift({ degree: deg, institution: inst, period: per || '2026', highlights: [] });
+            persistState('Degree added.');
+            renderEducation();
+          }
+        } else if (choice === '2') {
+          const awd = prompt('Award Title:');
+          if (awd) {
+            state.masterCvData.awards.unshift(awd);
+            persistState('Award added.');
+            renderEducation();
+          }
+        } else if (choice === '3') {
+          const cert = prompt('Certification Name:');
+          const iss = prompt('Issuer:');
+          if (cert) {
+            state.masterCvData.certifications.unshift({ name: cert, issuer: iss || '' });
+            persistState('Certification added.');
+            renderEducation();
+          }
+        }
+      });
+
+      // RENDER: RESEARCH
+      function renderResearch() {
+        const container = document.getElementById('research-list-container');
+        if (!container) return;
+        const list = state.research || [];
+
+        container.innerHTML = list.map(r => `
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="rounded bg-cyan-950 px-2 py-0.5 text-[10px] font-semibold text-cyan-300 border border-cyan-800">${r.kind}</span>
+                <span class="text-xs font-mono text-zinc-500">${r.year} · ${escapeHtml(r.institution)}</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">${escapeHtml(r.title)}</h4>
+              <p class="text-xs text-zinc-400 line-clamp-2">${escapeHtml(r.summary)}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button class="btn-edit-research text-xs text-cyan-400 px-3 py-1.5 rounded-lg bg-cyan-950/40 border border-cyan-900/50" data-id="${r.id}">Edit</button>
+              <button class="btn-del-research text-xs text-red-400 p-1.5" data-id="${r.id}">✕</button>
+            </div>
+          </div>
+        `).join('');
+
+        container.querySelectorAll('.btn-edit-research').forEach(b => {
+          b.addEventListener('click', () => openResearchModal(b.dataset.id));
+        });
+        container.querySelectorAll('.btn-del-research').forEach(b => {
+          b.addEventListener('click', () => deleteResearch(b.dataset.id));
+        });
+      }
+
+      function openResearchModal(id = null) {
+        const isNew = !id;
+        const item = isNew ? {
+          id: 'research-' + Date.now() + '.md',
+          title: '',
+          summary: '',
+          institution: 'College of Technology (COLTECH), University of Bamenda',
+          year: 2026,
+          kind: 'Ongoing work',
+          status: 'in-progress',
+          tags: ['Data Science', 'AI', 'Healthcare'],
+          body: ''
+        } : (state.research.find(r => r.id === id) || {});
+
+        const html = `
+          <div class="space-y-4">
+            <div>
+              <label class="admin-label">Study / Dissertation Title</label>
+              <input type="text" id="m-res-title" value="${escapeHtml(item.title || '')}" class="admin-input" required />
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="admin-label">Institution</label>
+                <input type="text" id="m-res-inst" value="${escapeHtml(item.institution || '')}" class="admin-input" />
+              </div>
+              <div>
+                <label class="admin-label">Year</label>
+                <input type="number" id="m-res-year" value="${item.year || 2026}" class="admin-input" />
+              </div>
+              <div>
+                <label class="admin-label">Publication Kind</label>
+                <select id="m-res-kind" class="admin-input">
+                  <option value="Dissertation" ${item.kind === 'Dissertation' ? 'selected' : ''}>Dissertation</option>
+                  <option value="Published article" ${item.kind === 'Published article' ? 'selected' : ''}>Published article</option>
+                  <option value="Ongoing work" ${item.kind === 'Ongoing work' ? 'selected' : ''}>Ongoing work</option>
+                  <option value="Conference presentation" ${item.kind === 'Conference presentation' ? 'selected' : ''}>Conference presentation</option>
+                </select>
+              </div>
+              <div>
+                <label class="admin-label">Status</label>
+                <select id="m-res-status" class="admin-input">
+                  <option value="complete" ${item.status === 'complete' ? 'selected' : ''}>Complete</option>
+                  <option value="in-progress" ${item.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="admin-label">Abstract / Summary</label>
+              <textarea id="m-res-summary" rows="4" class="admin-input">${escapeHtml(item.summary || '')}</textarea>
+            </div>
+          </div>
+        `;
+
+        openModal(isNew ? 'Add Research Project' : 'Edit: ' + item.title, html, () => {
+          const title = document.getElementById('m-res-title')?.value.trim();
+          if (!title) return alert('Title required');
+          const updated = {
+            ...item,
+            title,
+            institution: document.getElementById('m-res-inst')?.value.trim(),
+            year: Number(document.getElementById('m-res-year')?.value) || 2026,
+            kind: document.getElementById('m-res-kind')?.value,
+            status: document.getElementById('m-res-status')?.value,
+            summary: document.getElementById('m-res-summary')?.value.trim(),
+          };
+          if (isNew) state.research.unshift(updated);
+          else {
+            const idx = state.research.findIndex(r => r.id === id);
+            if (idx >= 0) state.research[idx] = updated;
+          }
+          persistState('Research record saved!');
+          renderResearch();
+          closeModal();
+        }, !isNew ? () => deleteResearch(id) : null);
+      }
+
+      function deleteResearch(id) {
+        if (!confirm('Are you sure you want to delete this research study?')) return;
+        state.research = state.research.filter(r => r.id !== id);
+        persistState('Research deleted.');
+        renderResearch();
+        closeModal();
+      }
+
+      document.getElementById('btn-add-research')?.addEventListener('click', () => openResearchModal(null));
+
+      // RENDER: TALKS
+      function renderTalks() {
+        const container = document.getElementById('talks-list-container');
+        if (!container) return;
+        const list = state.talks || [];
+
+        container.innerHTML = list.map(t => `
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="rounded bg-accent/20 px-2 py-0.5 text-[10px] font-semibold text-accent border border-accent/30">${escapeHtml(t.event)}</span>
+                <span class="text-xs font-mono text-zinc-500">${t.date} · ${t.location}</span>
+              </div>
+              <h4 class="text-sm font-bold text-white mt-1">${escapeHtml(t.title)}</h4>
+              <p class="text-xs text-zinc-400 line-clamp-1">${escapeHtml(t.abstract || '')}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button class="btn-edit-talk text-xs text-purple-400 px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700" data-id="${t.id}">Edit</button>
+              <button class="btn-del-talk text-xs text-red-400 p-1" data-id="${t.id}">✕</button>
+            </div>
+          </div>
+        `).join('');
+
+        container.querySelectorAll('.btn-edit-talk').forEach(b => {
+          b.addEventListener('click', () => openTalkModal(b.dataset.id));
+        });
+        container.querySelectorAll('.btn-del-talk').forEach(b => {
+          b.addEventListener('click', () => deleteTalk(b.dataset.id));
+        });
+      }
+
+      function openTalkModal(id = null) {
+        const isNew = !id;
+        const item = isNew ? {
+          id: 'talk-' + Date.now(),
+          title: '',
+          event: '',
+          location: 'Yaoundé, Cameroon',
+          date: '2026',
+          abstract: '',
+          embedUrl: '',
+          deckUrl: '',
+          videoUrl: '',
+          tags: []
+        } : (state.talks.find(t => t.id === id) || {});
+
+        const html = `
+          <div class="space-y-4">
+            <div>
+              <label class="admin-label">Talk / Keynote Title</label>
+              <input type="text" id="m-talk-title" value="${escapeHtml(item.title || '')}" class="admin-input" required />
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="admin-label">Conference / Event</label>
+                <input type="text" id="m-talk-event" value="${escapeHtml(item.event || '')}" class="admin-input" />
+              </div>
+              <div>
+                <label class="admin-label">Date</label>
+                <input type="text" id="m-talk-date" value="${escapeHtml(item.date || '')}" class="admin-input" />
+              </div>
+              <div>
+                <label class="admin-label">Location</label>
+                <input type="text" id="m-talk-location" value="${escapeHtml(item.location || '')}" class="admin-input" />
+              </div>
+              <div>
+                <label class="admin-label">Slides / Deck URL</label>
+                <input type="url" id="m-talk-deck" value="${escapeHtml(item.deckUrl || '')}" class="admin-input text-xs font-mono" />
+              </div>
+            </div>
+            <div>
+              <label class="admin-label">Abstract / System Description</label>
+              <textarea id="m-talk-abstract" rows="3" class="admin-input">${escapeHtml(item.abstract || '')}</textarea>
+            </div>
+          </div>
+        `;
+
+        openModal(isNew ? 'Add Speaking Event' : 'Edit Talk', html, () => {
+          const title = document.getElementById('m-talk-title')?.value.trim();
+          if (!title) return alert('Title required');
+          const updated = {
+            ...item,
+            title,
+            event: document.getElementById('m-talk-event')?.value.trim(),
+            date: document.getElementById('m-talk-date')?.value.trim(),
+            location: document.getElementById('m-talk-location')?.value.trim(),
+            deckUrl: document.getElementById('m-talk-deck')?.value.trim(),
+            abstract: document.getElementById('m-talk-abstract')?.value.trim()
+          };
+          if (isNew) state.talks.unshift(updated);
+          else {
+            const idx = state.talks.findIndex(t => t.id === id);
+            if (idx >= 0) state.talks[idx] = updated;
+          }
+          persistState('Talk updated!');
+          renderTalks();
+          closeModal();
+        }, !isNew ? () => deleteTalk(id) : null);
+      }
+
+      function deleteTalk(id) {
+        if (!confirm('Are you sure you want to delete this talk?')) return;
+        state.talks = state.talks.filter(t => t.id !== id);
+        persistState('Talk deleted.');
+        renderTalks();
+        closeModal();
+      }
+
+      document.getElementById('btn-add-talk')?.addEventListener('click', () => openTalkModal(null));
+
+      // RENDER: STORY TIMELINE
+      function renderStory() {
+        const container = document.getElementById('story-list-container');
+        if (!container) return;
+        const list = state.storyChapters || [];
+
+        container.innerHTML = list.map((c, i) => `
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 flex items-start justify-between gap-3">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono font-bold text-accent">Chapter ${c.number || (i + 1)}</span>
+                <span class="text-xs text-zinc-500">· ${c.year}</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">${escapeHtml(c.title)}</h4>
+              <p class="text-xs text-zinc-400 line-clamp-1">${escapeHtml(c.headline || '')}</p>
+            </div>
+            <button class="btn-edit-chapter text-xs text-purple-400 px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700 shrink-0" data-index="${i}">Edit</button>
+          </div>
+        `).join('');
+
+        container.querySelectorAll('.btn-edit-chapter').forEach(b => {
+          b.addEventListener('click', () => openChapterModal(Number(b.dataset.index)));
+        });
+      }
+
+      function openChapterModal(index) {
+        const isNew = index === -1;
+        const item = isNew ? {
+          id: 'chapter-' + Date.now(),
+          number: String((state.storyChapters.length || 0) + 1),
+          year: '2026',
+          title: '',
+          headline: '',
+          era: 'active',
+          paragraphs: [],
+          pullQuote: ''
+        } : state.storyChapters[index];
+
+        const html = `
+          <div class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="admin-label">Chapter Number</label>
+                <input type="text" id="m-chap-num" value="${escapeHtml(item.number || '')}" class="admin-input" />
+              </div>
+              <div>
+                <label class="admin-label">Year / Period</label>
+                <input type="text" id="m-chap-year" value="${escapeHtml(item.year || '')}" class="admin-input" />
+              </div>
+            </div>
+            <div>
+              <label class="admin-label">Chapter Title</label>
+              <input type="text" id="m-chap-title" value="${escapeHtml(item.title || '')}" class="admin-input" required />
+            </div>
+            <div>
+              <label class="admin-label">Headline / Narrative Hook</label>
+              <input type="text" id="m-chap-headline" value="${escapeHtml(item.headline || '')}" class="admin-input" />
+            </div>
+            <div>
+              <label class="admin-label">Pull Quote</label>
+              <input type="text" id="m-chap-quote" value="${escapeHtml(item.pullQuote || '')}" class="admin-input" />
+            </div>
+            <div>
+              <label class="admin-label">Paragraphs (Separate paragraphs with double newlines)</label>
+              <textarea id="m-chap-paras" rows="6" class="admin-input leading-relaxed">${escapeHtml((item.paragraphs || []).join('\n\n'))}</textarea>
+            </div>
+          </div>
+        `;
+
+        openModal(isNew ? 'Add Timeline Chapter' : 'Edit Chapter ' + item.number, html, () => {
+          const title = document.getElementById('m-chap-title')?.value.trim();
+          if (!title) return alert('Title required');
+          const updated = {
+            ...item,
+            number: document.getElementById('m-chap-num')?.value.trim(),
+            year: document.getElementById('m-chap-year')?.value.trim(),
+            title,
+            headline: document.getElementById('m-chap-headline')?.value.trim(),
+            pullQuote: document.getElementById('m-chap-quote')?.value.trim(),
+            paragraphs: document.getElementById('m-chap-paras')?.value.split('\n\n').map(s => s.trim()).filter(Boolean)
+          };
+          if (isNew) state.storyChapters.push(updated);
+          else state.storyChapters[index] = updated;
+
+          persistState('Chapter saved!');
+          renderStory();
+          closeModal();
+        });
+      }
+
+      document.getElementById('btn-add-chapter')?.addEventListener('click', () => openChapterModal(-1));
+
+      // RENDER: ARCHIVE ARTIFACTS & MULTI-PHOTO GALLERIES
+      let archiveFilterTerm = '';
+      let archiveFilterCategory = 'all';
+
+      const searchArchiveInput = document.getElementById('search-archive');
+      const filterArchiveSelect = document.getElementById('filter-archive-category');
+      const btnManageCats = document.getElementById('btn-manage-categories');
+
+      searchArchiveInput?.addEventListener('input', (e) => {
+        archiveFilterTerm = (e.target && 'value' in e.target) ? String(e.target.value) : '';
+        renderArchive();
+      });
+
+      filterArchiveSelect?.addEventListener('change', (e) => {
+        archiveFilterCategory = (e.target && 'value' in e.target) ? String(e.target.value) : 'all';
+        renderArchive();
+      });
+
+      btnManageCats?.addEventListener('click', () => openCategoryModal());
+
+      function sanitizeMediaSrc(src) {
+        if (!src) return '';
+        return src.startsWith('/src') ? src.replace('/src', '') : src;
+      }
+
+      function renderArchive() {
+        const container = document.getElementById('archive-list-container');
+        if (!container) return;
+        const list = state.archiveItems || [];
+
+        // Update categories dropdown if not yet matching
+        if (filterArchiveSelect) {
+          const currentVal = archiveFilterCategory;
+          const optionsHtml = `<option value="all">All Categories (${list.length})</option>` +
+            (state.archiveCategories || []).filter(c => c.id !== 'all').map(c => {
+              const count = list.filter(item => item.category === c.id).length;
+              return `<option value="${c.id}" ${c.id === currentVal ? 'selected' : ''}>${escapeHtml(c.label)} (${count})</option>`;
+            }).join('');
+          if (filterArchiveSelect.innerHTML !== optionsHtml) {
+            filterArchiveSelect.innerHTML = optionsHtml;
+          }
+        }
+
+        const term = archiveFilterTerm.toLowerCase().trim();
+        const filtered = list.filter(a => {
+          const matchCat = archiveFilterCategory === 'all' || a.category === archiveFilterCategory;
+          const matchTerm = !term ||
+            a.title?.toLowerCase().includes(term) ||
+            a.caption?.toLowerCase().includes(term) ||
+            a.location?.toLowerCase().includes(term) ||
+            (a.tags && a.tags.some(t => t.toLowerCase().includes(term)));
+          return matchCat && matchTerm;
+        });
+
+        if (!filtered.length) {
+          container.innerHTML = `
+            <div class="col-span-full py-12 text-center text-zinc-500 text-xs">
+              <p class="font-medium text-zinc-400">No artifacts found</p>
+              <p class="mt-1">Try clearing filters or click "+ Add Photo / GIF Artifact" above.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = filtered.map((a) => {
+          const realIndex = list.indexOf(a);
+          const allImages = a.images && a.images.length > 0 ? a.images : (a.imageSrc ? [a.imageSrc] : []);
+          const primaryImg = a.imageSrc || allImages[0] || '';
+          const isGif = primaryImg.toLowerCase().endsWith('.gif') || allImages.some(u => u?.toLowerCase().endsWith('.gif'));
+          const cleanThumb = sanitizeMediaSrc(primaryImg);
+
+          return `
+            <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-3 flex flex-col justify-between hover:border-zinc-700 transition-colors">
+              <div>
+                <div class="relative w-full aspect-[16/10] overflow-hidden rounded-lg bg-zinc-950 mb-2 border border-zinc-800/80">
+                  ${primaryImg.endsWith('.mp4') ? `
+                    <video src="${cleanThumb}" class="h-full w-full object-cover"></video>
+                  ` : primaryImg ? `
+                    <img src="${cleanThumb}" class="h-full w-full object-cover" loading="lazy" />
+                  ` : `
+                    <div class="flex items-center justify-center h-full text-zinc-600 text-xs font-mono">No Image/GIF</div>
+                  `}
+                  <div class="absolute top-2 left-2 flex items-center gap-1 z-10">
+                    ${isGif ? '<span class="rounded bg-purple-600 px-1.5 py-0.5 text-[9px] font-mono font-bold text-white shadow-xs">GIF</span>' : ''}
+                    <span class="rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-mono text-zinc-200 backdrop-blur-sm border border-white/10">📷 ${allImages.length}</span>
+                  </div>
+                  <span class="absolute top-2 right-2 rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-mono text-zinc-300 backdrop-blur-sm z-10">${escapeHtml(a.year || '')}</span>
+                </div>
+
+                <div class="flex items-center justify-between text-xs mb-1">
+                  <span class="rounded bg-amber-950/70 text-amber-300 border border-amber-800/80 px-1.5 py-0.5 text-[10px] font-mono">${escapeHtml(a.categoryLabel || a.category)}</span>
+                  ${a.location ? `<span class="text-zinc-500 text-[10px] truncate max-w-[120px]">📍 ${escapeHtml(a.location)}</span>` : ''}
+                </div>
+
+                <h4 class="text-xs font-bold text-white line-clamp-1">${escapeHtml(a.title)}</h4>
+                <p class="text-[11px] text-zinc-400 line-clamp-2 mt-1 leading-relaxed">${escapeHtml(a.caption || '')}</p>
+              </div>
+
+              <div class="flex items-center justify-between pt-2 border-t border-zinc-800/60">
+                <button class="btn-del-artifact text-xs text-red-400 hover:text-red-300 hover:underline" data-index="${realIndex}">Delete</button>
+                <div class="flex items-center gap-2">
+                  <button class="btn-clone-artifact text-xs text-zinc-400 hover:text-white" data-index="${realIndex}">Duplicate</button>
+                  <button class="btn-edit-artifact text-xs text-purple-400 hover:text-purple-300 hover:underline font-semibold" data-index="${realIndex}">Edit (${allImages.length} photos)</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        container.querySelectorAll('.btn-edit-artifact').forEach(b => {
+          b.addEventListener('click', () => openArtifactModal(Number(b.dataset.index)));
+        });
+
+        container.querySelectorAll('.btn-clone-artifact').forEach(b => {
+          b.addEventListener('click', () => {
+            const idx = Number(b.dataset.index);
+            const source = state.archiveItems[idx];
+            if (!source) return;
+            const cloned = JSON.parse(JSON.stringify(source));
+            cloned.id = 'artifact-' + Date.now();
+            cloned.title = cloned.title + ' (Copy)';
+            state.archiveItems.splice(idx + 1, 0, cloned);
+            persistState('Artifact duplicated!');
+            renderArchive();
+          });
+        });
+
+        container.querySelectorAll('.btn-del-artifact').forEach(b => {
+          b.addEventListener('click', () => {
+            const idx = Number(b.dataset.index);
+            const target = state.archiveItems[idx];
+            if (!target) return;
+            if (confirm(`Delete artifact "${target.title}"?`)) {
+              state.archiveItems.splice(idx, 1);
+              persistState('Artifact deleted!');
+              renderArchive();
+            }
+          });
+        });
+      }
+
+      function openArtifactModal(index) {
+        const isNew = index === -1;
+        const item = isNew ? {
+          id: 'artifact-' + Date.now(),
+          title: '',
+          category: (state.archiveCategories && state.archiveCategories[1]?.id) || 'current-work',
+          categoryLabel: (state.archiveCategories && state.archiveCategories[1]?.label) || 'Current Work',
+          year: new Date().getFullYear().toString(),
+          location: 'Buea, Cameroon',
+          caption: '',
+          altText: '',
+          imageSrc: '',
+          images: [],
+          isAvailable: true,
+          tags: []
+        } : state.archiveItems[index];
+
+        // Clone current images array for this modal
+        let modalImages = Array.isArray(item.images) && item.images.length > 0 
+          ? [...item.images] 
+          : (item.imageSrc ? [item.imageSrc] : []);
+
+        const html = `
+          <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
+            <div>
+              <label class="admin-label">Artifact Title</label>
+              <input type="text" id="m-art-title" value="${escapeHtml(item.title || '')}" class="admin-input" placeholder="e.g. LifeDrop Blood Transfusion Logs" required />
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="admin-label mb-0">Archive Category / Album</label>
+                  <button type="button" id="m-art-btn-new-cat" class="text-[10px] text-purple-400 hover:underline">+ New Album</button>
+                </div>
+                <select id="m-art-cat" class="admin-input">
+                  ${(state.archiveCategories || []).filter(c => c.id !== 'all').map(c => `
+                    <option value="${c.id}" ${item.category === c.id ? 'selected' : ''}>${escapeHtml(c.label)}</option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <div>
+                <label class="admin-label">Year / Date</label>
+                <input type="text" id="m-art-year" value="${escapeHtml(item.year || '')}" class="admin-input" placeholder="e.g. 2026 or 2022–2024" />
+              </div>
+            </div>
+
+            <div>
+              <label class="admin-label">Geographic Location</label>
+              <input type="text" id="m-art-location" value="${escapeHtml(item.location || '')}" class="admin-input" placeholder="e.g. Buea Regional Hospital, Cameroon" />
+            </div>
+
+            <!-- PRIMARY MEDIA (Photo or Animated GIF) -->
+            <div class="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Primary Photo or Animated GIF</span>
+                <span class="text-[10px] font-mono text-zinc-400">Supports .gif, .jpg, .png, .webp, .mp4</span>
+              </div>
+
+              <div class="flex gap-2">
+                <input type="text" id="m-art-img" value="${escapeHtml(item.imageSrc || '')}" class="admin-input text-xs font-mono" placeholder="Paste URL (https://...) or path (/assets/...)" />
+                <label class="btn btn-sm border border-zinc-700 bg-zinc-800 text-zinc-300 hover:text-white shrink-0 cursor-pointer">
+                  📁 Pick File/GIF
+                  <input type="file" id="m-art-file-picker" accept="image/*,.gif,video/mp4" class="hidden" />
+                </label>
+              </div>
+
+              <!-- Live Preview Box -->
+              <div id="m-art-primary-preview" class="relative w-full aspect-[16/9] rounded-lg bg-zinc-950 border border-zinc-800 overflow-hidden flex items-center justify-center">
+                <span class="text-zinc-600 text-xs">Preview will appear here</span>
+              </div>
+            </div>
+
+            <!-- MULTI-PHOTO & GIF GALLERY MANAGER -->
+            <div class="rounded-xl border border-purple-500/20 bg-purple-950/10 p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-white">Additional Photos &amp; GIFs for this Archive</h4>
+                  <p class="text-[11px] text-zinc-400">Add multiple photos or animated GIFs to make this a rich evidence gallery.</p>
+                </div>
+                <span id="m-gallery-count-badge" class="rounded bg-purple-500/20 border border-purple-500/30 px-2 py-0.5 text-[10px] font-mono font-semibold text-purple-300">
+                  ${modalImages.length} attached
+                </span>
+              </div>
+
+              <!-- Multi-file upload button and Single URL Adder -->
+              <div class="flex flex-wrap gap-2">
+                <input type="text" id="m-gallery-url-input" placeholder="Paste extra Photo/GIF URL..." class="admin-input text-xs font-mono flex-1 min-w-[200px]" />
+                <button type="button" id="m-gallery-btn-add-url" class="btn btn-sm btn-accent shrink-0">
+                  + Add URL
+                </button>
+                <label class="btn btn-sm border border-zinc-700 bg-zinc-800 text-zinc-300 hover:text-white shrink-0 cursor-pointer">
+                  📁 Upload Multiple Photos/GIFs
+                  <input type="file" id="m-gallery-multi-picker" accept="image/*,.gif,video/mp4" multiple class="hidden" />
+                </label>
+              </div>
+
+              <!-- Bulk Paste Accordion -->
+              <details class="text-xs text-zinc-400">
+                <summary class="cursor-pointer hover:text-zinc-200 select-none py-1">Bulk Paste URLs (one per line) ▾</summary>
+                <div class="mt-2 space-y-2">
+                  <textarea id="m-gallery-bulk-textarea" rows="3" class="admin-input text-xs font-mono" placeholder="https://.../photo1.jpg&#10;https://.../demo.gif&#10;https://.../photo2.png"></textarea>
+                  <button type="button" id="m-gallery-btn-bulk-add" class="btn btn-sm border border-zinc-700 bg-zinc-800 text-zinc-200">Append All URLs</button>
+                </div>
+              </details>
+
+              <!-- Gallery Items Strip / Grid -->
+              <div id="m-gallery-items-container" class="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-2">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+
+            <div>
+              <label class="admin-label">Caption / Documentary Context</label>
+              <textarea id="m-art-caption" rows="3" class="admin-input" placeholder="Describe the technical, clinical, or field context...">${escapeHtml(item.caption || '')}</textarea>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label class="admin-label">Tags (comma-separated)</label>
+                <input type="text" id="m-art-tags" value="${escapeHtml((item.tags || []).join(', '))}" class="admin-input text-xs" placeholder="e.g. LifeDrop, Clinical, Prototype" />
+              </div>
+              <div>
+                <label class="admin-label">Verification Note (optional proof)</label>
+                <input type="text" id="m-art-verified" value="${escapeHtml(item.verifiedNote || '')}" class="admin-input text-xs" placeholder="e.g. Buea Regional Hospital IRB approval" />
+              </div>
+            </div>
+          </div>
+        `;
+
+        openModal(isNew ? 'Add Photo / GIF Artifact' : 'Edit Archive Artifact & Gallery', html, () => {
+          const title = document.getElementById('m-art-title')?.value.trim();
+          if (!title) return alert('Artifact Title is required.');
+          const cat = document.getElementById('m-art-cat')?.value;
+          const catObj = (state.archiveCategories || []).find(c => c.id === cat);
+          const primaryImg = document.getElementById('m-art-img')?.value.trim() || (modalImages[0] || '');
+
+          // Ensure primaryImg is in modalImages
+          if (primaryImg && !modalImages.includes(primaryImg)) {
+            modalImages.unshift(primaryImg);
+          }
+
+          const rawTags = document.getElementById('m-art-tags')?.value || '';
+          const tags = rawTags.split(',').map(t => t.trim()).filter(Boolean);
+
+          const updated = {
+            ...item,
+            title,
+            category: cat,
+            categoryLabel: catObj ? catObj.label : cat,
+            year: document.getElementById('m-art-year')?.value.trim(),
+            location: document.getElementById('m-art-location')?.value.trim(),
+            caption: document.getElementById('m-art-caption')?.value.trim(),
+            imageSrc: primaryImg,
+            images: modalImages,
+            altText: title,
+            tags,
+            verifiedNote: document.getElementById('m-art-verified')?.value.trim()
+          };
+
+          if (isNew) state.archiveItems.push(updated);
+          else state.archiveItems[index] = updated;
+
+          persistState('Archive artifact and photos saved!');
+          renderArchive();
+          closeModal();
+        });
+
+        // Wire up modal interactivity
+        const primaryInput = document.getElementById('m-art-img');
+        const primaryPreview = document.getElementById('m-art-primary-preview');
+        const primaryPicker = document.getElementById('m-art-file-picker');
+        const galleryContainer = document.getElementById('m-gallery-items-container');
+        const galleryCountBadge = document.getElementById('m-gallery-count-badge');
+        const galleryUrlInput = document.getElementById('m-gallery-url-input');
+        const galleryAddUrlBtn = document.getElementById('m-gallery-btn-add-url');
+        const galleryMultiPicker = document.getElementById('m-gallery-multi-picker');
+        const galleryBulkTextarea = document.getElementById('m-gallery-bulk-textarea');
+        const galleryBulkBtn = document.getElementById('m-gallery-btn-bulk-add');
+        const btnNewCat = document.getElementById('m-art-btn-new-cat');
+
+        function updatePrimaryPreview() {
+          if (!primaryPreview) return;
+          const src = primaryInput?.value?.trim() || '';
+          if (!src) {
+            primaryPreview.innerHTML = '<span class="text-zinc-600 text-xs">No media specified</span>';
+            return;
+          }
+          const clean = sanitizeMediaSrc(src);
+          const isGif = src.toLowerCase().endsWith('.gif');
+          if (src.endsWith('.mp4')) {
+            primaryPreview.innerHTML = `
+              <video src="${clean}" autoplay loop muted playsinline class="h-full w-full object-contain"></video>
+            `;
+          } else {
+            primaryPreview.innerHTML = `
+              <img src="${clean}" class="h-full w-full object-contain" />
+              ${isGif ? '<span class="absolute top-2 left-2 bg-purple-600 text-white font-mono font-bold text-[9px] px-1.5 py-0.5 rounded shadow-xs">ANIMATED GIF</span>' : ''}
+            `;
+          }
+        }
+
+        primaryInput?.addEventListener('input', updatePrimaryPreview);
+        updatePrimaryPreview();
+
+        primaryPicker?.addEventListener('change', (e) => {
+          const target = e.target;
+          const file = (target && 'files' in target && target.files) ? target.files[0] : null;
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const dataUrl = (ev.target && 'result' in ev.target) ? String(ev.target.result) : '';
+            if (primaryInput && 'value' in primaryInput) primaryInput.value = dataUrl;
+            if (!modalImages.includes(dataUrl)) modalImages.unshift(dataUrl);
+            updatePrimaryPreview();
+            renderModalGallery();
+          };
+          reader.readAsDataURL(file);
+        });
+
+        function renderModalGallery() {
+          if (!galleryContainer) return;
+          if (galleryCountBadge) galleryCountBadge.textContent = `${modalImages.length} attached`;
+
+          if (!modalImages.length) {
+            galleryContainer.innerHTML = '<p class="col-span-full text-zinc-500 text-[11px] italic">No extra photos/GIFs attached yet.</p>';
+            return;
+          }
+
+          galleryContainer.innerHTML = modalImages.map((src, idx) => {
+            const clean = sanitizeMediaSrc(src);
+            const isGif = src.toLowerCase().endsWith('.gif');
+            const isPrimary = (primaryInput && 'value' in primaryInput ? String(primaryInput.value).trim() : '') === src;
+
+            return `
+              <div class="relative group aspect-square rounded-lg border ${isPrimary ? 'border-purple-500 ring-1 ring-purple-500' : 'border-zinc-800'} bg-zinc-950 overflow-hidden">
+                ${src.endsWith('.mp4') ? `
+                  <video src="${clean}" class="h-full w-full object-cover"></video>
+                ` : `
+                  <img src="${clean}" class="h-full w-full object-cover" />
+                `}
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                  <button type="button" class="btn-set-primary text-[10px] bg-purple-600 text-white px-1.5 py-0.5 rounded hover:bg-purple-500" data-idx="${idx}" title="Set as primary photo">★</button>
+                  <button type="button" class="btn-del-thumb text-[10px] bg-red-600 text-white px-1.5 py-0.5 rounded hover:bg-red-500" data-idx="${idx}" title="Remove photo">✕</button>
+                </div>
+                ${isGif ? '<span class="absolute bottom-1 left-1 bg-purple-600 text-white text-[8px] font-mono font-bold px-1 rounded">GIF</span>' : ''}
+                ${isPrimary ? '<span class="absolute top-1 left-1 bg-accent text-zinc-950 text-[8px] font-bold px-1 rounded">Primary</span>' : ''}
+              </div>
+            `;
+          }).join('');
+
+          galleryContainer.querySelectorAll('.btn-set-primary').forEach(b => {
+            b.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const idx = Number(b.getAttribute('data-idx'));
+              const selected = modalImages[idx];
+              if (selected && primaryInput && 'value' in primaryInput) {
+                primaryInput.value = selected;
+                updatePrimaryPreview();
+                renderModalGallery();
+              }
+            });
+          });
+
+          galleryContainer.querySelectorAll('.btn-del-thumb').forEach(b => {
+            b.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const idx = Number(b.getAttribute('data-idx'));
+              modalImages.splice(idx, 1);
+              renderModalGallery();
+            });
+          });
+        }
+
+        renderModalGallery();
+
+        galleryAddUrlBtn?.addEventListener('click', () => {
+          const url = (galleryUrlInput && 'value' in galleryUrlInput) ? String(galleryUrlInput.value).trim() : '';
+          if (!url) return;
+          modalImages.push(url);
+          if (galleryUrlInput && 'value' in galleryUrlInput) galleryUrlInput.value = '';
+          renderModalGallery();
+        });
+
+        galleryMultiPicker?.addEventListener('change', (e) => {
+          const target = e.target;
+          const files = (target && 'files' in target && target.files) ? target.files : null;
+          if (!files || !files.length) return;
+          Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              const res = (ev.target && 'result' in ev.target) ? String(ev.target.result) : '';
+              if (res && !modalImages.includes(res)) {
+                modalImages.push(res);
+                renderModalGallery();
+              }
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+
+        galleryBulkBtn?.addEventListener('click', () => {
+          const text = (galleryBulkTextarea && 'value' in galleryBulkTextarea) ? String(galleryBulkTextarea.value) : '';
+          const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+          if (!lines.length) return;
+          lines.forEach(u => {
+            if (!modalImages.includes(u)) modalImages.push(u);
+          });
+          if (galleryBulkTextarea && 'value' in galleryBulkTextarea) galleryBulkTextarea.value = '';
+          renderModalGallery();
+        });
+
+        btnNewCat?.addEventListener('click', () => {
+          const newName = prompt('Enter New Archive Album / Category Name:');
+          if (!newName || !newName.trim()) return;
+          const cleanName = newName.trim();
+          const newId = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          
+          if (!state.archiveCategories) state.archiveCategories = [];
+          if (!state.archiveCategories.some(c => c.id === newId)) {
+            state.archiveCategories.push({ id: newId, label: cleanName });
+            persistState(`Added new category "${cleanName}"!`);
+          }
+
+          const catSelect = document.getElementById('m-art-cat');
+          if (catSelect && 'innerHTML' in catSelect && 'value' in catSelect) {
+            catSelect.innerHTML = (state.archiveCategories || []).filter(c => c.id !== 'all').map(c => `
+              <option value="${c.id}" ${c.id === newId ? 'selected' : ''}>${escapeHtml(c.label)}</option>
+            `).join('');
+            catSelect.value = newId;
+          }
+        });
+      }
+
+      function openCategoryModal() {
+        const cats = state.archiveCategories || [];
+        const items = state.archiveItems || [];
+
+        const html = `
+          <div class="space-y-4">
+            <p class="text-xs text-zinc-300 leading-relaxed">
+              Create new photographic archive categories or manage existing folders. Every category appears in the public Evidence filter bar.
+            </p>
+
+            <div class="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-accent">+ Create New Archive Album / Category</h4>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label class="admin-label">Category Title / Label</label>
+                  <input type="text" id="m-newcat-label" class="admin-input text-xs" placeholder="e.g. Field Deployments 2026" />
+                </div>
+                <div>
+                  <label class="admin-label">Category Slug / ID</label>
+                  <input type="text" id="m-newcat-id" class="admin-input text-xs font-mono" placeholder="e.g. field-deployments-2026" />
+                </div>
+              </div>
+              <button type="button" id="m-newcat-btn-add" class="btn btn-sm btn-accent">
+                Add Category
+              </button>
+            </div>
+
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Existing Archive Albums</h4>
+              <div class="max-h-60 overflow-y-auto space-y-1.5" id="m-cat-list-container">
+                ${cats.map(c => {
+                  const count = items.filter(i => i.category === c.id).length;
+                  const isProtected = c.id === 'all';
+                  return `
+                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs">
+                      <div class="flex items-center gap-2">
+                        <span class="font-semibold text-white">${escapeHtml(c.label)}</span>
+                        <span class="font-mono text-[10px] text-zinc-500">(${c.id})</span>
+                        <span class="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] font-mono text-zinc-400">${count} items</span>
+                      </div>
+                      ${!isProtected ? `
+                        <button type="button" class="btn-del-cat text-red-400 hover:text-red-300 text-xs hover:underline" data-id="${c.id}">
+                          Delete
+                        </button>
+                      ` : '<span class="text-[10px] text-zinc-600">Default</span>'}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+
+        openModal('Manage Archive Categories & Albums', html, () => {
+          closeModal();
+        });
+
+        const labelInput = document.getElementById('m-newcat-label');
+        const idInput = document.getElementById('m-newcat-id');
+        const addBtn = document.getElementById('m-newcat-btn-add');
+
+        labelInput?.addEventListener('input', () => {
+          if (idInput && 'value' in idInput && 'dataset' in idInput && !idInput.dataset.touched && 'value' in labelInput) {
+            idInput.value = String(labelInput.value || '')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '');
+          }
+        });
+
+        idInput?.addEventListener('input', () => {
+          if (idInput && 'dataset' in idInput) idInput.dataset.touched = 'true';
+        });
+
+        addBtn?.addEventListener('click', () => {
+          const label = (labelInput && 'value' in labelInput) ? String(labelInput.value).trim() : '';
+          const id = (idInput && 'value' in idInput) ? String(idInput.value).trim() : '';
+          if (!label || !id) return alert('Category Title and Slug are required.');
+
+          if (!state.archiveCategories) state.archiveCategories = [];
+          if (state.archiveCategories.some(c => c.id === id)) {
+            return alert(`Category ID "${id}" already exists.`);
+          }
+
+          state.archiveCategories.push({ id, label });
+          persistState(`Created new archive category "${label}"!`);
+          renderArchive();
+          closeModal();
+          openCategoryModal();
+        });
+
+        document.querySelectorAll('.btn-del-cat').forEach(b => {
+          b.addEventListener('click', () => {
+            const catId = b.getAttribute('data-id');
+            if (!catId) return;
+            const targetCat = (state.archiveCategories || []).find(c => c.id === catId);
+            const count = (state.archiveItems || []).filter(i => i.category === catId).length;
+            if (confirm(`Delete category "${targetCat?.label || catId}"? (${count} items currently filed here)`)) {
+              state.archiveCategories = state.archiveCategories.filter(c => c.id !== catId);
+              persistState(`Deleted category "${targetCat?.label || catId}"`);
+              renderArchive();
+              closeModal();
+              openCategoryModal();
+            }
+          });
+        });
+      }
+
+      document.getElementById('btn-add-artifact')?.addEventListener('click', () => openArtifactModal(-1));
+
+      // RENDER: IMPACT METRICS
+      function renderMetrics() {
+        const container = document.getElementById('metrics-list-container');
+        if (!container) return;
+        const list = state.impactMetrics || [];
+
+        container.innerHTML = list.map((m, i) => `
+          <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-baseline gap-1">
+                <span class="text-2xl font-display font-bold text-white">${escapeHtml(m.value)}</span>
+                <span class="text-lg font-bold text-accent">${escapeHtml(m.suffix || '')}</span>
+              </div>
+              <h4 class="text-xs font-bold text-zinc-200 mt-1">${escapeHtml(m.label)}</h4>
+              <p class="text-[11px] text-zinc-400 mt-1 line-clamp-2">${escapeHtml(m.context || '')}</p>
+            </div>
+            <div class="mt-3 pt-2 border-t border-zinc-800 flex items-center justify-between text-[10px]">
+              <span class="text-emerald-400 font-mono">${m.status}</span>
+              <button class="text-purple-400 hover:underline" onclick="editMetric(${i})">Edit</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      window.editMetric = function(index) {
+        const item = state.impactMetrics[index];
+        const val = prompt('Metric Value (e.g. 387):', item.value);
+        if (val !== null) {
+          item.value = val;
+          item.label = prompt('Metric Label:', item.label) || item.label;
+          persistState('Metric updated!');
+          renderMetrics();
+        }
+      };
+
+      document.getElementById('btn-add-metric')?.addEventListener('click', () => {
+        const val = prompt('Metric Value (e.g. 100):');
+        const sfx = prompt('Suffix (e.g. + or % or leave blank):');
+        const lbl = prompt('Metric Label:');
+        const ctx = prompt('Context description:');
+        if (val && lbl) {
+          state.impactMetrics.unshift({
+            id: 'metric-' + Date.now(),
+            value: val,
+            suffix: sfx || '',
+            label: lbl,
+            context: ctx || '',
+            category: 'experience',
+            status: 'verified'
+          });
+          persistState('New metric added!');
+          renderMetrics();
+        }
+      });
+
+      // MODAL HELPERS
+      const modal = document.getElementById('admin-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const modalBody = document.getElementById('modal-body');
+      const modalSaveBtn = document.getElementById('modal-save-btn');
+      const modalDelBtn = document.getElementById('modal-delete-btn');
+      let currentSaveHandler = null;
+      let currentDelHandler = null;
+
+      function openModal(title, bodyHtml, onSave, onDelete = null) {
+        modalTitle.textContent = title;
+        modalBody.innerHTML = bodyHtml;
+        modal.classList.remove('hidden');
+
+        if (currentSaveHandler) modalSaveBtn.removeEventListener('click', currentSaveHandler);
+        currentSaveHandler = onSave;
+        modalSaveBtn.addEventListener('click', currentSaveHandler);
+
+        if (onDelete) {
+          modalDelBtn.classList.remove('hidden');
+          if (currentDelHandler) modalDelBtn.removeEventListener('click', currentDelHandler);
+          currentDelHandler = onDelete;
+          modalDelBtn.addEventListener('click', currentDelHandler);
+        } else {
+          modalDelBtn.classList.add('hidden');
+        }
+      }
+
+      function closeModal() {
+        modal.classList.add('hidden');
+        modalBody.innerHTML = '';
+      }
+
+      document.getElementById('modal-close-btn')?.addEventListener('click', closeModal);
+      document.getElementById('modal-cancel-btn')?.addEventListener('click', closeModal);
+
+      // EXPORT & BACKUP LOGIC
+      function exportFullBackup() {
+        const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state, null, 2));
+        const dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute('href', dataStr);
+        dlAnchor.setAttribute('download', 'chifen-portfolio-backup-' + new Date().toISOString().slice(0, 10) + '.json');
+        document.body.appendChild(dlAnchor);
+        dlAnchor.click();
+        dlAnchor.remove();
+        showToast('Full backup downloaded!');
+      }
+
+      document.getElementById('btn-export-backup')?.addEventListener('click', exportFullBackup);
+      document.getElementById('btn-export-json-file')?.addEventListener('click', exportFullBackup);
+
+      // Import Backup
+      document.getElementById('input-import-backup')?.addEventListener('change', e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          try {
+            const imported = JSON.parse(ev.target?.result);
+            if (imported) {
+              state = { ...state, ...imported };
+              persistState('Backup successfully imported and applied!');
+              refreshAll();
+            }
+          } catch (err) {
+            alert('Failed to parse JSON backup file.');
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      // Clear all overrides
+      document.getElementById('btn-clear-all-overrides')?.addEventListener('click', () => {
+        if (!confirm('This will wipe all client customizations and restore defaults. Continue?')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        state = JSON.parse(JSON.stringify(initialData));
+        persistState('Reset to default repository data.');
+        refreshAll();
+      });
+
+      // Code generator snippet
+      window.copyCodeSnippet = function(type) {
+        let code = '';
+        let title = '';
+        if (type === 'siteConfig') {
+          code = JSON.stringify(state.siteConfig, null, 2);
+          title = 'src/data/siteConfig.json';
+        } else if (type === 'masterCv') {
+          code = 'export const masterCvData = ' + JSON.stringify(state.masterCvData, null, 2) + ';\n';
+          title = 'src/lib/masterCvData.ts';
+        } else if (type === 'metrics') {
+          code = 'export const impactMetrics = ' + JSON.stringify(state.impactMetrics, null, 2) + ';\n';
+          title = 'src/data/metrics.ts';
+        } else if (type === 'talks') {
+          code = JSON.stringify(state.talks, null, 2);
+          title = 'src/data/talks.json';
+        }
+
+        const pre = document.getElementById('code-snippet-pre');
+        const ttl = document.getElementById('code-snippet-title');
+        if (pre) pre.textContent = code;
+        if (ttl) ttl.textContent = title;
+      };
+
+      document.getElementById('btn-copy-code-preview')?.addEventListener('click', () => {
+        const pre = document.getElementById('code-snippet-pre');
+        if (!pre || !pre.textContent) return;
+        navigator.clipboard.writeText(pre.textContent).then(() => {
+          showToast('Code copied to clipboard!');
+        });
+      });
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function refreshAll() {
+        populateProfile();
+        renderProjects();
+        renderBlog();
+        renderExperience();
+        renderEducation();
+        renderResearch();
+        renderTalks();
+        renderStory();
+        renderArchive();
+        renderMetrics();
+        updateBadges();
+      }
+
+      // Initial boot
+      refreshAll();
+    })();
+  </script>
+
+  <style>
+    .admin-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      color: #a1a1aa;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .admin-tab:hover {
+      color: #ffffff;
+      background-color: #27272a;
+    }
+    .admin-tab.active {
+      color: #ffffff;
+      background-color: #8b5cf6;
+      font-weight: 600;
+    }
+    .count-pill {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 9999px;
+      background: rgba(0, 0, 0, 0.4);
+      font-family: ui-monospace, monospace;
+    }
+    .admin-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #a1a1aa;
+      margin-bottom: 0.375rem;
+    }
+    .admin-input {
+      width: 100%;
+      border-radius: 0.5rem;
+      border: 1px solid #3f3f46;
+      background-color: #18181b;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      color: #ffffff;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .admin-input:focus {
+      border-color: #8b5cf6;
+    }
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+</Base>

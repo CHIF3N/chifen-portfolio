@@ -1,0 +1,212 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../lib/site';
+import { withBase } from '../lib/url';
+import { storyChapters } from '../data/storyData';
+
+const eraFilters = [
+  { id: 'all', label: 'All Milestones' },
+  { id: 'origins', label: 'Childhood & Origins' },
+  { id: 'early-tech', label: 'Early Code & Robotics' },
+  { id: 'pandemic', label: 'Pandemic Initiatives' },
+  { id: 'health-tech', label: 'Ayodah & Blood Tech' },
+  { id: 'clinical', label: 'Nursing & Clinical AI' },
+  { id: 'active', label: 'Active Ventures' },
+];
+---
+
+<Base
+  title="The Journey"
+  description="Chronological journey of Chifen Sama Nduma: from childhood experiments and Anglophone crisis interruption to nursing school and clinical health technology."
+  accent={site.accents.journey}
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'The Journey — Chifen Sama Nduma',
+    description: 'Documented chronological timeline of Chifen Sama Nduma from childhood to The Nurse Who Codes.',
+  }}
+>
+  <header class="border-b border-line bg-paper-dim/60">
+    <div class="mx-auto max-w-5xl px-5 pt-14 pb-12 sm:px-8 sm:pt-20">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="eyebrow text-accent">Career &amp; Life Journey</span>
+        <span class="text-slate-light" aria-hidden="true">&middot;</span>
+        <span class="text-xs font-semibold text-slate uppercase">Childhood to 2026 &amp; Beyond</span>
+      </div>
+      <h1 class="mt-3 font-display text-4xl font-semibold sm:text-6xl text-ink">
+        The Route Here
+      </h1>
+      <p class="mt-4 max-w-2xl text-lg leading-relaxed text-slate">
+        A documented progression across experimentation, grassroots communities, crisis responses,
+        app store failures, clinical nursing wards, and digital health infrastructure.
+      </p>
+
+      <!-- Quick Actions -->
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href={withBase('/about?mode=story')} class="btn btn-accent btn-sm">
+          Read full documentary story
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a href={withBase('/archive')} class="btn btn-ghost btn-sm">
+          Explore photo evidence
+        </a>
+      </div>
+
+      <!-- Era filter buttons -->
+      <div class="mt-10 flex flex-wrap items-center gap-2" role="tablist" aria-label="Timeline era filter">
+        {eraFilters.map((era) => (
+          <button
+            type="button"
+            data-era={era.id}
+            class:list={[
+              'timeline-era-btn rounded-full border px-4 py-1.5 text-xs sm:text-sm font-semibold tracking-wide transition-colors cursor-pointer',
+              era.id === 'all'
+                ? 'border-ink bg-ink text-paper'
+                : 'border-line bg-paper text-slate hover:border-accent hover:text-ink',
+            ]}
+          >
+            {era.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Timeline Content -->
+  <section class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
+    <div id="timeline-list" class="space-y-12">
+      {storyChapters.map((item, i) => (
+        <article
+          id={item.id}
+          data-era={item.era}
+          class="timeline-item chapter-card"
+          data-reveal
+          style={`--reveal-delay:${Math.min(i, 4) * 60}ms`}
+        >
+          <div class="chapter-marker" aria-hidden="true"></div>
+
+          <!-- Header Badge line -->
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="font-display text-sm font-bold tracking-wider text-accent uppercase">
+              {item.year}
+            </span>
+            <span class="text-slate-light" aria-hidden="true">&middot;</span>
+            <span class="text-xs text-slate-light font-medium uppercase tracking-wider">
+              Chapter {item.number}
+            </span>
+            {item.status && (
+              <span class={`evidence-pill status-${item.status.toLowerCase()}`}>
+                {item.status}
+              </span>
+            )}
+          </div>
+
+          <h2 class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-ink">
+            {item.title}
+          </h2>
+          <p class="mt-1 font-display text-lg text-slate-light font-medium">
+            {item.headline}
+          </p>
+
+          <!-- Narrative excerpts -->
+          <div class="mt-4 space-y-3 text-base text-slate leading-relaxed">
+            {item.paragraphs.map((p) => (
+              <p>{p}</p>
+            ))}
+          </div>
+
+          <!-- Pull Quote -->
+          {item.pullQuote && (
+            <blockquote class="story-pullquote">
+              &ldquo;{item.pullQuote}&rdquo;
+            </blockquote>
+          )}
+
+          <!-- Effort vs Value / Built vs Learned -->
+          {(item.whatIBuilt || item.whatILearned || item.metric) && (
+            <div class="lesson-box mt-5 space-y-2.5">
+              {item.whatIBuilt && (
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-ink block">
+                    What was built:
+                  </span>
+                  <p class="text-sm text-slate mt-0.5">{item.whatIBuilt}</p>
+                </div>
+              )}
+              {item.whatILearned && (
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-accent block">
+                    What was learned:
+                  </span>
+                  <p class="text-sm text-slate mt-0.5">{item.whatILearned}</p>
+                </div>
+              )}
+              {item.metric && (
+                <div class="pt-2 border-t border-line/60">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate block">
+                    Measured outcome:
+                  </span>
+                  <p class="text-sm font-semibold text-ink mt-0.5">{item.metric}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {item.relatedUrl && (
+            <div class="mt-5">
+              <a href={withBase(item.relatedUrl)} class="btn btn-ghost btn-sm">
+                {item.relatedLabel ?? 'See related project'}
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+          )}
+        </article>
+      ))}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="mt-20 rounded-2xl border border-line bg-paper-dim/60 p-8 text-center" data-reveal>
+      <h3 class="font-display text-2xl font-semibold sm:text-3xl text-ink">
+        Looking for specific documentation?
+      </h3>
+      <p class="mt-2 max-w-md mx-auto text-sm text-slate">
+        Browse the photo evidence archive or check the comprehensive curriculum vitae.
+      </p>
+      <div class="mt-6 flex flex-wrap justify-center gap-3">
+        <a href={withBase('/archive')} class="btn btn-accent btn-sm">
+          Browse Archive Gallery &rarr;
+        </a>
+        <a href={withBase('/cv')} class="btn btn-ghost btn-sm">
+          Inspect Master CV &rarr;
+        </a>
+        <a href={withBase('/about')} class="btn btn-ghost btn-sm">
+          Read Professional Bio &rarr;
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const eraButtons = document.querySelectorAll<HTMLButtonElement>('.timeline-era-btn');
+  const timelineItems = document.querySelectorAll<HTMLElement>('.timeline-item');
+
+  eraButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetEra = btn.dataset.era;
+
+      eraButtons.forEach((b) => {
+        b.classList.remove('border-ink', 'bg-ink', 'text-paper');
+        b.classList.add('border-line', 'bg-paper', 'text-slate');
+      });
+      btn.classList.remove('border-line', 'bg-paper', 'text-slate');
+      btn.classList.add('border-ink', 'bg-ink', 'text-paper');
+
+      timelineItems.forEach((item) => {
+        const itemEra = item.dataset.era;
+        const visible = targetEra === 'all' || itemEra === targetEra;
+        item.style.display = visible ? '' : 'none';
+      });
+    });
+  });
+</script>

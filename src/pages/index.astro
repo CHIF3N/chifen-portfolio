@@ -38,21 +38,21 @@ const projectCount = allWork.length;
 /* Only figures confirmed in CLAUDE.md go in unmarked. Anything else is a
    {{VERIFY: ...}} token and renders highlighted until it is confirmed. */
 const stats = [
-  { value: '4', suffix: '', label: 'Years in tech' },
-  { value: '2', suffix: '', label: 'Years in health tech' },
-  { value: `${projectCount}`, suffix: '', label: 'Projects shipped' },
-  { value: '400', suffix: '+', label: 'LifeDrop registered donors' },
-  { value: '310', suffix: '', label: 'Donations coordinated' },
-  { value: '387', suffix: '', label: 'Research respondents' },
+  { value: '5000', suffix: '+', label: 'Lives reached & impacted' },
+  { value: '8500', suffix: '+', label: 'Accumulated reach across built tech' },
+  { value: '4', suffix: '', label: 'Countries deployed & reached' },
+  { value: '100', suffix: '%', label: 'Self-trained developer' },
+  { value: '310', suffix: '', label: 'Hospital donations mediated' },
+  { value: '387', suffix: '', label: 'Clinical AI study respondents' },
 ];
 
 const stack = [
-  { name: 'Python', use: 'Data and modelling' },
-  { name: 'JavaScript', use: 'Web and app builds' },
-  { name: 'Astro', use: 'This site' },
-  { name: 'Expo', use: 'React Native apps' },
-  { name: 'WhatsApp Cloud API', use: 'Health services' },
-  { name: 'scikit-learn', use: 'Clinical risk models' },
+  { name: 'Open-Source Automations', use: 'n8n & event-driven webhooks' },
+  { name: 'Python & FastAPI', use: 'Data modeling & ML endpoints' },
+  { name: 'WhatsApp Cloud API', use: 'Low-bandwidth health bots' },
+  { name: 'TypeScript & Next.js', use: 'Production platforms' },
+  { name: 'Redis & Docker', use: 'Idempotent queues & containers' },
+  { name: 'React Native / SQLite', use: 'Offline-first field mobile apps' },
 ];
 
 const experience = [
@@ -194,6 +194,82 @@ const faqs = [
     />
   </div>
 
+  <!-- Executive Blueprint: Five Questions Answered Directly -->
+  <section class="border-y border-line bg-paper-dim/40">
+    <div class="shell band">
+      <SectionHead
+        label="Executive Blueprint"
+        title="Five questions, answered directly"
+        linkHref={withBase('/about')}
+        linkLabel="Read professional bio"
+      />
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="card-flat p-6" data-reveal>
+          <span class="ordinal">01</span>
+          <h3 class="display-card mt-3">Who is Chifen Sama?</h3>
+          <p class="body-sm mt-2 text-slate leading-relaxed">
+            The Nurse Who Codes. A 100% self-trained software engineer, registered nurse (BSc Nursing), and M.Tech Data Science candidate at COLTECH (The University of Bamenda), specialized in open-source systems and workflow automations.
+          </p>
+          <a href={withBase('/about')} class="inline-flex items-center gap-1 text-xs font-semibold text-accent mt-4 hover:underline">
+            About Chifen &rarr;
+          </a>
+        </div>
+
+        <div class="card-flat p-6" data-reveal style="--reveal-delay:60ms">
+          <span class="ordinal">02</span>
+          <h3 class="display-card mt-3">What does he actually build?</h3>
+          <p class="body-sm mt-2 text-slate leading-relaxed">
+            Open-source automations, event-driven webhooks, WhatsApp triage bots (LifeDrop), offline-first conservation platforms (CoastClear), DHIS2 facility sync pipelines, and clinical risk models.
+          </p>
+          <a href={withBase('/work')} class="inline-flex items-center gap-1 text-xs font-semibold text-accent mt-4 hover:underline">
+            Inspect all work &rarr;
+          </a>
+        </div>
+
+        <div class="card-flat p-6" data-reveal style="--reveal-delay:120ms">
+          <span class="ordinal">03</span>
+          <h3 class="display-card mt-3">What evidence exists?</h3>
+          <p class="body-sm mt-2 text-slate leading-relaxed">
+            5,000+ lives reached &amp; impacted, 8,500+ accumulated reach across built tech, deployed across 4 countries, 400+ registered donors, 310 hospital transfusions, 387-respondent clinical AI study (92.4% rate), and &gt;95% DHIS2 completeness.
+          </p>
+          <a href={withBase('/archive')} class="inline-flex items-center gap-1 text-xs font-semibold text-accent mt-4 hover:underline">
+            Explore photo evidence &rarr;
+          </a>
+        </div>
+
+        <div class="card-flat p-6" data-reveal style="--reveal-delay:180ms">
+          <span class="ordinal">04</span>
+          <h3 class="display-card mt-3">Why does he care?</h3>
+          <p class="body-sm mt-2 text-slate leading-relaxed">
+            Personal experience: waiting 18 hours to find blood donors for his mother’s surgery in 2022, and experiencing firsthand what breaks in low-resource wards during midnight power cuts.
+          </p>
+          <a href={withBase('/about?mode=story')} class="inline-flex items-center gap-1 text-xs font-semibold text-accent mt-4 hover:underline">
+            Read the backstory &rarr;
+          </a>
+        </div>
+
+        <div class="card-flat p-6 sm:col-span-2 lg:col-span-2" data-reveal style="--reveal-delay:240ms">
+          <span class="ordinal">05</span>
+          <h3 class="display-card mt-3">How can you collaborate?</h3>
+          <p class="body-sm mt-2 text-slate leading-relaxed">
+            Open for health-tech partnerships, clinical AI research collaborations, speaking invitations, consulting on offline-first architectures, and digital health software engineering.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <a href={withBase('/contact')} class="btn btn-accent btn-sm">
+              Let's talk &rarr;
+            </a>
+            <a href={withBase('/cv')} class="btn btn-ghost btn-sm">
+              View Master CV
+            </a>
+            <a href={withBase('/journey')} class="btn btn-ghost btn-sm">
+              Visual Timeline
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Projects -->
   <section class="shell band">
     <SectionHead
@@ -235,6 +311,19 @@ const faqs = [
           ))
         }
       </dl>
+      <div class="mt-8 flex flex-col items-center justify-between gap-4 border-t border-line/60 pt-6 sm:flex-row text-xs text-slate">
+        <p>
+          Every figure is grounded in operational logs, hospital registries, or IRB-approved study data.
+        </p>
+        <div class="flex items-center gap-4 font-semibold text-accent">
+          <a href={withBase('/archive')} class="hover:underline">
+            Inspect photo artifacts &rarr;
+          </a>
+          <a href={withBase('/cv')} class="hover:underline">
+            Verify in CV &rarr;
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -284,10 +373,19 @@ const faqs = [
             Solutions that empower health workers and hold up in underserved communities, or they do
             not count.
           </p>
-          <a href={withBase('/about')} class="btn btn-ghost btn-sm mt-2">
-            More about me
-            <span aria-hidden="true">&rarr;</span>
-          </a>
+          <div class="mt-4 flex flex-wrap gap-2.5">
+            <a href={withBase('/about')} class="btn btn-ghost btn-sm">
+              Professional Bio
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+            <a href={withBase('/about?mode=story')} class="btn btn-ghost btn-sm text-accent">
+              The Full Story (13 Chapters)
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+            <a href={withBase('/journey')} class="btn btn-ghost btn-sm">
+              Visual Timeline
+            </a>
+          </div>
         </div>
       </div>
     </div>

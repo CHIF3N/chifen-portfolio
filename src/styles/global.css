@@ -5,21 +5,21 @@
 /* Display face. Condensed grotesque, used uppercase at large sizes. */
 @font-face {
   font-family: 'Big Shoulders';
-  src: url('/chifen-portfolio/fonts/big-shoulders-500.woff2') format('woff2');
+  src: url('/fonts/big-shoulders-500.woff2') format('woff2'), url('/chifen-portfolio/fonts/big-shoulders-500.woff2') format('woff2');
   font-weight: 500;
   font-display: swap;
   font-style: normal;
 }
 @font-face {
   font-family: 'Big Shoulders';
-  src: url('/chifen-portfolio/fonts/big-shoulders-600.woff2') format('woff2');
+  src: url('/fonts/big-shoulders-600.woff2') format('woff2'), url('/chifen-portfolio/fonts/big-shoulders-600.woff2') format('woff2');
   font-weight: 600;
   font-display: swap;
   font-style: normal;
 }
 @font-face {
   font-family: 'Big Shoulders';
-  src: url('/chifen-portfolio/fonts/big-shoulders-700.woff2') format('woff2');
+  src: url('/fonts/big-shoulders-700.woff2') format('woff2'), url('/chifen-portfolio/fonts/big-shoulders-700.woff2') format('woff2');
   font-weight: 700;
   font-display: swap;
   font-style: normal;
@@ -28,21 +28,21 @@
 /* Body face. */
 @font-face {
   font-family: 'Inter';
-  src: url('/chifen-portfolio/fonts/inter-400.woff2') format('woff2');
+  src: url('/fonts/inter-400.woff2') format('woff2'), url('/chifen-portfolio/fonts/inter-400.woff2') format('woff2');
   font-weight: 400;
   font-display: swap;
   font-style: normal;
 }
 @font-face {
   font-family: 'Inter';
-  src: url('/chifen-portfolio/fonts/inter-500.woff2') format('woff2');
+  src: url('/fonts/inter-500.woff2') format('woff2'), url('/chifen-portfolio/fonts/inter-500.woff2') format('woff2');
   font-weight: 500;
   font-display: swap;
   font-style: normal;
 }
 @font-face {
   font-family: 'Inter';
-  src: url('/chifen-portfolio/fonts/inter-600.woff2') format('woff2');
+  src: url('/fonts/inter-600.woff2') format('woff2'), url('/chifen-portfolio/fonts/inter-600.woff2') format('woff2');
   font-weight: 600;
   font-display: swap;
   font-style: normal;
@@ -716,3 +716,150 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ==========================================================================
+   V2 UPGRADE: Mode Switcher & Documentary Narrative Styles
+   ========================================================================== */
+
+.mode-switch-wrapper {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  background-color: var(--paper-dim);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  position: relative;
+}
+
+.mode-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mode-switch-btn.is-active {
+  background-color: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.mode-switch-btn:not(.is-active) {
+  background-color: transparent;
+  color: var(--slate);
+}
+
+.mode-switch-btn:not(.is-active):hover {
+  color: var(--ink);
+}
+
+/* Documentary Chapter Card */
+.chapter-card {
+  position: relative;
+  border-left: 2px solid var(--line);
+  padding-left: 2rem;
+  padding-bottom: 3.5rem;
+}
+
+.chapter-card:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+
+.chapter-marker {
+  position: absolute;
+  left: -9px;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background-color: var(--paper);
+  border: 3px solid var(--accent);
+  transition: transform 0.2s ease;
+}
+
+.chapter-card:hover .chapter-marker {
+  transform: scale(1.2);
+  background-color: var(--accent);
+}
+
+.story-pullquote {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--ink);
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px) {
+  .story-pullquote {
+    font-size: 1.875rem;
+  }
+}
+
+.lesson-box {
+  background-color: var(--paper-dim);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.25rem;
+}
+
+/* Evidence Framework Metadata */
+.evidence-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+}
+
+.evidence-pill.status-live {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.evidence-pill.status-shipped {
+  background-color: rgba(8, 185, 212, 0.12);
+  color: #0891b2;
+  border: 1px solid rgba(8, 185, 212, 0.25);
+}
+
+.evidence-pill.status-research {
+  background-color: rgba(139, 92, 246, 0.12);
+  color: #7c3aed;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.evidence-pill.status-experiment {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.evidence-pill.status-archived {
+  background-color: rgba(100, 116, 139, 0.12);
+  color: #475569;
+  border: 1px solid rgba(100, 116, 139, 0.25);
+}
+
