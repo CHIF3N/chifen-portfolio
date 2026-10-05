@@ -262,6 +262,113 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
   .blog-post-page__back {
     margin-top: 2rem;
   }
+
+  /* ── Enhanced Code Blocks across all blog posts ── */
+  :global(.enhanced-code-block) {
+    margin-block: 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #0d1117;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    font-family: var(--blog-font-mono);
+  }
+
+  :global(.ecb-header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.85rem;
+    background: #161b22;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    user-select: none;
+    gap: 0.75rem;
+  }
+
+  :global(.ecb-left) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  :global(.ecb-dots) {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  :global(.ecb-dot) {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  :global(.ecb-dot--red)    { background: #ff5f56; }
+  :global(.ecb-dot--yellow) { background: #ffbd2e; }
+  :global(.ecb-dot--green)  { background: #27c93f; }
+
+  :global(.ecb-lang) {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #7d8590;
+    letter-spacing: 0.05em;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.12rem 0.45rem;
+    border-radius: 4px;
+  }
+
+  :global(.ecb-actions) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  :global(.ecb-btn) {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.28rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: #c9d1d9;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  :global(.ecb-btn:hover) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  :global(.ecb-btn--download) {
+    color: #93c5fd;
+    border-color: rgba(56, 189, 248, 0.25);
+    background: rgba(56, 189, 248, 0.06);
+  }
+  :global(.ecb-btn--download:hover) {
+    background: rgba(56, 189, 248, 0.15);
+    color: #e0f2fe;
+  }
+  :global(.ecb-btn--ok) {
+    color: #3fb950 !important;
+    border-color: rgba(63, 185, 80, 0.4) !important;
+    background: rgba(63, 185, 80, 0.12) !important;
+  }
+
+  :global(.enhanced-code-block pre) {
+    margin: 0 !important;
+    padding: 1.1rem 1.25rem !important;
+    overflow-x: auto !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    font-size: 0.8125rem !important;
+    line-height: 1.65 !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
 </style>
 
 <script>
@@ -282,4 +389,112 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
     window.addEventListener('scroll', update, { passive: true });
     update();
   }
+
+  // Interactive Code Block Enhancer: adds clickable copy, download, and header bar to all blog code blocks
+  (function enhanceBlogCodeBlocks() {
+    const body = document.querySelector('.blog-post-page__body');
+    if (!body) return;
+
+    const preElements = body.querySelectorAll('pre');
+    preElements.forEach((pre) => {
+      // Skip if already enhanced or inside CodeWorkbench
+      if (pre.closest('.cwb') || pre.closest('.enhanced-code-block')) return;
+
+      const codeEl = pre.querySelector('code');
+      const rawCode = (codeEl ? codeEl.innerText : pre.innerText).trimEnd();
+      if (!rawCode) return;
+
+      // Detect language
+      let lang = 'CODE';
+      let ext = 'txt';
+      const classes = `${pre.className} ${codeEl?.className ?? ''}`.toLowerCase();
+      if (classes.includes('typescript') || classes.includes('ts')) { lang = 'TYPESCRIPT'; ext = 'ts'; }
+      else if (classes.includes('javascript') || classes.includes('js')) { lang = 'JAVASCRIPT'; ext = 'js'; }
+      else if (classes.includes('python') || classes.includes('py')) { lang = 'PYTHON'; ext = 'py'; }
+      else if (classes.includes('json')) { lang = 'JSON'; ext = 'json'; }
+      else if (classes.includes('bash') || classes.includes('sh') || classes.includes('shell')) { lang = 'BASH'; ext = 'sh'; }
+      else if (classes.includes('sql') || classes.includes('postgresql')) { lang = 'SQL'; ext = 'sql'; }
+      else if (classes.includes('nginx')) { lang = 'NGINX'; ext = 'conf'; }
+      else if (classes.includes('dockerfile') || classes.includes('docker')) { lang = 'DOCKER'; ext = 'dockerfile'; }
+      else if (classes.includes('yaml') || classes.includes('yml')) { lang = 'YAML'; ext = 'yml'; }
+      else if (classes.includes('html')) { lang = 'HTML'; ext = 'html'; }
+      else if (classes.includes('css')) { lang = 'CSS'; ext = 'css'; }
+
+      // Wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'enhanced-code-block';
+
+      // Header
+      const header = document.createElement('div');
+      header.className = 'ecb-header';
+      header.innerHTML = `
+        <div class="ecb-left">
+          <div class="ecb-dots" aria-hidden="true">
+            <span class="ecb-dot ecb-dot--red"></span>
+            <span class="ecb-dot ecb-dot--yellow"></span>
+            <span class="ecb-dot ecb-dot--green"></span>
+          </div>
+          <span class="ecb-lang">${lang}</span>
+        </div>
+        <div class="ecb-actions">
+          <button type="button" class="ecb-btn ecb-btn--copy" aria-label="Copy code">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span class="ecb-copy-label">Copy</span>
+          </button>
+          <button type="button" class="ecb-btn ecb-btn--download" aria-label="Download code snippet">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="ecb-dl-label">Download</span>
+          </button>
+        </div>
+      `;
+
+      // Copy logic
+      const copyBtn = header.querySelector<HTMLButtonElement>('.ecb-btn--copy');
+      const copyLabel = header.querySelector<HTMLElement>('.ecb-copy-label');
+      copyBtn?.addEventListener('click', () => {
+        navigator.clipboard?.writeText(rawCode).then(() => {
+          if (copyLabel) copyLabel.textContent = 'Copied!';
+          copyBtn.classList.add('ecb-btn--ok');
+          setTimeout(() => {
+            if (copyLabel) copyLabel.textContent = 'Copy';
+            copyBtn.classList.remove('ecb-btn--ok');
+          }, 2000);
+        });
+      });
+
+      // Download logic
+      const dlBtn = header.querySelector<HTMLButtonElement>('.ecb-btn--download');
+      const dlLabel = header.querySelector<HTMLElement>('.ecb-dl-label');
+      dlBtn?.addEventListener('click', () => {
+        const blob = new Blob([rawCode], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `code-snippet.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        if (dlLabel) dlLabel.textContent = 'Saved!';
+        dlBtn.classList.add('ecb-btn--ok');
+        setTimeout(() => {
+          if (dlLabel) dlLabel.textContent = 'Download';
+          dlBtn.classList.remove('ecb-btn--ok');
+        }, 2000);
+      });
+
+      // Insert wrapper into DOM
+      pre.parentNode?.insertBefore(wrapper, pre);
+      wrapper.appendChild(header);
+      wrapper.appendChild(pre);
+    });
+  })();
 </script>

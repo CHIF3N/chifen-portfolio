@@ -318,6 +318,13 @@ const finalSchemas = schema
   </head>
 
   <body class="min-h-screen">
+    <!-- Reading scroll progress indicator -->
+    <div id="scroll-progress" aria-hidden="true"></div>
+
+    <!-- Desktop Interactive Cursor Halos -->
+    <div id="cursor-aura" class="cursor-follower" aria-hidden="true"></div>
+    <div id="cursor-dot" class="cursor-dot" aria-hidden="true"></div>
+
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-paper"
@@ -335,24 +342,134 @@ const finalSchemas = schema
       <Footer />
     </div>
 
+    <!-- Interactive Motion, Slick Scroll Transitions & Desktop Cursor Engine -->
     <script>
-      const items = document.querySelectorAll('[data-reveal]');
-      if (items.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
+      (() => {
+        // ── 1. Slick Scroll Reveal Engine ─────────────────────────────────────
+        const items = document.querySelectorAll('[data-reveal]');
+        if (items.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add('is-visible');
+                  observer.unobserve(entry.target);
+                }
               }
+            },
+            { rootMargin: '0px 0px -6% 0px', threshold: 0.1 }
+          );
+          items.forEach((item) => observer.observe(item));
+        } else {
+          items.forEach((item) => item.classList.add('is-visible'));
+        }
+
+        // ── 2. Top Scroll Progress Indicator ──────────────────────────────────
+        const progressBar = document.getElementById('scroll-progress');
+        if (progressBar) {
+          const updateScrollProgress = () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (docHeight > 0) {
+              const progress = Math.min(100, Math.max(0, (window.scrollY / docHeight) * 100));
+              progressBar.style.width = `${progress}%`;
             }
-          },
-          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
-        );
-        items.forEach((item) => observer.observe(item));
-      } else {
-        items.forEach((item) => item.classList.add('is-visible'));
-      }
+          };
+          window.addEventListener('scroll', updateScrollProgress, { passive: true });
+          updateScrollProgress();
+        }
+
+        // ── 3. Desktop Interactive Cursor Movement Effect ──────────────────────
+        const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (isFinePointer && !prefersReducedMotion) {
+          const aura = document.getElementById('cursor-aura');
+          const dot = document.getElementById('cursor-dot');
+          let mouseX = -1000;
+          let mouseY = -1000;
+          let auraX = -1000;
+          let auraY = -1000;
+          let isHovered = false;
+          let isMoving = false;
+
+          document.body.classList.add('has-cursor');
+
+          const onMouseMove = (e: MouseEvent) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            document.body.style.setProperty('--cursor-x', `${mouseX}px`);
+            document.body.style.setProperty('--cursor-y', `${mouseY}px`);
+
+            if (!isMoving) {
+              isMoving = true;
+              requestAnimationFrame(renderCursor);
+            }
+          };
+
+          const onMouseDown = () => {
+            aura?.classList.add('is-active');
+          };
+
+          const onMouseUp = () => {
+            aura?.classList.remove('is-active');
+          };
+
+          const onMouseLeave = () => {
+            document.body.classList.remove('has-cursor');
+          };
+
+          const onMouseEnter = () => {
+            document.body.classList.add('has-cursor');
+          };
+
+          // Smooth lerp physics for cursor halo
+          const renderCursor = () => {
+            // Lerp factor
+            const speed = isHovered ? 0.22 : 0.16;
+            auraX += (mouseX - auraX) * speed;
+            auraY += (mouseY - auraY) * speed;
+
+            if (aura) {
+              aura.style.transform = `translate3d(${auraX}px, ${auraY}px, 0)`;
+            }
+            if (dot) {
+              dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+            }
+
+            // Keep loop active while moving
+            if (Math.abs(mouseX - auraX) > 0.1 || Math.abs(mouseY - auraY) > 0.1) {
+              requestAnimationFrame(renderCursor);
+            } else {
+              isMoving = false;
+            }
+          };
+
+          // Interactive target hover detection (expand cursor on clickable items)
+          const interactiveSelector = 'a, button, input, textarea, select, [role="button"], .card-flat, .card-interactive, [data-interactive]';
+
+          document.addEventListener('mouseover', (e) => {
+            const target = e.target as HTMLElement | null;
+            if (target && target.closest(interactiveSelector)) {
+              isHovered = true;
+              aura?.classList.add('is-hovering');
+            }
+          });
+
+          document.addEventListener('mouseout', (e) => {
+            const target = e.target as HTMLElement | null;
+            if (target && target.closest(interactiveSelector)) {
+              isHovered = false;
+              aura?.classList.remove('is-hovering');
+            }
+          });
+
+          window.addEventListener('mousemove', onMouseMove, { passive: true });
+          window.addEventListener('mousedown', onMouseDown);
+          window.addEventListener('mouseup', onMouseUp);
+          document.addEventListener('mouseleave', onMouseLeave);
+          document.addEventListener('mouseenter', onMouseEnter);
+        }
+      })();
     </script>
     <script src={withBase('/scripts/site-bridge.js')} is:inline></script>
   </body>
