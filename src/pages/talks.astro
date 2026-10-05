@@ -108,12 +108,11 @@ const demos = [
           >
             <iframe
               src={talk.slides.embedUrl}
-              frameborder="0"
               width="100%"
               height="100%"
               allowfullscreen={true}
               title={`${talk.event} — ${talk.title}`}
-              class="absolute inset-0 w-full h-full"
+              class="absolute inset-0 w-full h-full border-0"
               loading="lazy"
             ></iframe>
           </div>
@@ -169,10 +168,9 @@ const demos = [
               <div class="relative w-full overflow-hidden rounded-xl border border-line bg-paper-dim" style="aspect-ratio:16/9">
                 <iframe
                   src={demo.videoUrl}
-                  frameborder="0"
                   width="100%"
                   height="100%"
-                  class="absolute inset-0 w-full h-full"
+                  class="absolute inset-0 w-full h-full border-0"
                   allowfullscreen={true}
                   title={demo.title}
                   loading="lazy"

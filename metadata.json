@@ -1,5 +1,8 @@
 {
   "name": "Chifen Portfolio",
   "description": "Portfolio and digital health engineering work of Chifen Sama Nduma.",
-  "requestFrame": "none"
+  "requestFrame": "none",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

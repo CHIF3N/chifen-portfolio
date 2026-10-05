@@ -49,25 +49,13 @@ const education = [
 // ── Active Roles ONLY ────────────────────────────────────────────────────
 const activeExperience = [
   {
-    role: 'Co-Founder & Chief Executive Officer',
-    org: 'INKWAVE',
-    url: 'https://inkwave-cm.vercel.app/',
-    location: 'Buea, Cameroon',
-    period: '2023 – Present',
-    type: 'Leadership · Active',
-    items: [
-      'Directing digital storytelling studio and developer advocacy operations across Central and West Africa.',
-      'Authored technical columns for Tech Chantier and The African Wave on low-bandwidth architectures and regional ecosystems.',
-      'Established international ecosystem partnerships (e.g., ATWCE) and open-source documentation mentorship programs.',
-      'Built a regional engineering community and mentored dozens of developers into global open-source ecosystems.',
-    ],
-  },
-  {
     role: 'Lead Architect & Systems Developer',
     org: 'LifeDrop',
     url: 'https://lifedropcam.netlify.app/',
     location: 'Buea / Yaoundé, Cameroon',
     period: '2025 – Present',
+    domain: 'health-tech',
+    domainBadge: '🏥 Health Tech & Emergency Triage',
     type: 'Venture · Active',
     items: [
       'Architected asynchronous webhooks integrating the WhatsApp Cloud API with Python/Node.js backends and Redis queues, enabling zero-install donor triage.',
@@ -77,10 +65,28 @@ const activeExperience = [
     ],
   },
   {
+    role: 'Co-Founder & Chief Executive Officer',
+    org: 'INKWAVE',
+    url: 'https://inkwave-cm.vercel.app/',
+    location: 'Buea, Cameroon',
+    period: '2023 – Present',
+    domain: 'tech',
+    domainBadge: '💻 Software & Venture Engineering',
+    type: 'Leadership · Active',
+    items: [
+      'Directing digital storytelling studio and developer advocacy operations across Central and West Africa.',
+      'Authored technical columns for Tech Chantier and The African Wave on low-bandwidth architectures and regional ecosystems.',
+      'Established international ecosystem partnerships (e.g., ATWCE) and open-source documentation mentorship programs.',
+      'Built a regional engineering community and mentored dozens of developers into global open-source ecosystems.',
+    ],
+  },
+  {
     role: 'Lead Engineer',
     org: 'CoastClear',
     location: 'Limbe / Coastal Cameroon',
     period: '2025 – Present',
+    domain: 'tech',
+    domainBadge: '💻 Full-Stack Logistics & Conservation',
     type: 'Venture · Active',
     items: [
       'Engineered responsive web dashboards with full localization (English, French, Cameroonian Pidgin) integrated with lightweight computer-vision models for photographic waste tagging.',
@@ -93,6 +99,8 @@ const activeExperience = [
     org: 'LinkedIn Local Buea',
     location: 'Buea, Cameroon',
     period: '2026 – Present',
+    domain: 'tech',
+    domainBadge: '💻 Tech Community & Informatics',
     type: 'Community · Active',
     items: [
       'Curating grassroots networking initiatives connecting clinical healthcare professionals with Silicon Mountain tech startup founders.',
@@ -108,7 +116,9 @@ const concludedExperience = [
     org: 'Kumba South District Health Service',
     location: 'South West Region, Cameroon',
     period: '2025 – 2026',
-    type: 'Clinical Data · Concluded',
+    domain: 'clinical',
+    domainBadge: '🩺 Clinical Practice & PMTCT',
+    type: 'Clinical Leadership · Concluded',
     items: [
       'Supervised regional health information systems across district clinical facilities facing intermittent power and network degradation.',
       'Restructured weekly facility reporting pipelines, audited electronic PMTCT registries, and implemented automated local-to-cloud sync workflows for DHIS2 reporting.',
@@ -121,6 +131,8 @@ const concludedExperience = [
     org: 'Cameroon Innovative Health Network (CAMIHN / HETEFA)',
     location: 'Cameroon',
     period: '2025 – 2026',
+    domain: 'health-tech',
+    domainBadge: '🏥 Health Tech Advocacy',
     type: 'Volunteer / Advocacy · Concluded',
     items: [
       'Co-founded health-tech advocacy network and formulated youth health-tech programs across Cameroon.',
@@ -132,6 +144,8 @@ const concludedExperience = [
     org: 'Vision in Action Cameroon (VIAC)',
     location: 'South West Region, Cameroon',
     period: '2025 – 2026',
+    domain: 'health-tech',
+    domainBadge: '🏥 Digital Health Field Volunteer',
     type: 'Volunteer / Field Ops · Concluded',
     items: [
       'Advised community outreach teams on mobile data collection tools and offline data capture for youth health interventions.',
@@ -143,6 +157,8 @@ const concludedExperience = [
     org: 'Ayodah Blood Donor Platform',
     location: 'Buea, Cameroon',
     period: '2020 – 2023',
+    domain: 'health-tech',
+    domainBadge: '🏥 Health Tech & Donor Coordination',
     type: 'Venture · Concluded',
     items: [
       'Designed relational database schemas and prototype mobile interfaces for volunteer blood donor coordination.',
@@ -159,6 +175,7 @@ const speakingAndCivic = [
     event: 'PyCon & UbuCon Cameroon 2026 (Yaoundé)',
     topic: 'Building WhatsApp-Based Health Tech Networks in Low-Connectivity Environments',
     year: 'September 2026',
+    domain: 'health-tech',
     note: 'Delivered live keynote presentation and automated system demonstration.',
   },
   {
@@ -166,6 +183,7 @@ const speakingAndCivic = [
     event: 'SIC Conference 2025',
     topic: 'Youth & STEM Innovation in Regional Ecosystems',
     year: '2025',
+    domain: 'tech',
     note: 'Keynote on grassroots technical enablement in Cameroon.',
   },
   {
@@ -173,6 +191,7 @@ const speakingAndCivic = [
     event: 'YALI Anti-Corruption & Civic Leadership Workshop',
     topic: 'Grassroots Anti-Corruption, Organizational Integrity & Public Healthcare Ethics',
     year: '2022',
+    domain: 'clinical',
     note: 'Mandela Washington Fellows Alumni Association / US Embassy Yaoundé.',
   },
 ];
@@ -181,27 +200,17 @@ const projects = [
   {
     name: 'LifeDrop',
     url: 'https://lifedropcam.netlify.app/',
+    domain: 'health-tech',
+    domainBadge: '🏥 Health Tech & Triage',
     summary:
       'Emergency blood donor dispatch system operating under extreme cellular data constraints. Asynchronous WhatsApp Cloud API webhooks with idempotent queues, donor-proximity heuristics, and zero-install triage.',
     tags: ['WhatsApp Cloud API', 'Python', 'Node.js', 'Docker', 'Redis'],
   },
   {
-    name: 'INKWAVE Platform',
-    url: 'https://inkwave-cm.vercel.app/',
-    summary:
-      'Digital storytelling agency and developer advocacy platform driving technical communication and regional ecosystem activations across Central and West Africa.',
-    tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Brand Architecture'],
-  },
-  {
-    name: 'CoastClear',
-    url: undefined,
-    summary:
-      'Multilingual coastal waste monitoring and cleanup logistics platform for conservation teams. Real-time spatial density heatmaps and photographic waste classification.',
-    tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Computer Vision APIs', 'i18n'],
-  },
-  {
     name: 'AI Clinical Decision-Making Research',
     url: undefined,
+    domain: 'clinical',
+    domainBadge: '🩺 Clinical AI Research',
     summary:
       '387-respondent cross-sectional study at Buea Regional Hospital on clinician AI readiness. KoboCollect pipeline → SPSS analysis → PRISMA-compliant write-up (92.4% response rate).',
     tags: ['KoboCollect', 'SPSS', 'Clinical research', 'PRISMA'],
@@ -209,6 +218,8 @@ const projects = [
   {
     name: 'Maternal Health Risk Predictor',
     url: undefined,
+    domain: 'health-tech',
+    domainBadge: '🏥 Health Tech & Clinical ML',
     summary:
       'scikit-learn logistic regression model trained on anonymised clinical records. Risk stratification across 5 maternal outcome variables deployed as a lightweight REST endpoint for midwife tablets.',
     tags: ['Python', 'scikit-learn', 'REST API', 'Clinical ML'],
@@ -216,6 +227,8 @@ const projects = [
   {
     name: 'MORIA Nurse Intern Assistant',
     url: undefined,
+    domain: 'clinical',
+    domainBadge: '🩺 Clinical Bedside Tools',
     summary:
       'Offline-first React Native mobile reference tool for nurse interns: drug dosage calculation, emergency resuscitation protocols, and patient handover checklists.',
     tags: ['React Native', 'Expo', 'SQLite', 'Offline-first'],
@@ -223,32 +236,56 @@ const projects = [
   {
     name: 'VIAC Chatbots',
     url: undefined,
+    domain: 'health-tech',
+    domainBadge: '🏥 Digital Health & WhatsApp',
     summary:
       'Bilingual health information chatbots deployed for an NGO cervical cancer awareness campaign. n8n automation, WhatsApp Cloud API; handled 200+ patient queries in the pilot month.',
     tags: ['n8n', 'WhatsApp Cloud API', 'Health-tech'],
+  },
+  {
+    name: 'INKWAVE Platform',
+    url: 'https://inkwave-cm.vercel.app/',
+    domain: 'tech',
+    domainBadge: '💻 Software & Brand Platform',
+    summary:
+      'Digital storytelling agency and developer advocacy platform driving technical communication and regional ecosystem activations across Central and West Africa.',
+    tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Brand Architecture'],
+  },
+  {
+    name: 'CoastClear',
+    url: undefined,
+    domain: 'tech',
+    domainBadge: '💻 Environmental Logistics',
+    summary:
+      'Multilingual coastal waste monitoring and cleanup logistics platform for conservation teams. Real-time spatial density heatmaps and photographic waste classification.',
+    tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Computer Vision APIs', 'i18n'],
   },
 ];
 
 const skills = [
   {
-    group: 'Languages & Systems',
-    items: ['TypeScript', 'JavaScript', 'Python', 'HTML5 / CSS3', 'SQL'],
+    group: 'Clinical & Bedside Competencies',
+    icon: '🩺',
+    accent: 'emerald',
+    items: ['PMTCT Care Protocols', 'Antenatal Risk Triage', 'Emergency Resuscitation Assistance', 'Clinical Ward Handover', 'Biomedical Patient Assessment', 'Drug Dosage Calculation Safety'],
   },
   {
-    group: 'Frameworks & Libraries',
-    items: ['Astro', 'Next.js (App Router)', 'React Native / Expo', 'Tailwind CSS', 'scikit-learn'],
+    group: 'Health Tech & Clinical Informatics',
+    icon: '🏥',
+    accent: 'purple',
+    items: ['DHIS2 Automated Sync', 'KoboCollect Field Data', 'SPSS Statistical Tooling', 'PRISMA Research Standards', 'WhatsApp Cloud API Triage', 'Clinical Decision Support (CDSS)', 'Biomedical Data Pipelines'],
   },
   {
-    group: 'Platforms & Protocols',
-    items: ['WhatsApp Cloud API', 'Docker', 'Redis', 'Firebase / Firestore', 'Supabase', 'DHIS2', 'n8n', 'Google Gemini API'],
+    group: 'Software Engineering & Web Platforms',
+    icon: '💻',
+    accent: 'cyan',
+    items: ['TypeScript / JavaScript', 'Python', 'Astro', 'Next.js (App Router)', 'React Native / Expo', 'Tailwind CSS', 'Docker & Redis Queues', 'Offline-First Architectures'],
   },
   {
-    group: 'Clinical & Health Data',
-    items: ['SPSS', 'KoboCollect', 'PRISMA', 'Clinical Data Management', 'PMTCT Cohorts', 'Health Informatics'],
-  },
-  {
-    group: 'Engineering Operations',
-    items: ['Git / GitHub', 'Vercel', 'Figma', 'Offline-First Workflows', 'Low-Bandwidth Optimization', 'Technical Writing'],
+    group: 'Data Science & Machine Learning',
+    icon: '📊',
+    accent: 'amber',
+    items: ['scikit-learn', 'Logistic Regression Classifiers', 'Clinical Feature Correlation Heatmaps', 'Empirical Histograms', 'SQL & Database Schemas', 'Predictive Health Modeling'],
   },
 ];
 
@@ -339,23 +376,121 @@ const certifications = [
     <blockquote class="mt-8 border-l-4 border-accent pl-5 text-lg leading-relaxed text-zinc-700 dark:text-zinc-300 print:mt-4 italic">
       Registered nurse and 100% self-trained software engineer, currently pursuing an M.Tech in Data Science at COLTECH (The University of Bamenda). I build digital health infrastructure for settings with unreliable power, low bandwidth, and zero margin for failure. Clinical domain knowledge from the bedside; engineering mastery from autodidactic grit.
     </blockquote>
+
+    <!-- 3 Pillars of Practice: Clinical vs Health Tech vs Tech Differentiation -->
+    <div class="mt-10 grid gap-4 sm:grid-cols-3 print:mt-6 print:gap-3">
+      <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4.5 dark:bg-emerald-950/20">
+        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+          <span>🩺</span>
+          <span>1. Clinical Practice</span>
+        </div>
+        <p class="text-xs text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">
+          Grounded bedside care, PMTCT department head, clinical protocol audits, maternal-child health triage, emergency resuscitation, and ward handover checklists.
+        </p>
+        <span class="inline-block mt-3 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/20 rounded px-2 py-0.5">
+          Registered Nurse (HND &amp; Top-up)
+        </span>
+      </div>
+
+      <div class="rounded-xl border border-purple-500/30 bg-purple-500/5 p-4.5 dark:bg-purple-950/20">
+        <div class="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold text-sm">
+          <span>🏥</span>
+          <span>2. Health Tech &amp; AI</span>
+        </div>
+        <p class="text-xs text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">
+          Where clinical problems meet automation: WhatsApp emergency blood dispatch (LifeDrop, MTN YaMo 3rd), 387-clinician AI readiness study, DHIS2 sync, maternal ML models.
+        </p>
+        <span class="inline-block mt-3 text-[11px] font-mono text-purple-600 dark:text-purple-400 font-semibold bg-purple-500/10 border border-purple-500/20 rounded px-2 py-0.5">
+          Founder, LifeDrop · Clinical AI
+        </span>
+      </div>
+
+      <div class="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4.5 dark:bg-cyan-950/20">
+        <div class="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 font-bold text-sm">
+          <span>💻</span>
+          <span>3. Software Engineering</span>
+        </div>
+        <p class="text-xs text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">
+          Autodidactic engineering craft: TypeScript, Python, Redis queues, Docker, low-bandwidth pipelines, INKWAVE storytelling platform, and CoastClear conservation logistics.
+        </p>
+        <span class="inline-block mt-3 text-[11px] font-mono text-cyan-600 dark:text-cyan-400 font-semibold bg-cyan-500/10 border border-cyan-500/20 rounded px-2 py-0.5">
+          M.Tech Data Science (COLTECH UBa)
+        </span>
+      </div>
+    </div>
   </section>
+
+  <!-- Interactive Domain Filter Switcher (Screen Only) -->
+  <div class="shell pt-2 pb-4 print:hidden">
+    <div class="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono font-bold uppercase tracking-wider text-zinc-500">Filter CV View:</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2" id="cv-domain-filter-bar">
+        <button
+          type="button"
+          data-domain="all"
+          class="cv-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-accent text-white border border-accent shadow-xs transition-colors"
+        >
+          All Domains (Unified ATS Record)
+        </button>
+        <button
+          type="button"
+          data-domain="clinical"
+          class="cv-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-white bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 transition-colors"
+        >
+          🩺 Clinical Work &amp; Healthcare
+        </button>
+        <button
+          type="button"
+          data-domain="health-tech"
+          class="cv-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-white bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 transition-colors"
+        >
+          🏥 Health Tech &amp; Informatics
+        </button>
+        <button
+          type="button"
+          data-domain="tech"
+          class="cv-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-white bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 transition-colors"
+        >
+          💻 Software Engineering &amp; Systems
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- 1. Active Roles -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Active Roles & Ventures</h2>
-    <ul class="mt-8 space-y-10 print:mt-4 print:space-y-6">
+    <div class="flex items-center justify-between">
+      <h2 class="eyebrow text-accent">Active Roles &amp; Ventures</h2>
+      <span class="text-xs font-mono text-zinc-400 print:hidden">Classified by domain</span>
+    </div>
+    <ul class="mt-8 space-y-10 print:mt-4 print:space-y-6" id="list-active-roles">
       {
         activeExperience.map((job, i) => (
-          <li data-reveal style={`--reveal-delay:${i * 50}ms`} class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
+          <li
+            data-domain={job.domain}
+            data-reveal
+            style={`--reveal-delay:${i * 50}ms`}
+            class="cv-domain-item grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start transition-opacity duration-200"
+          >
             <div>
-              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                 <span class="font-display text-xl font-bold text-zinc-900 dark:text-zinc-100">{job.role}</span>
-                <span class="text-xs font-semibold tracking-wider text-emerald-600 dark:text-emerald-400 uppercase rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5">
+                <span class={`text-[11px] font-semibold tracking-wider uppercase rounded-full border px-2.5 py-0.5 ${
+                  job.domain === 'clinical'
+                    ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : job.domain === 'health-tech'
+                    ? 'border-purple-500/40 bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                    : 'border-cyan-500/40 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
+                }`}>
+                  {job.domainBadge}
+                </span>
+                <span class="text-xs font-semibold tracking-wider text-zinc-500 dark:text-zinc-400 uppercase rounded-full border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5">
                   {job.type}
                 </span>
               </div>
-              <p class="mt-0.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+              <p class="mt-1 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
                 {job.url ? (
                   <a href={job.url} target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">
                     {job.org} ↗
@@ -382,19 +517,36 @@ const certifications = [
 
   <!-- 2. Concluded Mandates -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Concluded Mandates & Tenures</h2>
-    <ul class="mt-8 space-y-8 print:mt-4 print:space-y-6">
+    <div class="flex items-center justify-between">
+      <h2 class="eyebrow text-accent">Concluded Mandates &amp; Tenures</h2>
+      <span class="text-xs font-mono text-zinc-400 print:hidden">Clinical &amp; Technical Track Record</span>
+    </div>
+    <ul class="mt-8 space-y-8 print:mt-4 print:space-y-6" id="list-concluded-roles">
       {
         concludedExperience.map((job, i) => (
-          <li data-reveal style={`--reveal-delay:${i * 40}ms`} class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start opacity-90">
+          <li
+            data-domain={job.domain}
+            data-reveal
+            style={`--reveal-delay:${i * 40}ms`}
+            class="cv-domain-item grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start opacity-95 transition-opacity duration-200"
+          >
             <div>
-              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                 <span class="font-display text-xl font-bold text-zinc-900 dark:text-zinc-100">{job.role}</span>
-                <span class="text-xs font-semibold tracking-wider text-zinc-600 dark:text-zinc-400 uppercase rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5">
+                <span class={`text-[11px] font-semibold tracking-wider uppercase rounded-full border px-2.5 py-0.5 ${
+                  job.domain === 'clinical'
+                    ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : job.domain === 'health-tech'
+                    ? 'border-purple-500/40 bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                    : 'border-cyan-500/40 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
+                }`}>
+                  {job.domainBadge}
+                </span>
+                <span class="text-xs font-semibold tracking-wider text-zinc-600 dark:text-zinc-400 uppercase rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5">
                   {job.type}
                 </span>
               </div>
-              <p class="mt-0.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+              <p class="mt-1 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
                 {job.org} &middot; {job.location}
               </p>
               <ul class="mt-3 space-y-1.5">
@@ -415,14 +567,15 @@ const certifications = [
 
   <!-- 3. Speaking & Civic Engagements (Compact) -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Speaking & Civic Engagements</h2>
+    <h2 class="eyebrow text-accent">Speaking &amp; Civic Engagements</h2>
     <ul class="mt-8 space-y-4 print:mt-4">
       {
         speakingAndCivic.map((talk, i) => (
           <li
+            data-domain={talk.domain}
             data-reveal
             style={`--reveal-delay:${i * 40}ms`}
-            class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-zinc-200 dark:border-zinc-800 pb-4 last:border-0"
+            class="cv-domain-item flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-zinc-200 dark:border-zinc-800 pb-4 last:border-0"
           >
             <div>
               <div class="flex items-center gap-2">
@@ -442,17 +595,32 @@ const certifications = [
 
   <!-- Selected Projects -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Selected Projects</h2>
-    <ul class="mt-8 grid gap-4 sm:grid-cols-2 print:mt-4 print:grid-cols-2">
+    <div class="flex items-center justify-between">
+      <h2 class="eyebrow text-accent">Selected Projects</h2>
+      <span class="text-xs font-mono text-zinc-400 print:hidden">Clinical &bull; Health Tech &bull; Software</span>
+    </div>
+    <ul class="mt-8 grid gap-4 sm:grid-cols-2 print:mt-4 print:grid-cols-2" id="list-projects">
       {
         projects.map((project, i) => (
           <li
+            data-domain={project.domain}
             data-reveal
             style={`--reveal-delay:${i * 40}ms`}
-            class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 shadow-sm"
+            class="cv-domain-item rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 shadow-sm transition-all"
           >
             <div class="flex items-start justify-between gap-3">
-              <p class="font-display text-base font-bold text-zinc-900 dark:text-zinc-100">{project.name}</p>
+              <div>
+                <p class="font-display text-base font-bold text-zinc-900 dark:text-zinc-100">{project.name}</p>
+                <span class={`inline-block mt-1 text-[10px] font-mono font-semibold uppercase tracking-wider rounded-full border px-2 py-0.5 ${
+                  project.domain === 'clinical'
+                    ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : project.domain === 'health-tech'
+                    ? 'border-purple-500/40 bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                    : 'border-cyan-500/40 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
+                }`}>
+                  {project.domainBadge}
+                </span>
+              </div>
               {project.url && (
                 <a
                   href={project.url}
@@ -487,7 +655,7 @@ const certifications = [
 
   <!-- Education -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Education & Academic Record</h2>
+    <h2 class="eyebrow text-accent">Education &amp; Academic Record</h2>
     <ul class="mt-8 space-y-8 print:mt-4 print:space-y-4">
       {
         education.map((edu, i) => (
@@ -514,19 +682,32 @@ const certifications = [
     </ul>
   </section>
 
-  <!-- Skills -->
+  <!-- Skills: Domain Differentiated -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Technical & Clinical Skills</h2>
-    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 print:mt-4 print:grid-cols-3">
+    <div class="flex items-center justify-between">
+      <h2 class="eyebrow text-accent">Domain Competencies &amp; Technical Skills</h2>
+      <span class="text-xs font-mono text-zinc-400 print:hidden">Clinical &bull; Health Tech &bull; Software &bull; Data Science</span>
+    </div>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 print:mt-4 print:grid-cols-4">
       {
         skills.map((section, i) => (
-          <div data-reveal style={`--reveal-delay:${i * 40}ms`}>
-            <h3 class="text-xs font-bold tracking-widest text-accent uppercase">
-              {section.group}
-            </h3>
-            <ul class="mt-3 space-y-1.5">
+          <div
+            data-reveal
+            style={`--reveal-delay:${i * 40}ms`}
+            class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/50 p-4.5"
+          >
+            <div class="flex items-center gap-2">
+              <span class="text-base">{section.icon}</span>
+              <h3 class="text-xs font-bold tracking-wider text-accent uppercase">
+                {section.group}
+              </h3>
+            </div>
+            <ul class="mt-3 space-y-2">
               {section.items.map((item) => (
-                <li class="text-sm text-zinc-700 dark:text-zinc-300">{item}</li>
+                <li class="flex items-baseline gap-2 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">
+                  <span class="h-1 w-1 shrink-0 rounded-full bg-zinc-400 dark:bg-zinc-600" aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
               ))}
             </ul>
           </div>
@@ -537,7 +718,7 @@ const certifications = [
 
   <!-- Certifications -->
   <section class="shell band band-line print:py-4">
-    <h2 class="eyebrow text-accent">Certifications & Training</h2>
+    <h2 class="eyebrow text-accent">Certifications &amp; Training</h2>
     <ul class="mt-8 grid gap-3 sm:grid-cols-2 print:mt-4 print:grid-cols-2">
       {
         certifications.map((cert, i) => (
@@ -553,6 +734,37 @@ const certifications = [
       }
     </ul>
   </section>
+
+  <!-- Interactive Domain Filter Script -->
+  <script is:inline>
+    (() => {
+      const filterButtons = document.querySelectorAll('#cv-domain-filter-bar .cv-filter-btn');
+      const domainItems = document.querySelectorAll('.cv-domain-item');
+
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const selected = btn.getAttribute('data-domain');
+
+          filterButtons.forEach(b => {
+            if (b === btn) {
+              b.className = 'cv-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-accent text-white border border-accent shadow-xs transition-colors';
+            } else {
+              b.className = 'cv-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-white bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 transition-colors';
+            }
+          });
+
+          domainItems.forEach(item => {
+            const itemDomain = item.getAttribute('data-domain');
+            if (selected === 'all' || itemDomain === selected) {
+              item.style.display = '';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        });
+      });
+    })();
+  </script>
 
   <!-- Print CTA strip — only visible on screen -->
   <section class="shell py-12 print:hidden">

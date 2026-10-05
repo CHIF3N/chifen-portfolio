@@ -10,6 +10,18 @@ const entries = (await getCollection('work')).sort((a, b) => a.data.order - b.da
 
 const tags = [...new Set(entries.flatMap((entry) => entry.data.tags))].sort();
 
+function getEntryDomain(entry: (typeof entries)[number]) {
+  const id = entry.id;
+  const entryTags = entry.data.tags || [];
+  if (id === 'ai-clinical-decision-research' || id === 'nurse-intern-assistant' || id === 'abortion-safety-georegistry' || entryTags.includes('research')) {
+    return 'clinical';
+  }
+  if (id === 'lifedrop' || id === 'ayodah' || id === 'maternal-health-risk' || id === 'viac-chatbots' || entryTags.includes('health-tech')) {
+    return 'health-tech';
+  }
+  return 'tech';
+}
+
 const chips = [
   'Live in production',
   'Real users',
@@ -52,14 +64,53 @@ const chips = [
       <ChipMarquee items={chips} />
     </div>
 
-    <div class="mt-9 flex flex-wrap items-center gap-2">
+    <!-- Practice Domain Tabs -->
+    <div class="mt-10 flex flex-wrap items-center gap-2 border-b border-line pb-4" id="domain-filter-group">
+      <span class="text-xs font-mono font-bold uppercase tracking-wider text-slate mr-1">Domain:</span>
+      <button
+        type="button"
+        data-domain-filter="all"
+        aria-pressed="true"
+        class="domain-filter-chip rounded-full border border-ink px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all bg-ink text-paper"
+      >
+        All Systems ({entries.length})
+      </button>
+      <button
+        type="button"
+        data-domain-filter="clinical"
+        aria-pressed="false"
+        class="domain-filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:border-emerald-500 text-ink"
+      >
+        🩺 Clinical Practice &amp; Research ({entries.filter(e => getEntryDomain(e) === 'clinical').length})
+      </button>
+      <button
+        type="button"
+        data-domain-filter="health-tech"
+        aria-pressed="false"
+        class="domain-filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:border-purple-500 text-ink"
+      >
+        🏥 Health Tech &amp; AI ({entries.filter(e => getEntryDomain(e) === 'health-tech').length})
+      </button>
+      <button
+        type="button"
+        data-domain-filter="tech"
+        aria-pressed="false"
+        class="domain-filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:border-cyan-500 text-ink"
+      >
+        💻 Software &amp; Platforms ({entries.filter(e => getEntryDomain(e) === 'tech').length})
+      </button>
+    </div>
+
+    <!-- Detailed Tech Sub-Tags -->
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      <span class="text-xs font-mono text-slate-light mr-1">Tags:</span>
       <button
         type="button"
         data-filter="all"
         aria-pressed="true"
-        class="filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-sm font-medium transition-colors"
+        class="filter-chip rounded-full border border-ink/15 px-3 py-1 text-xs font-medium transition-colors"
       >
-        Everything
+        All Tags
       </button>
       {
         tags.map((tag) => (
@@ -67,7 +118,7 @@ const chips = [
             type="button"
             data-filter={tag}
             aria-pressed="false"
-            class="filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-sm font-medium transition-colors"
+            class="filter-chip rounded-full border border-ink/15 px-3 py-1 text-xs font-medium transition-colors"
           >
             {tag}
           </button>
@@ -80,7 +131,11 @@ const chips = [
     <div id="work-grid" class="grid gap-5 sm:grid-cols-2">
       {
         entries.map((entry, i) => (
-          <div data-tags={entry.data.tags.join('|')} class="contents-item">
+          <div
+            data-domain={getEntryDomain(entry)}
+            data-tags={entry.data.tags.join('|')}
+            class="contents-item"
+          >
             <WorkCard entry={entry} delay={Math.min(i, 5) * 60} />
           </div>
         ))
@@ -88,12 +143,17 @@ const chips = [
     </div>
 
     <p id="work-empty" hidden class="py-16 text-center text-slate">
-      Nothing under that tag yet. Try another one.
+      Nothing under that selection yet. Try another domain or tag.
     </p>
   </section>
 </Base>
 
 <style>
+  .domain-filter-chip[aria-pressed='true'] {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    border-color: var(--color-ink);
+  }
   .filter-chip[aria-pressed='true'] {
     background-color: var(--color-ink);
     color: var(--color-paper);
@@ -112,24 +172,44 @@ const chips = [
 </style>
 
 <script>
-  const chips = document.querySelectorAll<HTMLButtonElement>('.filter-chip');
+  const domainChips = document.querySelectorAll<HTMLButtonElement>('.domain-filter-chip');
+  const tagChips = document.querySelectorAll<HTMLButtonElement>('.filter-chip');
   const items = document.querySelectorAll<HTMLElement>('#work-grid .contents-item');
   const empty = document.getElementById('work-empty');
 
-  chips.forEach((chip) => {
+  let activeDomain = 'all';
+  let activeTag = 'all';
+
+  function applyFilters() {
+    let visible = 0;
+    items.forEach((item) => {
+      const itemDomain = item.dataset.domain ?? '';
+      const tags = (item.dataset.tags ?? '').split('|');
+
+      const matchesDomain = activeDomain === 'all' || itemDomain === activeDomain;
+      const matchesTag = activeTag === 'all' || tags.includes(activeTag);
+
+      const show = matchesDomain && matchesTag;
+      item.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    if (empty) empty.hidden = visible > 0;
+  }
+
+  domainChips.forEach((chip) => {
     chip.addEventListener('click', () => {
-      const filter = chip.dataset.filter;
-      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+      activeDomain = chip.dataset.domainFilter ?? 'all';
+      domainChips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+      applyFilters();
+    });
+  });
 
-      let visible = 0;
-      items.forEach((item) => {
-        const tags = (item.dataset.tags ?? '').split('|');
-        const show = filter === 'all' || tags.includes(filter ?? '');
-        item.hidden = !show;
-        if (show) visible += 1;
-      });
-
-      if (empty) empty.hidden = visible > 0;
+  tagChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      activeTag = chip.dataset.filter ?? 'all';
+      tagChips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+      applyFilters();
     });
   });
 </script>

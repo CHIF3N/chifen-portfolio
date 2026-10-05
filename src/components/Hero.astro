@@ -1,148 +1,121 @@
 ---
-import Scene3D from './Scene3D.astro';
-import { site } from '../lib/site';
+import { Image } from 'astro:assets';
+import portraitImg from '../assets/photos/chifen-portrait.jpg';
 import { withBase } from '../lib/url';
-
-const proofChips = [
-  '⚡ SELF-TRAINED DEV',
-  'The Nurse Who Codes',
-  'Open Source & Automations',
-  'M.Tech Data Science (COLTECH UBa)',
-  'BSc Nursing Science (Top-up)',
-  'HND Nursing (Honors)',
-  'Lead Architect @ LifeDrop',
-  'Lead Engineer @ CoastClear',
-  'CEO @ INKWAVE',
-  'Speaker @ PyCon Cameroon 2026',
-];
 ---
 
-<section class="hero-fullscreen w-full min-h-[calc(100vh-4.5rem)] flex flex-col justify-between px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 pt-4 pb-8 sm:pt-6 sm:pb-10 overflow-x-hidden">
-  <!-- Top: Status and Persona -->
-  <div class="w-full flex flex-wrap items-center justify-between gap-3 mb-2 sm:mb-4">
-    <!-- Live Positioning Radar & Engineering Identity -->
-    <div class="hero-line" style="--i:0">
-      <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shadow-xs">
-        <span class="relative flex h-2 w-2 shrink-0">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-        </span>
-        <!-- ECG pulse icon for The Nurse Who Codes -->
-        <svg class="w-4 h-3 text-emerald-500 stroke-current fill-none stroke-[2] shrink-0" viewBox="0 0 24 14" aria-hidden="true">
-          <path d="M1 7h4l2-5 3 10 3-8 2 5 2-2h7" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        <span class="truncate font-mono text-[11px] tracking-wide uppercase">The Nurse Who Codes • Self-Trained Dev • Open Source &amp; Automations</span>
-      </div>
-    </div>
-
-    <!-- Non-limiting global professional status -->
-    <p class="hero-line eyebrow flex items-center gap-2 text-xs sm:text-sm text-slate" style="--i:0">
-      <span class="relative flex h-2 w-2 shrink-0">
-        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-70"></span>
-        <span class="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
-      </span>
-      <span>{site.name} &mdash; Software Architect &amp; Health-Tech Innovator</span>
-    </p>
-  </div>
-
-  <!-- Giant Headline & Central Interactive Feature -->
-  <h1 class="w-full my-auto flex flex-col justify-center">
-    <span class="hero-line hero-giant-text block w-full text-ink tracking-tight select-none" style="--i:1">
-      The Nurse
-    </span>
-
-    <!-- The middle band: stretches edge-to-edge between the two massive typography words -->
-    <div
-      class="hero-line my-3 sm:my-5 md:my-6 flex flex-col normal-case md:flex-row md:items-center justify-between gap-6 md:gap-10 lg:gap-14 w-full"
-      style="--i:2"
-    >
-      <div class="w-40 sm:w-52 md:w-64 lg:w-72 xl:w-80 shrink-0 mx-auto md:mx-0">
-        <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-line/60 bg-paper-dim/40 transition-transform hover:scale-[1.02] duration-300">
-          <Scene3D src="/scenes/scene-hero.mp4" rounded={false} label="Animated 3D illustration" />
+<section class="relative w-full pt-8 pb-14 sm:pt-14 sm:pb-20 lg:pt-16 lg:pb-24 border-b border-line/60 overflow-hidden">
+  <div class="shell">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <!-- Left Column: Editorial Headline & Value Proposition (7 cols) -->
+      <div class="lg:col-span-7 flex flex-col justify-center">
+        <!-- Eyebrow & Live Status -->
+        <div class="flex items-center gap-2.5 text-xs font-mono uppercase tracking-wider text-slate mb-4 sm:mb-6">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="font-semibold text-ink">CHIFEN SAMA</span>
+          <span class="text-line">&bull;</span>
+          <span>BUEA / YAOUNDÉ, CAMEROON</span>
         </div>
-      </div>
 
-      <div class="flex-1 max-w-3xl flex flex-col items-start gap-4 sm:gap-6">
-        <p class="text-base sm:text-lg md:text-xl lg:text-2xl text-slate leading-relaxed font-sans font-normal">
-          <strong class="text-ink font-semibold">The Nurse Who Codes.</strong> Self-trained software engineer, registered nurse, and health-tech innovator. Autodidactic engineering focused on open-source technologies, workflow automations, and resilient offline-first platforms.
+        <!-- Primary Massive Editorial Headline -->
+        <h1 class="font-display font-bold tracking-tight text-ink uppercase leading-[0.88] select-none text-[clamp(3.5rem,9.5vw,7.8rem)]">
+          The Nurse<br />
+          <span class="text-accent">Who Codes.</span>
+        </h1>
+
+        <!-- Short Supporting Positioning Copy -->
+        <p class="mt-6 text-lg sm:text-xl lg:text-2xl text-ink font-normal leading-relaxed max-w-xl text-balance">
+          I build technology for healthcare, communities and real-world problems &mdash; especially where data, connectivity and resources are limited.
         </p>
 
-        <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
-          <a href={withBase('/work')} class="btn btn-accent btn-md px-6 py-3 text-sm sm:text-base font-semibold shadow-lg shadow-accent/25 hover:shadow-accent/40 transition-all">
-            See the work
+        <!-- Compact Identity Line (Clean unboxed text) -->
+        <div class="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm font-medium text-slate">
+          <span>Nurse</span>
+          <span class="text-line" aria-hidden="true">&middot;</span>
+          <span>Developer</span>
+          <span class="text-line" aria-hidden="true">&middot;</span>
+          <span>Health-tech builder</span>
+          <span class="text-line" aria-hidden="true">&middot;</span>
+          <span>Data Science</span>
+        </div>
+
+        <!-- Action CTAs -->
+        <div class="mt-8 sm:mt-10 flex flex-wrap items-center gap-3 sm:gap-4">
+          <a
+            href="#featured-work"
+            class="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-paper shadow-md transition-all hover:bg-ink-700 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <span>SEE MY WORK</span>
             <span aria-hidden="true">&rarr;</span>
           </a>
-          <a href={withBase('/about')} class="btn btn-ghost btn-md px-6 py-3 text-sm sm:text-base font-medium">
-            About &amp; Story
+
+          <a
+            href={withBase('/contact')}
+            class="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-6 py-3.5 text-sm font-semibold text-ink transition-all hover:border-ink hover:bg-paper-dim hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <span>LET'S TALK</span>
+            <span aria-hidden="true">&rarr;</span>
           </a>
-          <a href={withBase('/cv')} class="btn btn-ghost btn-md px-4 py-3 text-xs sm:text-sm text-slate hover:text-ink">
-            View CV
-          </a>
+        </div>
+      </div>
+
+      <!-- Right Column: Visual Persona & Asymmetric Media Card (5 cols) -->
+      <div class="lg:col-span-5 relative mt-4 lg:mt-0">
+        <div class="relative mx-auto max-w-md lg:max-w-none rounded-2xl overflow-hidden border border-line bg-paper-dim p-2.5 sm:p-3 shadow-xl">
+          <!-- Portrait Container -->
+          <div class="relative aspect-[4/5] rounded-xl overflow-hidden bg-ink">
+            <Image
+              src={portraitImg}
+              alt="Chifen Sama Nduma — The Nurse Who Codes"
+              widths={[400, 700, 900]}
+              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 420px)"
+              priority={true}
+              class="w-full h-full object-cover object-top transition-transform duration-700 hover:scale-105"
+            />
+            <!-- Visual scrim for bottom caption overlay -->
+            <div class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
+              <p class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold mb-1">
+                Clinical Intuition &times; Self-Trained Dev
+              </p>
+              <p class="text-sm font-semibold leading-snug">
+                Chifen Sama Nduma
+              </p>
+              <p class="text-xs text-white/75 mt-0.5">
+                Lead Architect @ LifeDrop &bull; M.Tech Data Science (COLTECH UBa)
+              </p>
+            </div>
+          </div>
+
+          <!-- Quick Proof Pill Strip attached to card -->
+          <div class="pt-3 px-1 flex items-center justify-between text-[11px] font-mono text-slate">
+            <span>&bull; Buea Regional Hospital Study</span>
+            <span>&bull; MTN YaMo Winner</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <span class="hero-line hero-giant-text block w-full text-accent tracking-tight select-none" style="--i:3">
-      Who Codes
-    </span>
-  </h1>
-
-  <!-- Proof chips / credential badges -->
-  <div class="hero-line mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-2.5 items-center w-full" style="--i:4" aria-label="Credentials">
-    {
-      proofChips.map((chip) => (
-        <span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper-dim/90 px-3 py-1.5 text-xs font-semibold text-slate hover:text-ink hover:border-accent/40 transition-all cursor-default">
-          <span aria-hidden="true" class="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-          {chip}
-        </span>
-      ))
-    }
-  </div>
-
-  <!-- Bottom: Scroll prompt & verified impact badge -->
-  <div class="hero-line mt-4 pt-3 border-t border-line/40 hidden sm:flex items-center justify-between text-xs text-slate" style="--i:5">
-    <div class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-slate">
-      <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-      <span>8,500+ Accumulated Reach &bull; 5,000+ Lives Reached &bull; 4 Countries</span>
-    </div>
-    <div class="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-slate hover:text-accent transition-colors">
-      <span>Scroll to explore</span>
-      <svg class="w-3.5 h-3.5 animate-bounce text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-      </svg>
+    <!-- Quick Proof Strip at bottom of Hero -->
+    <div class="mt-12 sm:mt-16 pt-6 border-t border-line/60 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-xs text-slate">
+      <div>
+        <span class="block font-display text-2xl sm:text-3xl font-bold text-ink tabular-nums">5,000+</span>
+        <span class="text-xs text-slate font-medium">Lives directly reached &amp; impacted</span>
+      </div>
+      <div>
+        <span class="block font-display text-2xl sm:text-3xl font-bold text-ink tabular-nums">8,500+</span>
+        <span class="text-xs text-slate font-medium">Platform reach across built tech</span>
+      </div>
+      <div>
+        <span class="block font-display text-2xl sm:text-3xl font-bold text-ink tabular-nums">387</span>
+        <span class="text-xs text-slate font-medium">Hospital clinicians surveyed</span>
+      </div>
+      <div>
+        <span class="block font-display text-2xl sm:text-3xl font-bold text-ink tabular-nums">4</span>
+        <span class="text-xs text-slate font-medium">African countries deployed</span>
+      </div>
     </div>
   </div>
 </section>
-
-<style>
-  .hero-giant-text {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: clamp(3.6rem, 15.5vw, 14.5rem);
-    line-height: 0.84;
-    text-transform: uppercase;
-    letter-spacing: -0.015em;
-    width: 100%;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    :global(html.js) .hero-line {
-      opacity: 0;
-      animation: hero-rise 0.75s var(--ease-out-soft) forwards;
-      animation-delay: calc(var(--i) * 110ms + 60ms);
-    }
-  }
-
-  @keyframes hero-rise {
-    from {
-      opacity: 0;
-      transform: translateY(24px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-</style>

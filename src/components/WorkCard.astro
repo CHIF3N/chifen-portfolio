@@ -1,121 +1,161 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
-import VerifyText from './VerifyText.astro';
 import { withBase } from '../lib/url';
 
 interface Props {
   entry: CollectionEntry<'work'>;
-  delay?: number;
-  /** Position in the grid, rendered as the 01 / 02 ordinal. */
   index?: number;
+  delay?: number;
+  featuredHighlight?: string;
 }
 
-const { entry, delay = 0, index } = Astro.props;
+const { entry, index, delay, featuredHighlight } = Astro.props;
 const { title, summary, tags, status, year, liveUrl, metrics, role, cover } = entry.data;
 
+const ordinal = index !== undefined ? String(index + 1).padStart(2, '0') : null;
+
 const statusLabel: Record<string, string> = {
-  live: 'Live',
+  live: 'Live in Production',
   shipped: 'Shipped',
   'in-progress': 'Building',
-  concept: 'Concept',
+  concept: 'Research / Prototype',
 };
 
-const ordinal = index === undefined ? null : String(index + 1).padStart(2, '0');
+// Select the primary proof achievement: either passed in or first metric
+const primaryAchievement = featuredHighlight || (metrics && metrics.length > 0 ? metrics[0] : null);
+
+// Clean one-sentence summary without clutter
+const punchySummary = summary.split('.')[0] + '.';
+
+// Determine practice domain
+const id = entry.id;
+const isClinical = id === 'ai-clinical-decision-research' || id === 'nurse-intern-assistant' || id === 'abortion-safety-georegistry' || (tags || []).includes('research');
+const isHealthTech = id === 'lifedrop' || id === 'ayodah' || id === 'maternal-health-risk' || id === 'viac-chatbots' || (tags || []).includes('health-tech');
+
+const domainInfo = isClinical
+  ? { id: 'clinical', label: '🩺 Clinical Practice', badgeClass: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30' }
+  : isHealthTech
+  ? { id: 'health-tech', label: '🏥 Health Tech', badgeClass: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30' }
+  : { id: 'tech', label: '💻 Software', badgeClass: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/30' };
 ---
 
-<article
-  data-reveal
-  style={`--reveal-delay:${delay}ms`}
-  class="card-dark group"
->
-  {
-    cover ? (
-      <div class="relative aspect-[16/10] overflow-hidden rounded-xl border border-zinc-800">
+<article class="group relative flex flex-col rounded-2xl border border-line bg-paper overflow-hidden shadow-sm transition-all duration-300 hover:shadow-xl hover:border-ink/20">
+  <!-- Visual Media Frame -->
+  <div class="relative aspect-[16/10] w-full overflow-hidden bg-paper-dim border-b border-line/60">
+    {
+      cover ? (
         <Image
           src={cover}
-          alt=""
-          widths={[400, 700, 1000]}
-          sizes="(max-width: 640px) 92vw, 44vw"
+          alt={`Screenshot and visual interface of ${title}`}
+          widths={[500, 800, 1100]}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           loading="lazy"
           decoding="async"
-          class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
-      </div>
-    ) : (
-      /* No cover art yet, so the panel carries the project name instead of an
-         empty image box. */
-      <div class="relative flex aspect-[16/10] items-end overflow-hidden rounded-xl border border-zinc-800 bg-ink-700 p-6">
-        <span
-          class="font-display text-6xl leading-none font-bold text-paper/12 uppercase sm:text-7xl"
-          aria-hidden="true"
-        >
-          {title}
-        </span>
-      </div>
-    )
-  }
-
-  <div class="flex grow flex-col p-6 sm:p-7">
-    <div class="flex items-center gap-3">
-      {ordinal && <span class="ordinal text-paper/40">{ordinal}</span>}
-      <span
-        class:list={[
-          'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
-          status === 'live' ? 'bg-accent text-ink' : 'bg-paper/10 text-paper/70',
-        ]}
-      >
-        {
-          status === 'live' && (
-            <span class="relative flex h-1.5 w-1.5">
-              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-ink opacity-60" />
-              <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-ink" />
+      ) : (
+        <div class="h-full w-full flex flex-col justify-between p-6 bg-gradient-to-br from-paper-dim to-line/40 text-ink">
+          <div class="flex items-center justify-between text-xs font-mono text-slate">
+            <span>{statusLabel[status] || 'Case Study'}</span>
+            <span>{year}</span>
+          </div>
+          <div>
+            <span class="block font-display text-4xl sm:text-5xl font-bold tracking-tight text-ink/80 uppercase">
+              {title}
             </span>
-          )
-        }
-        {statusLabel[status]}
-      </span>
-      <span class="ordinal ml-auto text-paper/40">{year}</span>
-    </div>
-
-    <h3 class="display-card mt-4 text-paper">
-      <a href={withBase(`/work/${entry.id}`)} class="after:absolute after:inset-0">
-        {title}
-      </a>
-    </h3>
-
-    <p class="body-sm mt-1 text-paper/50">{role}</p>
-    <p class="body-sm mt-3 grow text-paper/70">{summary}</p>
-
-    {
-      metrics.length > 0 && (
-        <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-paper/15 pt-4">
-          {metrics.slice(0, 3).map((metric) => (
-            <li class="font-display text-base font-medium text-paper uppercase">
-              <VerifyText text={metric} />
-            </li>
-          ))}
-        </ul>
+            <span class="text-xs font-mono text-slate mt-1 block">Clinical &bull; Health Technology &bull; Africa</span>
+          </div>
+        </div>
       )
     }
 
-    <div class="mt-5 flex items-center justify-between gap-4">
-      <ul class="flex flex-wrap gap-1.5">
-        {
-          tags.slice(0, 3).map((tag) => (
-            <li class="rounded-full border border-paper/20 px-2.5 py-1 text-xs font-medium text-paper/60">
-              {tag}
-            </li>
-          ))
-        }
-      </ul>
+    <!-- Status pill / indicator overlaid cleanly on top-left -->
+    <div class="absolute top-3 left-3 flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-paper/90 backdrop-blur-md px-3 py-1 text-[11px] font-mono font-semibold text-ink border border-line/80 shadow-xs">
+        {status === 'live' && (
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+        )}
+        {statusLabel[status] || status}
+      </span>
+    </div>
+
+    <!-- Year on top right -->
+    <div class="absolute top-3 right-3">
+      <span class="rounded-full bg-paper/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-mono font-semibold text-slate border border-line/80">
+        {year}
+      </span>
+    </div>
+  </div>
+
+  <!-- Content & Metadata Container -->
+  <div class="flex grow flex-col p-6 sm:p-7 justify-between">
+    <div>
+      <!-- Role and Category Tags: Clean Unboxed Text with Separators -->
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-slate uppercase tracking-wider">
+          <span class="text-ink font-semibold">{role}</span>
+          {tags && tags.length > 0 && (
+            <>
+              <span class="text-line" aria-hidden="true">&middot;</span>
+              <span>{tags.slice(0, 2).join(' · ')}</span>
+            </>
+          )}
+        </div>
+        <span class={`text-[10px] font-mono font-bold uppercase tracking-wider rounded-full border px-2.5 py-0.5 shadow-2xs ${domainInfo.badgeClass}`}>
+          {domainInfo.label}
+        </span>
+      </div>
+
+      <!-- Project Name -->
+      <h3 class="mt-3 font-display text-2xl sm:text-3xl font-bold text-ink tracking-tight uppercase group-hover:text-accent transition-colors">
+        <a href={withBase(`/work/${entry.id}`)} class="focus:outline-none">
+          {title}
+        </a>
+      </h3>
+
+      <!-- One-Sentence Explanation -->
+      <p class="mt-2 text-sm sm:text-base text-slate leading-relaxed">
+        {punchySummary}
+      </p>
+
+      <!-- Key Result / Proof Achievement Highlight -->
+      {
+        primaryAchievement && (
+          <div class="mt-4 pt-3.5 border-t border-line/80 flex items-baseline gap-2">
+            <span class="text-xs font-mono uppercase tracking-wider text-slate-light font-medium">Result:</span>
+            <span class="text-xs sm:text-sm font-semibold text-ink font-sans">
+              {primaryAchievement}
+            </span>
+          </div>
+        )
+      }
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 pt-4 border-t border-line flex items-center justify-between gap-3">
+      <a
+        href={withBase(`/work/${entry.id}`)}
+        class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink transition-colors hover:text-accent group-hover:underline underline-offset-4"
+      >
+        <span>VIEW CASE STUDY</span>
+        <span aria-hidden="true" class="transition-transform group-hover:translate-x-1">&rarr;</span>
+      </a>
+
       {
         liveUrl && (
-          <span class="relative z-10 shrink-0 text-xs font-semibold text-accent">
-            <a href={liveUrl} target="_blank" rel="noopener" class="underline-offset-4 hover:underline">
-              Visit site
-            </a>
-          </span>
+          <a
+            href={liveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs font-mono font-medium text-slate hover:text-accent transition-colors flex items-center gap-1"
+          >
+            <span>Live System</span>
+            <span aria-hidden="true">&nearr;</span>
+          </a>
         )
       }
     </div>

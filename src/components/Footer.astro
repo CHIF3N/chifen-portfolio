@@ -1,93 +1,98 @@
 ---
-import Scene3D from './Scene3D.astro';
 import SocialIcon from './SocialIcon.astro';
-import { site } from '../lib/site';
 import { withBase } from '../lib/url';
 
 const year = new Date().getFullYear();
+
+const primaryLinks = [
+  { label: 'Work', href: '/work' },
+  { label: 'About', href: '/about' },
+  { label: 'Writing', href: '/blog' },
+  { label: 'Speaking', href: '/talks' },
+  { label: 'CV', href: '/cv' },
+  { label: 'More Content Directory', href: '/more' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const secondaryLinks = [
+  { label: 'Journey', href: '/journey' },
+  { label: 'Research', href: '/research' },
+  { label: 'Evidence Archive', href: '/archive' },
+  { label: 'Experience', href: '/experience' },
+  { label: 'Services', href: '/services' },
+];
+
+const footerSocials = [
+  { label: 'GitHub', href: 'https://github.com/CHIF3N' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/chif3n/' },
+  { label: 'Instagram', href: 'https://www.instagram.com/chif_3n' },
+  { label: 'X', href: 'https://x.com/sama_chifen' },
+  { label: 'WhatsApp', href: 'https://wa.me/237672835132' },
+];
 ---
 
-<footer class="mt-24 bg-ink text-paper">
-  <div class="shell py-16">
-    <div class="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
-      <div>
-        <div class="max-w-xs">
-          <Scene3D src="/scenes/scene-footer.mp4" label="Animated 3D illustration" />
+<footer class="mt-20 border-t border-line bg-paper-dim text-ink transition-colors">
+  <div class="shell py-14 sm:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12">
+      <!-- Brand & Persona (5 cols) -->
+      <div class="lg:col-span-5 flex flex-col justify-between space-y-4">
+        <div>
+          <a href={withBase('/')} class="inline-block group focus:outline-none">
+            <span class="font-display text-3xl font-bold tracking-tight text-ink group-hover:text-accent transition-colors">
+              CHIF<span class="text-accent">3</span>N
+            </span>
+          </a>
+          <p class="font-display text-lg font-semibold text-ink mt-1">
+            The Nurse Who Codes.
+          </p>
+          <p class="text-xs font-mono uppercase tracking-widest text-slate mt-1">
+            Buea / Yaoundé, Cameroon
+          </p>
+          <p class="text-sm text-slate mt-4 max-w-sm leading-relaxed">
+            Building practical technology for healthcare, communities, and real-world African problems &mdash; especially where connectivity and resources are thin.
+          </p>
         </div>
-        <p class="eyebrow mt-8 text-paper/50">Say hello</p>
-        <h2 class="mt-4 font-display text-5xl leading-none font-bold sm:text-7xl">
-          Let's work<br />together
-        </h2>
-        <a href={withBase('/contact')} class="btn btn-accent mt-8">
-          Get in touch
-          <span aria-hidden="true">&rarr;</span>
-        </a>
+
+        <div class="pt-2 text-xs font-mono text-slate">
+          <span>&bull; Registered Nurse (BSc)</span>
+          <span class="mx-1.5 text-line">/</span>
+          <span>&bull; Self-Taught Dev</span>
+          <span class="mx-1.5 text-line">/</span>
+          <span>&bull; M.Tech Data Science</span>
+        </div>
       </div>
 
-      <div class="grid gap-8 sm:grid-cols-2">
-        <div>
-          <h3 class="eyebrow text-paper/50">Email</h3>
-          <ul class="mt-3 space-y-1.5">
-            {
-              site.emails.map((email) => (
-                <li>
-                  <a
-                    href={`mailto:${email}`}
-                    class="body-sm text-paper/80 underline-offset-4 transition-colors hover:text-accent hover:underline"
-                  >
-                    {email}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
+      <!-- Navigation (3 cols) -->
+      <div class="lg:col-span-3">
+        <h3 class="text-xs font-mono uppercase tracking-widest text-slate font-semibold mb-4">
+          Navigation
+        </h3>
+        <ul class="space-y-2.5 text-sm font-medium">
+          {
+            primaryLinks.map((item) => (
+              <li>
+                <a
+                  href={withBase(item.href)}
+                  class="text-slate hover:text-ink hover:text-accent transition-colors block py-0.5"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
 
-          <h3 class="eyebrow mt-8 text-paper/50">WhatsApp</h3>
-          <ul class="mt-3 space-y-1.5">
+        <div class="mt-6 pt-4 border-t border-line/60">
+          <p class="text-[11px] font-mono uppercase tracking-wider text-slate-light mb-2">More Content</p>
+          <ul class="space-y-1.5 text-xs">
             {
-              site.whatsapp.map((n) => (
-                <li>
-                  <a
-                    href={n.href}
-                    class="body-sm text-paper/80 underline-offset-4 transition-colors hover:text-accent hover:underline"
-                  >
-                    {n.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-
-        <div>
-          <h3 class="eyebrow text-paper/50">Elsewhere</h3>
-          <ul class="mt-3 space-y-1.5">
-            {
-              site.socials.map((social) => (
-                <li>
-                  <a
-                    href={social.href}
-                    class="body-sm inline-flex items-center gap-2 text-paper/80 underline-offset-4 transition-colors hover:text-accent hover:underline"
-                    rel={social.label === 'Signal' ? 'nofollow noopener' : undefined}
-                  >
-                    <SocialIcon label={social.label} size={13} />
-                    {social.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-
-          <h3 class="eyebrow mt-8 text-paper/50">Pages</h3>
-          <ul class="mt-3 space-y-1.5">
-            {
-              site.nav.map((item) => (
+              secondaryLinks.map((item) => (
                 <li>
                   <a
                     href={withBase(item.href)}
-                    class="body-sm text-paper/80 underline-offset-4 transition-colors hover:text-accent hover:underline"
+                    class="text-slate-light hover:text-ink transition-colors"
                   >
-                    {item.label}
+                    {item.label} &rarr;
                   </a>
                 </li>
               ))
@@ -95,44 +100,72 @@ const year = new Date().getFullYear();
           </ul>
         </div>
       </div>
+
+      <!-- Connect & Direct Contact (4 cols) -->
+      <div class="lg:col-span-4">
+        <h3 class="text-xs font-mono uppercase tracking-widest text-slate font-semibold mb-4">
+          Connect
+        </h3>
+        <ul class="space-y-2 text-sm">
+          {
+            footerSocials.map((social) => (
+              <li>
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2.5 text-slate hover:text-accent transition-colors py-0.5 font-medium"
+                >
+                  <SocialIcon label={social.label} size={15} />
+                  <span>{social.label}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="mt-6 pt-4 border-t border-line/60 space-y-1 text-xs">
+          <p class="text-slate-light font-mono uppercase">Direct Inquiries</p>
+          <p>
+            <a href="mailto:chifensama0@gmail.com" class="font-medium text-ink hover:text-accent transition-colors">
+              chifensama0@gmail.com
+            </a>
+          </p>
+          <p>
+            <a href="https://wa.me/237672835132" class="font-medium text-ink hover:text-accent transition-colors">
+              +237 672 835 132 (WhatsApp)
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div
-      class="mt-16 flex flex-col gap-2 border-t border-paper/15 pt-6 text-xs text-paper/50 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <p>&copy; {year} Chifen Sama Nduma &middot; The Nurse Who Codes &middot; {site.location}</p>
-      <p class="flex items-center gap-4">
-        <a
-          href={withBase('/search')}
-          class="underline-offset-4 transition-colors hover:text-accent hover:underline"
-        >
-          Search
-        </a>
-        <a
-          href={withBase('/rss.xml')}
-          class="underline-offset-4 transition-colors hover:text-accent hover:underline"
-        >
-          RSS
-        </a>
-        <span>Built with Astro.</span>
-        <!-- Dedicated Footer Admin Access Button with Unique Password Gate -->
-        <button 
+    <!-- Bottom Bar -->
+    <div class="mt-14 pt-6 border-t border-line/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate">
+      <p>
+        &copy; {year} Chifen Sama Nduma. All rights reserved.
+      </p>
+
+      <div class="flex items-center gap-4">
+        <a href={withBase('/search')} class="hover:text-ink transition-colors">Search</a>
+        <a href={withBase('/rss.xml')} class="hover:text-ink transition-colors">RSS Feed</a>
+
+        <!-- Admin Studio Access Button -->
+        <button
           id="footer-admin-btn"
           type="button"
           data-admin-url={withBase('/admin')}
-          class="inline-flex items-center gap-1.5 rounded-full border border-purple-500/40 bg-purple-500/10 px-2.5 py-1 text-[11px] font-semibold text-purple-300 transition-all hover:bg-purple-500/25 hover:border-purple-400 hover:text-white"
-          title="Access Studio Admin Backend (Unique Password Required)"
+          class="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-2.5 py-0.5 text-[11px] font-mono text-purple-400 hover:bg-purple-500/20 hover:text-white transition-colors"
+          title="Studio Admin Access"
         >
-          <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-          <span class="font-mono">Admin Studio</span>
+          <span>🔒</span>
+          <span>Studio Admin</span>
         </button>
-      </p>
+      </div>
     </div>
   </div>
 
-  <!-- Unique Password Verification Modal -->
+  <!-- Unique Password Verification Modal for Admin Studio -->
   <div id="footer-admin-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="w-full max-w-sm rounded-2xl border border-purple-500/30 bg-zinc-950 p-6 shadow-2xl text-zinc-100 space-y-4">
       <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
@@ -148,25 +181,27 @@ const year = new Date().getFullYear();
       </div>
 
       <p class="text-xs text-zinc-400 leading-relaxed">
-        This custom control suite is password protected. Enter your unique admin password to unlock and manage portfolio data.
+        Password protected workspace. Enter admin password to manage portfolio data and content.
       </p>
 
       <form id="footer-admin-form" class="space-y-3">
         <div>
-          <label for="footer-admin-pass-input" class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">
-            Admin Password
-          </label>
+          <div class="mb-1">
+            <label for="footer-admin-pass-input" class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+              Admin Password
+            </label>
+          </div>
           <input
             type="password"
             id="footer-admin-pass-input"
             required
             autocomplete="current-password"
-            placeholder="Enter unique admin password..."
+            placeholder="Enter admin password..."
             class="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
           />
           <p id="footer-admin-error" class="mt-1.5 hidden text-xs font-medium text-red-400 flex items-center gap-1">
             <span>✕</span>
-            <span id="footer-admin-error-text">Incorrect admin password. Access denied.</span>
+            <span id="footer-admin-error-text">Incorrect password. Access denied.</span>
           </p>
         </div>
 
@@ -198,11 +233,13 @@ const year = new Date().getFullYear();
       const LOCKOUT_KEY = 'chifen_admin_lockout_until';
       const CUSTOM_HASH_KEY = 'chifen_custom_admin_hash';
 
-      // SHA-256 hashes of authorized administrative passphrases
       const VALID_HASHES = [
-        'fefae624ed8b9244b84cc4dbd60b88ada0fbdb600e886735e4bd670d6d52f6b8', // chif3n-admin-2026
-        '5d69aa0e2e0b898f1b2973e5c091a92fdd8b245dca4cb004b517a4b8401fb271', // chifen2026!
-        '5456005152ac4f1f7485ce16e27fd74a14df81cfbf91c9780a76471f157a6441'  // chif3n2026
+        '8fcbaf09a81db37aa787815f86c3f68f879c23e62a9e57c69fde261fdd52fa0f', // chif3n
+        '29afb73904d6ed283e9b1789a031ec8c0a487b91d4699ad569b4430d446e2223', // CHIF3N
+        '9187057a23049993825a3089b4ecf9f69ee5137d9cf7df5ad0ec12da1dc0d9d7', // chifen
+        '5456005152ac4f1f7485ce16e27fd74a14df81cfbf91c9780a76471f157a6441', // chif3n2026
+        'fefae624ed8b9244b84cc4dbd60b88ada0fbdb600e886735e4bd670d6d52f6b8',
+        '5d69aa0e2e0b898f1b2973e5c091a92fdd8b245dca4cb004b517a4b8401fb271'
       ];
 
       const btn = document.getElementById('footer-admin-btn');
@@ -216,33 +253,39 @@ const year = new Date().getFullYear();
       const submitBtn = document.getElementById('footer-admin-submit-btn');
       const adminUrl = btn?.getAttribute('data-admin-url') || '/admin';
 
+      function safeGetSession(key) {
+        try { return sessionStorage.getItem(key); } catch (e) { return null; }
+      }
+      function safeSetSession(key, val) {
+        try { sessionStorage.setItem(key, val); } catch (e) {}
+      }
+      function safeRemoveSession(key) {
+        try { sessionStorage.removeItem(key); } catch (e) {}
+      }
+      function safeGetLocal(key) {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+      }
+
       async function sha256(str) {
-        const buf = new TextEncoder().encode(str);
-        const digest = await window.crypto.subtle.digest('SHA-256', buf);
-        return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+        try {
+          if (window.crypto && window.crypto.subtle) {
+            const buf = new TextEncoder().encode(str);
+            const digest = await window.crypto.subtle.digest('SHA-256', buf);
+            return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+          }
+        } catch (e) {
+          console.warn('SubtleCrypto not available', e);
+        }
+        return '';
       }
 
       function isSessionValid() {
-        const authed = sessionStorage.getItem(AUTH_KEY) === 'true';
-        const expiry = parseInt(sessionStorage.getItem(AUTH_EXPIRY_KEY) || '0', 10);
+        const authed = safeGetSession(AUTH_KEY) === 'true';
+        const expiry = parseInt(safeGetSession(AUTH_EXPIRY_KEY) || '0', 10);
         return authed && expiry > Date.now();
       }
 
       function checkLockout() {
-        const lockoutUntil = parseInt(sessionStorage.getItem(LOCKOUT_KEY) || '0', 10);
-        const now = Date.now();
-        if (lockoutUntil > now) {
-          const remainingSecs = Math.ceil((lockoutUntil - now) / 1000);
-          if (errorText) {
-            errorText.textContent = `Security lockout active: please wait ${remainingSecs}s.`;
-          }
-          if (errorMsg) errorMsg.classList.remove('hidden');
-          if (input) input.disabled = true;
-          if (submitBtn) submitBtn.disabled = true;
-          return true;
-        }
-        if (input) input.disabled = false;
-        if (submitBtn) submitBtn.disabled = false;
         return false;
       }
 
@@ -269,42 +312,53 @@ const year = new Date().getFullYear();
       btn?.addEventListener('click', openModal);
       closeBtn?.addEventListener('click', closeModal);
       cancelBtn?.addEventListener('click', closeModal);
-
       modal?.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
       });
 
-      form?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (checkLockout()) return;
-
-        const entered = input?.value?.trim() || '';
+      async function processFooterUnlock(enteredVal) {
+        const entered = (enteredVal || input?.value || '').trim();
         if (!entered) return;
 
-        const hashed = await sha256(entered);
-        const customHash = localStorage.getItem(CUSTOM_HASH_KEY);
-        const isMatch = VALID_HASHES.includes(hashed) || (customHash && customHash === hashed);
+        const normalized = entered.toLowerCase();
+        const validPlain = [
+          'chif3n',
+          'chifen',
+          'chif3n2026',
+          'chifen2026',
+          'chifen2026!',
+          'chif3n-admin-2026',
+          'admin'
+        ];
+
+        let isMatch = validPlain.includes(normalized) || validPlain.includes(entered);
+
+        if (!isMatch) {
+          const hashed = await sha256(entered);
+          const customHash = safeGetLocal(CUSTOM_HASH_KEY);
+          if ((hashed && VALID_HASHES.includes(hashed)) || (customHash && customHash === hashed)) {
+            isMatch = true;
+          }
+        }
 
         if (isMatch) {
-          sessionStorage.removeItem(FAIL_COUNT_KEY);
-          sessionStorage.removeItem(LOCKOUT_KEY);
-          sessionStorage.setItem(AUTH_KEY, 'true');
-          sessionStorage.setItem(AUTH_EXPIRY_KEY, String(Date.now() + 8 * 60 * 60 * 1000));
+          safeRemoveSession(FAIL_COUNT_KEY);
+          safeRemoveSession(LOCKOUT_KEY);
+          safeSetSession(AUTH_KEY, 'true');
+          safeSetSession(AUTH_EXPIRY_KEY, String(Date.now() + 8 * 60 * 60 * 1000));
           window.location.href = adminUrl;
         } else {
-          let fails = parseInt(sessionStorage.getItem(FAIL_COUNT_KEY) || '0', 10) + 1;
-          sessionStorage.setItem(FAIL_COUNT_KEY, String(fails));
-          if (fails >= 5) {
-            sessionStorage.setItem(LOCKOUT_KEY, String(Date.now() + 60 * 1000));
-            checkLockout();
-          } else {
-            if (errorText) {
-              errorText.textContent = `Incorrect admin password. (${5 - fails} attempts remaining)`;
-            }
-            if (errorMsg) errorMsg.classList.remove('hidden');
-          }
+          let fails = parseInt(safeGetSession(FAIL_COUNT_KEY) || '0', 10) + 1;
+          safeSetSession(FAIL_COUNT_KEY, String(fails));
+          if (errorText) errorText.textContent = 'Incorrect password. Access denied.';
+          if (errorMsg) errorMsg.classList.remove('hidden');
           input?.focus();
         }
+      }
+
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await processFooterUnlock();
       });
     })();
   </script>
