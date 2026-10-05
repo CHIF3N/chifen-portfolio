@@ -26,7 +26,7 @@ Three files do all the work.
   project="nginx-proxy"
   files={[
     {
-      name: "nginx.conf",
+      name: "nginx/nginx.conf",
       lang: "nginx",
       code: `# /etc/nginx/nginx.conf
 
@@ -124,7 +124,7 @@ http {
 }`
     },
     {
-      name: "docker-compose.yml",
+      name: "docker/docker-compose.yml",
       lang: "yaml",
       code: `version: "3.9"
 
@@ -137,7 +137,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
     depends_on:
@@ -187,7 +187,7 @@ networks:
     driver: bridge`
     },
     {
-      name: "Dockerfile",
+      name: "docker/Dockerfile",
       lang: "dockerfile",
       code: `# api/Dockerfile
 # Multi-stage build — keeps the final image < 150 MB.

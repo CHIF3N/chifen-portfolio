@@ -294,13 +294,24 @@ const renderedTreeHtml = renderTree(fileTree);
       </div>
     </div>
 
-    <button type="button" class="cwb-copy" id={`${uid}-copy`} aria-label="Copy code" title="Copy code">
-      <svg class="cwb-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <rect x="9" y="9" width="13" height="13" rx="2"></rect>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-      <span class="cwb-copy-label">Copy Code</span>
-    </button>
+    <div class="cwb-actions">
+      <button type="button" class="cwb-btn cwb-copy" id={`${uid}-copy`} aria-label="Copy code" title="Copy code">
+        <svg class="cwb-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span class="cwb-copy-label">Copy Code</span>
+      </button>
+
+      <button type="button" class="cwb-btn cwb-download" id={`${uid}-download`} aria-label="Download current file" title="Download current file">
+        <svg class="cwb-download-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span class="cwb-download-label">Download</span>
+      </button>
+    </div>
   </div>
 
   <!-- Tab strip -->
@@ -399,11 +410,31 @@ const renderedTreeHtml = renderTree(fileTree);
         (p as HTMLElement).hidden = !on;
       });
 
-      // Update tree buttons
+      // Update tree buttons and ensure parent folders are open
       fileButtons.forEach((btn) => {
         const on = Number(btn.dataset.index) === index;
         btn.classList.toggle('cwb-file-btn--active', on);
         btn.setAttribute('aria-selected', String(on));
+
+        if (on) {
+          // Open all parent folders in the file tree
+          let parent = btn.parentElement;
+          while (parent && parent !== wb) {
+            if (parent.classList.contains('cwb-tree-folder')) {
+              parent.classList.add('cwb-folder--open');
+              parent.classList.remove('cwb-folder--closed');
+              const folderBtn = parent.querySelector<HTMLElement>(':scope > .cwb-folder-btn');
+              if (folderBtn) {
+                folderBtn.setAttribute('aria-expanded', 'true');
+                const iconOpen = folderBtn.querySelector<HTMLElement>('.cwb-icon-fld-open');
+                const iconClosed = folderBtn.querySelector<HTMLElement>('.cwb-icon-fld-closed');
+                if (iconOpen) iconOpen.style.display = 'inline-block';
+                if (iconClosed) iconClosed.style.display = 'none';
+              }
+            }
+            parent = parent.parentElement;
+          }
+        }
       });
 
       // Update breadcrumb
@@ -435,6 +466,7 @@ const renderedTreeHtml = renderTree(fileTree);
 
         const isOpen = folderNode.classList.contains('cwb-folder--open');
         folderNode.classList.toggle('cwb-folder--open', !isOpen);
+        folderNode.classList.toggle('cwb-folder--closed', isOpen);
         btn.setAttribute('aria-expanded', String(!isOpen));
 
         const iconOpen = btn.querySelector<HTMLElement>('.cwb-icon-fld-open');
@@ -452,15 +484,46 @@ const renderedTreeHtml = renderTree(fileTree);
         const activeIndex = [...tabs].findIndex(t =>
           t.classList.contains('cwb-tab--active')
         );
-        const codeToCopy = files[activeIndex]?.code ?? '';
+        const codeToCopy = files[activeIndex >= 0 ? activeIndex : 0]?.code ?? '';
         navigator.clipboard?.writeText(codeToCopy).then(() => {
           copyLabel.textContent = 'Copied!';
-          copyBtn.classList.add('cwb-copy--ok');
+          copyBtn.classList.add('cwb-btn--ok');
           setTimeout(() => {
             copyLabel.textContent = 'Copy Code';
-            copyBtn.classList.remove('cwb-copy--ok');
+            copyBtn.classList.remove('cwb-btn--ok');
           }, 2000);
         });
+      });
+    }
+
+    // Download button
+    const downloadBtn   = document.getElementById(`${uid}-download`);
+    const downloadLabel = downloadBtn?.querySelector<HTMLElement>('.cwb-download-label');
+    if (downloadBtn && downloadLabel) {
+      downloadBtn.addEventListener('click', () => {
+        const activeIndex = [...tabs].findIndex(t =>
+          t.classList.contains('cwb-tab--active')
+        );
+        const file = files[activeIndex >= 0 ? activeIndex : 0];
+        if (!file) return;
+
+        const blob = new Blob([file.code], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const filename = file.name.split('/').pop() || 'code-snippet.txt';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        downloadLabel.textContent = 'Downloaded!';
+        downloadBtn.classList.add('cwb-btn--ok');
+        setTimeout(() => {
+          downloadLabel.textContent = 'Download';
+          downloadBtn.classList.remove('cwb-btn--ok');
+        }, 2000);
       });
     }
 
@@ -574,10 +637,17 @@ const renderedTreeHtml = renderTree(fileTree);
     font-weight: 500;
   }
 
-  .cwb-copy {
+  .cwb-actions {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .cwb-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.38rem;
     padding: 0.28rem 0.65rem;
     border-radius: 6px;
     border: 1px solid var(--cwb-border);
@@ -589,17 +659,27 @@ const renderedTreeHtml = renderTree(fileTree);
     cursor: pointer;
     white-space: nowrap;
     flex-shrink: 0;
-    transition: all 0.18s;
+    transition: all 0.18s ease;
   }
-  .cwb-copy:hover {
+  .cwb-btn:hover {
     color: var(--cwb-text);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.22);
   }
-  .cwb-copy--ok {
+  .cwb-download {
+    background: rgba(56, 189, 248, 0.06);
+    border-color: rgba(56, 189, 248, 0.2);
+    color: #93c5fd;
+  }
+  .cwb-download:hover {
+    background: rgba(56, 189, 248, 0.14);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #e0f2fe;
+  }
+  .cwb-btn--ok {
     color: #3fb950 !important;
     border-color: rgba(63, 185, 80, 0.4) !important;
-    background: rgba(63, 185, 80, 0.1) !important;
+    background: rgba(63, 185, 80, 0.12) !important;
   }
 
   /* Tab strip */
