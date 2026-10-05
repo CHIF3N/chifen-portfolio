@@ -4,111 +4,68 @@ import Base from '../layouts/Base.astro';
 import portrait from '../assets/photos/chifen-portrait.jpg';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
+import { professionalBio, storyChapters } from '../data/storyData';
 
 /*
  * Three-Pillar Fanaka Narrative
- *
- * Pillar 1: Clinical Domain Insider  — the nursing background as structural advantage
+ * Pillar 1: Clinical Domain Insider — the nursing background as structural advantage
  * Pillar 2: African Technical Resilience — building for the real constraints
  * Pillar 3: Community Architecture — what gets built when the founder stays
  */
 
-const journey = [
-  {
-    year: '2020',
-    title: 'Co-founded Ayodah',
-    body: 'Built a blood donor coordination platform that grew to 400+ registered donors, 310 mediated donations, and partnerships with 3 hospitals and 5+ NGOs across Cameroon.',
-  },
-  {
-    year: '2022',
-    title: 'Won the Silicon Mountain Challenge',
-    body: "Ayodah took the prize at Cameroon's premier startup competition. The network was real: 400 donors, 310 donations, 3 hospitals. The app died at the install screen.",
-  },
-  {
-    year: '2022 – 2024',
-    title: 'HND Nursing',
-    body: 'Clinical training at Gracious Higher Institute of Excellence. Best Overall Student, Best Nursing Student. Ran innovation projects in parallel — not after.',
-  },
-  {
-    year: '2023',
-    title: 'Co-founded INKWAVE',
-    body: 'Launched INKWAVE (https://inkwave-cm.vercel.app/) as a digital storytelling agency and developer advocacy studio driving technical communication across Central and West Africa.',
-  },
-  {
-    year: '2024 – 2026',
-    title: 'BSc Nursing & the AI research',
-    body: 'Top-up BSc through GHIE, mentored by the University of Bamenda. Ran a 387-respondent cross-sectional study at Buea Regional Hospital on whether health workers are ready for AI in clinical decision-making. 92.4% response rate.',
-  },
-  {
-    year: '2025 – 2026',
-    title: 'District Data Manager & PMTCT Departmental Head',
-    body: 'Concluded mandate as District Data Manager for Kumba South Health District and PMTCT programme head. Automated DHIS2 local-to-cloud facility sync workflows, audited clinical registries, and improved data completeness to >95%.',
-  },
-  {
-    year: '2026',
-    title: 'Launched LifeDrop',
-    body: "Rebuilt the Ayodah network inside WhatsApp — where families already ask for help. Placed third in the MTN YaMo Pitch Season 4. Pilot target: 1,000 donors and 200 matches in Buea's first six months.",
-  },
-  {
-    year: '2026',
-    title: 'Speaker @ PyCon & UbuCon Cameroon',
-    body: 'Delivered talks on building health technology in low-bandwidth environments and on open-source tools for clinical data management in Africa.',
-  },
-  {
-    year: 'Next',
-    title: "Master's in health technology",
-    body: 'Postgraduate study in health technology or digital health, peer-reviewed publication, and health-tech ventures that work across more of the continent.',
-  },
-];
-
 const awards = [
-  'Best Overall HND Student',
-  'Best Nursing Student, HND',
+  'Best Overall HND Student, Nursing',
+  'Best Nursing Student, HND Cohort',
   'Innovative Excellence Award',
   'Best Creative Thinker',
   'Proactive Student Award',
   '3rd Place, MTN YaMo Pitch Season 4 (LifeDrop)',
   'Winner, Silicon Mountain Challenge 2022 (Ayodah)',
+  '3rd Place, Cameroon Presidential ICT Week Finals 2022 (HATS Agrobot)',
 ];
 
 const certifications = [
+  { name: 'Master of Technology (M.Tech) in Data Science', issuer: 'College of Technology (COLTECH), The University of Bamenda, 2026–Present' },
+  { name: 'Bachelor of Science in Nursing Science (Top-up)', issuer: 'Gracious Higher Institute of Excellence (Mentored by University of Bamenda), 2025–2026' },
+  { name: 'Higher National Diploma (HND) in Nursing', issuer: 'Ministry of Higher Education, Cameroon, 2022–2025' },
   { name: 'Certificate of Training Completion', issuer: 'The Tony Elumelu Foundation' },
   { name: 'Certificate of Business Management Training', issuer: 'The Tony Elumelu Foundation' },
   { name: 'UNLEASH Hack Talent, Certificate of Participation', issuer: 'UNLEASH' },
   { name: 'Medical Abortion Course for Providers', issuer: 'International Planned Parenthood Federation' },
   { name: 'Teaching English as a Foreign Language (TEFL)', issuer: 'Teacher Record' },
   { name: 'Advancing the Role of Women in Politics', issuer: 'Regional Leadership Center East Africa' },
+  { name: 'Wisdom for Dominion Leadership Academy (Batch 9)', issuer: 'Wisdom for Dominion' },
 ];
 
 const skills = [
   {
-    group: 'Clinical nursing',
-    items: ['Emergency care', 'PMTCT workflows', 'Clinical research', 'Health education', 'Patient data management'],
+    group: 'Clinical nursing & Informatics',
+    items: ['Emergency care triage', 'PMTCT workflows', 'DHIS2 data management', 'Clinical research', 'Health education', 'Patient registry audits'],
   },
   {
-    group: 'Research and data',
-    items: ['SPSS', 'KoboCollect', 'PRISMA methodology', 'Data analysis', 'Scientific writing'],
+    group: 'Research and data science',
+    items: ['SPSS biostatistics', 'KAP survey instrumentation', 'KoboCollect', 'scikit-learn risk models', 'PRISMA systematic review', 'Scientific writing'],
   },
   {
-    group: 'Engineering',
+    group: 'Engineering & systems',
     items: [
       'JavaScript / TypeScript',
       'Python',
+      'WhatsApp Cloud API webhooks',
       'React Native / Expo',
       'Next.js',
       'Astro',
       'Tailwind CSS',
-      'WhatsApp Cloud API',
       'Firebase / Firestore',
-      'scikit-learn',
-      'n8n automation',
+      'Redis queues',
+      'Offline-first SQLite sync',
       'Git / GitHub',
-      'Figma',
+      'Figma UI/UX',
     ],
   },
   {
-    group: 'Communication',
-    items: ['Technical writing', 'Content strategy', 'Brand development', 'SEO', 'English & French'],
+    group: 'Strategic communication',
+    items: ['Technical writing & journalism', 'Public speaking & keynotes', 'Content strategy', 'Bilingual (English & French)', 'Community leadership'],
   },
 ];
 
@@ -116,12 +73,12 @@ const pillars = [
   {
     number: '01',
     title: 'Clinical Domain Insider',
-    body: "I trained and worked as a registered nurse before I learned to build software. That matters because the gap between what a health product claims to do and what actually happens in a ward is almost always invisible to people who have never worked in one. I have seen a blood transfusion delayed because nobody could find a compatible donor in a city that had one. I have seen a form that does not ask the right question. I have seen what fails at two in the morning and what holds. That is not user research. It is structural knowledge, and it changes what gets built.",
+    body: "I trained and worked as a registered nurse before I built software. That matters because the gap between what a health product claims to do and what actually happens in a ward is almost always invisible to people who have never worked in one. I have seen a blood transfusion delayed because nobody could find a compatible donor in a city that had one. I have seen a form that does not ask the right question. I have seen what fails at two in the morning and what holds. That is not user research. It is structural knowledge, and it changes what gets built.",
   },
   {
     number: '02',
     title: 'African Technical Resilience',
-    body: "Most health software is built for conditions that do not exist in most of the world: reliable power, fast internet, smartphones with storage to spare, users who have time to learn an interface. I build for what is actually there. Low data. Unreliable power. A phone rather than a laptop. A language a government form does not offer. That is not a constraint I work around. It is a design specification I start from.",
+    body: "Most health software is built for conditions that do not exist in most of the world: reliable power, fast internet, smartphones with storage to spare, users who have time to learn an interface. I build for what is actually there. Low data. Unreliable power. A basic Android phone rather than a laptop. A language a government form does not offer. That is not a constraint I work around. It is a design specification I start from.",
   },
   {
     number: '03',
@@ -133,89 +90,322 @@ const pillars = [
 
 <Base
   title="About"
-  description="Chifen Sama Nduma is a registered nurse and software engineer in Buea, Cameroon, building health technology for low-resource settings."
+  description="Chifen Sama Nduma is The Nurse Who Codes: registered nurse, software engineer, and health technology researcher based in Buea, Cameroon."
+  ogImage="/assets/photos/chifen-portrait.jpg"
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    name: 'About Chifen Sama Nduma — The Nurse Who Codes',
+    mainEntity: {
+      '@type': 'Person',
+      name: 'Chifen Sama Nduma',
+      alternateName: ['Chifen Sama', 'CHIF3N', 'The Nurse Who Codes'],
+      jobTitle: 'Software Engineer & Registered Nurse',
+      alumniOf: 'Gracious Higher Institute of Excellence',
+    },
+  }}
 >
-  <!-- Header -->
-  <section class="mx-auto max-w-6xl px-5 pt-14 pb-16 sm:px-8 sm:pt-20">
-    <div class="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
+  <!-- Hero & Mode Switcher -->
+  <section class="mx-auto max-w-5xl px-5 pt-12 pb-8 sm:px-8 sm:pt-16">
+    <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 class="font-display text-4xl font-semibold sm:text-5xl">About</h1>
+        <p class="eyebrow text-accent">Personal Profile &amp; Documentary</p>
+        <h1 class="mt-2 font-display text-4xl font-semibold sm:text-6xl text-ink">
+          About Chifen
+        </h1>
+        <p class="mt-2 text-lg text-slate">
+          The Nurse Who Codes &mdash; Healthcare, Software, Research, and Community Innovation.
+        </p>
+      </div>
 
-        <div class="mt-8 space-y-5 text-lg leading-relaxed text-slate">
-          <p>
-            I am a registered nurse and software engineer. I work at the intersection of medicine,
-            technology, and the real constraints of health delivery in Cameroon. The combination is
-            not incidental. It is the point.
-          </p>
-          <p>
-            Nursing showed me the front line: what a ward runs out of, what a form does not ask,
-            what breaks at two in the morning and what holds. Software gave me a way to fix some of
-            it rather than chart it and move on. What I build now sits between the two: blood donor
-            networks, clinical data tools, WhatsApp health services, and research that holds up
-            under scrutiny.
-          </p>
-          <p>
-            Following the conclusion of my mandate as District Data Manager and PMTCT Head for Kumba South
-            Health District, my engineering focus is on LifeDrop's WhatsApp emergency dispatch architecture,
-            CoastClear's conservation logistics, and <a href="https://inkwave-cm.vercel.app/" target="_blank" rel="noopener noreferrer" class="font-medium text-accent underline underline-offset-2 hover:text-ink transition-colors">INKWAVE's ↗</a> technical storytelling. Three lanes, one direction.
+      <!-- Mode Switcher Toggle: [ PROFESSIONAL BIO ] [ THE FULL STORY ] -->
+      <div class="mode-switch-wrapper self-start sm:self-auto" role="tablist" aria-label="Biography view mode">
+        <button
+          id="btn-mode-bio"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-mode-bio"
+          class="mode-switch-btn is-active"
+        >
+          <span class="inline-block h-2 w-2 rounded-full bg-accent"></span>
+          Professional Bio
+        </button>
+        <button
+          id="btn-mode-story"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-mode-story"
+          class="mode-switch-btn"
+        >
+          <span class="inline-block h-2 w-2 rounded-full bg-slate"></span>
+          The Full Story
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- MODE A: PROFESSIONAL BIO (Default View for Recruiters, Partners & Media) -->
+  <!-- ========================================================================= -->
+  <section id="panel-mode-bio" role="tabpanel" aria-labelledby="btn-mode-bio" class="mx-auto max-w-5xl px-5 pb-16 sm:px-8">
+    <div class="grid gap-12 lg:grid-cols-[1.25fr_0.75fr] lg:gap-14">
+      <div>
+        <!-- Executive Bio Summary -->
+        <div class="rounded-2xl border border-line bg-paper-dim/60 p-6 sm:p-8">
+          <p class="eyebrow text-accent">Executive Summary</p>
+          <p class="mt-3 font-display text-2xl font-semibold sm:text-3xl leading-snug text-ink">
+            {professionalBio.summary}
           </p>
         </div>
 
-        <div class="mt-8 flex flex-wrap gap-3">
+        <!-- Impact Numbers At A Glance -->
+        <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="rounded-xl border border-line bg-paper-dim/40 p-4 text-center">
+            <p class="font-display text-3xl font-bold text-accent">5,000+</p>
+            <p class="text-xs text-slate mt-1">Lives reached &amp; impacted</p>
+          </div>
+          <div class="rounded-xl border border-line bg-paper-dim/40 p-4 text-center">
+            <p class="font-display text-3xl font-bold text-ink">8,500+</p>
+            <p class="text-xs text-slate mt-1">Accumulated reach across built tech</p>
+          </div>
+          <div class="rounded-xl border border-line bg-paper-dim/40 p-4 text-center">
+            <p class="font-display text-3xl font-bold text-ink">4</p>
+            <p class="text-xs text-slate mt-1">Countries deployed &amp; reached</p>
+          </div>
+          <div class="rounded-xl border border-line bg-paper-dim/40 p-4 text-center">
+            <p class="font-display text-3xl font-bold text-accent">100%</p>
+            <p class="text-xs text-slate mt-1">Self-trained software dev</p>
+          </div>
+        </div>
+
+        <div class="mt-8 space-y-5 text-base sm:text-lg leading-relaxed text-slate">
+          {professionalBio.paragraphs.map((p) => (
+            <p>{p}</p>
+          ))}
+        </div>
+
+        <!-- 4 Pillars of Competence -->
+        <div class="mt-10 grid gap-4 sm:grid-cols-2">
+          {professionalBio.focusAreas.map((area) => (
+            <div class="card-flat p-5">
+              <h3 class="font-display text-base font-bold text-ink uppercase tracking-wide">
+                {area.title}
+              </h3>
+              <p class="mt-1.5 text-sm text-slate leading-relaxed">
+                {area.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <!-- Bio Quick Actions -->
+        <div class="mt-8 flex flex-wrap items-center gap-3">
           <a href={withBase('/cv')} class="btn btn-accent btn-sm">
             View full CV
             <span aria-hidden="true">&rarr;</span>
           </a>
           <a href={withBase('/work')} class="btn btn-ghost btn-sm">
-            See the work
+            Explore projects
           </a>
+          <button
+            type="button"
+            id="switch-to-story-cta"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline ml-2"
+          >
+            Read the 13-chapter backstory &rarr;
+          </button>
         </div>
       </div>
 
-      <div class="lg:pt-20">
-        <div class="overflow-hidden rounded-2xl">
+      <!-- Right Column: Visual Portrait & Evidence Card -->
+      <div class="space-y-6">
+        <div class="overflow-hidden rounded-2xl border border-line bg-paper-dim">
           <Image
             src={portrait}
-            alt="Chifen Sama Nduma, registered nurse and software engineer, based in Buea, Cameroon."
+            alt="Chifen Sama Nduma, registered nurse, software engineer, and health technology researcher in Cameroon."
             widths={[400, 640]}
-            sizes="(max-width: 1024px) 80vw, 32vw"
-            loading="lazy"
-            decoding="async"
-            class="w-full object-cover"
+            sizes="(max-width: 1024px) 100vw, 380px"
+            loading="eager"
+            class="w-full object-cover aspect-[4/5]"
           />
+          <div class="p-4 border-t border-line">
+            <p class="font-display text-base font-bold text-ink">Chifen Sama Nduma</p>
+            <p class="text-xs text-slate mt-0.5">
+              M.Tech Data Science (COLTECH UBa) · Self-Trained Software Dev · BSc Nursing
+            </p>
+          </div>
         </div>
-        <p class="mt-4 text-sm text-slate-light">
-          Chifen Sama Nduma. Registered nurse, software engineer, {site.location}.
-        </p>
+
+        <!-- Verification Snapshot -->
+        <div class="rounded-xl border border-line bg-paper-dim/40 p-5 space-y-3">
+          <p class="eyebrow text-slate">Evidence Bar</p>
+          <ul class="text-xs text-slate space-y-2">
+            <li class="flex items-start gap-2">
+              <span class="text-accent font-bold">&#10003;</span>
+              <span><strong>5,000+ Lives Reached:</strong> Through emergency blood dispatches, PMTCT registries, and triage bots.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-accent font-bold">&#10003;</span>
+              <span><strong>8,500+ Accumulated Reach:</strong> Cumulative people and developers reached across digital health bots, coastal tools, remote learning platforms, and automations.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-accent font-bold">&#10003;</span>
+              <span><strong>4 Countries Reached:</strong> Cross-border deployments and open-source developer mentorship.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-accent font-bold">&#10003;</span>
+              <span><strong>Self-Trained Dev:</strong> 100% autodidactic engineer specialized in open source &amp; automations.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-accent font-bold">&#10003;</span>
+              <span><strong>Clinical AI Study:</strong> 387 healthcare respondents at Buea Regional Hospital (92.4% response rate).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-accent font-bold">&#10003;</span>
+              <span><strong>Blood Donor Network:</strong> 400+ registered donors and 310 mediated transfusions.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-accent font-bold">&#10003;</span>
+              <span><strong>DHIS2 District Sync:</strong> &gt;95% clinical reporting completeness across Kumba South.</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- ========================================================================= -->
+  <!-- MODE B: THE FULL STORY (Editorial Documentary & Chapters)                 -->
+  <!-- ========================================================================= -->
+  <section id="panel-mode-story" role="tabpanel" aria-labelledby="btn-mode-story" hidden class="mx-auto max-w-4xl px-5 pb-20 sm:px-8">
+    <!-- Documentary Intro Header -->
+    <div class="rounded-2xl border border-accent/20 bg-accent/5 p-6 sm:p-8 mb-12">
+      <p class="eyebrow text-accent">Editorial Documentary</p>
+      <h2 class="mt-2 font-display text-3xl sm:text-4xl font-semibold text-ink">
+        The Curious Kid Who Became The Nurse Who Codes
+      </h2>
+      <p class="mt-3 text-base text-slate leading-relaxed">
+        A documented journey through curiosity, interrupted schooling, living room robotics,
+        crisis-era educational tools, failed app store launches, and clinical hospital wards.
+        Every chapter records what was built, what broke, and what was learned.
+      </p>
+    </div>
+
+    <!-- Chapter Timeline -->
+    <div class="space-y-12">
+      {storyChapters.map((chapter) => (
+        <article id={`chapter-${chapter.id}`} class="chapter-card" data-reveal>
+          <div class="chapter-marker" aria-hidden="true"></div>
+
+          <!-- Chapter Header -->
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="font-display text-xs font-bold tracking-widest text-accent uppercase">
+              Chapter {chapter.number}
+            </span>
+            <span class="text-slate-light" aria-hidden="true">&middot;</span>
+            <span class="text-xs font-semibold text-slate uppercase tracking-wider">
+              {chapter.year}
+            </span>
+            {chapter.status && (
+              <span class={`evidence-pill status-${chapter.status.toLowerCase()}`}>
+                {chapter.status}
+              </span>
+            )}
+          </div>
+
+          <h3 class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-ink">
+            {chapter.title}
+          </h3>
+          <p class="mt-1 font-display text-lg text-slate-light font-medium">
+            {chapter.headline}
+          </p>
+
+          <!-- Pullquote if present -->
+          {chapter.pullQuote && (
+            <blockquote class="story-pullquote">
+              &ldquo;{chapter.pullQuote}&rdquo;
+            </blockquote>
+          )}
+
+          <!-- Narrative Paragraphs -->
+          <div class="mt-4 space-y-4 text-base sm:text-lg leading-relaxed text-slate">
+            {chapter.paragraphs.map((p) => (
+              <p>{p}</p>
+            ))}
+          </div>
+
+          <!-- What I Built vs What I Learned (Fanaka Principle) -->
+          {(chapter.whatIBuilt || chapter.whatILearned || chapter.metric) && (
+            <div class="lesson-box mt-6 space-y-3">
+              {chapter.whatIBuilt && (
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-ink block">
+                    What was built:
+                  </span>
+                  <p class="text-sm text-slate mt-0.5">{chapter.whatIBuilt}</p>
+                </div>
+              )}
+              {chapter.whatILearned && (
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-accent block">
+                    What I learned:
+                  </span>
+                  <p class="text-sm text-slate mt-0.5">{chapter.whatILearned}</p>
+                </div>
+              )}
+              {chapter.metric && (
+                <div class="pt-2 border-t border-line/60">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-light block">
+                    Evidence metric:
+                  </span>
+                  <p class="text-sm font-semibold text-ink mt-0.5">{chapter.metric}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {chapter.relatedUrl && (
+            <div class="mt-5">
+              <a href={withBase(chapter.relatedUrl)} class="btn btn-ghost btn-sm">
+                {chapter.relatedLabel ?? 'View related project'}
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SHARED CORE FOUNDATIONS (Pillars, Off-Duty, Awards, Certifications, Skills) -->
+  <!-- ========================================================================= -->
+
   <!-- Three Pillars -->
-  <section class="border-y border-ink/10 bg-paper-dim/60">
+  <section class="border-y border-line bg-paper-dim/60">
     <div class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
-      <p class="eyebrow text-accent" data-reveal>How I work</p>
-      <h2 class="mt-4 font-display text-3xl font-semibold sm:text-4xl" data-reveal>
-        Three things that shape everything I build
+      <p class="eyebrow text-accent" data-reveal>Engineering Philosophy</p>
+      <h2 class="mt-4 font-display text-3xl font-semibold sm:text-4xl text-ink" data-reveal>
+        Three principles that govern everything I build
       </h2>
       <ol class="mt-12 space-y-10">
-        {
-          pillars.map((pillar, i) => (
-            <li
-              class="grid gap-4 border-l-4 border-accent pl-8 sm:grid-cols-[auto_1fr] sm:gap-8"
-              data-reveal
-              style={`--reveal-delay:${i * 80}ms`}
-            >
-              <span class="font-display text-5xl font-bold text-accent/20 leading-none">
-                {pillar.number}
-              </span>
-              <div>
-                <h3 class="font-display text-xl font-semibold">{pillar.title}</h3>
-                <p class="mt-3 leading-relaxed text-slate">{pillar.body}</p>
-              </div>
-            </li>
-          ))
-        }
+        {pillars.map((pillar, i) => (
+          <li
+            class="grid gap-4 border-l-4 border-accent pl-8 sm:grid-cols-[auto_1fr] sm:gap-8"
+            data-reveal
+            style={`--reveal-delay:${i * 80}ms`}
+          >
+            <span class="font-display text-5xl font-bold text-accent/30 leading-none">
+              {pillar.number}
+            </span>
+            <div>
+              <h3 class="font-display text-xl font-semibold text-ink">{pillar.title}</h3>
+              <p class="mt-3 leading-relaxed text-slate">{pillar.body}</p>
+            </div>
+          </li>
+        ))}
       </ol>
     </div>
   </section>
@@ -227,128 +417,161 @@ const pillars = [
       data-reveal
     >
       <h2 class="font-display text-xs font-semibold tracking-widest text-accent uppercase">
-        Off duty
+        Off Duty &amp; Creative Life
       </h2>
       <p class="mt-4 text-lg leading-relaxed text-slate">
-        Chess, anime, picking up a new language for the exercise, music, and any excuse to travel
-        somewhere new. I am messy about process and serious about outcomes. Not much patience for
-        rules without reasons behind them. Fairly convinced this can be done at a much larger scale
-        than last time.
+        Certified drone pilot, pencil sketch artist, photographer, chess player, anime enthusiast,
+        and voice-over experimenter. I have little patience for rules that lack reasons, and deep
+        respect for systems that survive bad days. I am convinced that African digital health can
+        be engineered at a vastly greater scale than yesterday's attempts.
       </p>
-    </div>
-  </section>
-
-  <!-- Journey timeline -->
-  <section class="border-y border-ink/10 bg-paper-dim/60">
-    <div class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
-      <h2 class="font-display text-3xl font-semibold sm:text-4xl" data-reveal>The route here</h2>
-
-      <ol class="mt-10 space-y-0">
-        {
-          journey.map((item, i) => (
-            <li
-              class="relative border-l border-ink/15 pb-9 pl-7 last:pb-0 sm:pl-9"
-              data-reveal
-              style={`--reveal-delay:${i * 60}ms`}
-            >
-              <span class="absolute top-1.5 -left-[5px] h-2.5 w-2.5 rounded-full bg-accent" />
-              <p class="font-display text-sm font-semibold tracking-wider text-accent uppercase">
-                {item.year}
-              </p>
-              <h3 class="mt-1.5 font-display text-xl font-semibold">{item.title}</h3>
-              <p class="mt-2 leading-relaxed text-slate">{item.body}</p>
-            </li>
-          ))
-        }
-      </ol>
     </div>
   </section>
 
   <!-- Awards -->
   <section class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
-    <h2 class="font-display text-3xl font-semibold sm:text-4xl text-zinc-900 dark:text-zinc-100" data-reveal>Awards</h2>
+    <div class="flex items-center justify-between">
+      <h2 class="font-display text-3xl font-semibold sm:text-4xl text-ink" data-reveal>
+        Honors &amp; Awards
+      </h2>
+      <a href={withBase('/cv')} class="text-sm font-semibold text-accent hover:underline">
+        See in CV &rarr;
+      </a>
+    </div>
     <ul class="mt-8 grid gap-3 sm:grid-cols-2">
-      {
-        awards.map((award, i) => (
-          <li
-            class="flex items-center gap-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 px-5 py-4"
-            data-reveal
-            style={`--reveal-delay:${i * 50}ms`}
-          >
-            <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-            <span class="font-display font-medium text-zinc-900 dark:text-zinc-100">{award}</span>
-          </li>
-        ))
-      }
+      {awards.map((award, i) => (
+        <li
+          class="flex items-center gap-3 rounded-xl border border-line bg-paper-dim/40 px-5 py-4"
+          data-reveal
+          style={`--reveal-delay:${i * 50}ms`}
+        >
+          <span class="h-2 w-2 shrink-0 rounded-full bg-accent" />
+          <span class="font-display font-medium text-ink">{award}</span>
+        </li>
+      ))}
     </ul>
   </section>
 
-  <!-- Certifications -->
-  <section class="border-t border-ink/10 bg-paper-dim/60">
+  <!-- Certifications & Degrees -->
+  <section class="border-t border-line bg-paper-dim/60">
     <div class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
-      <h2 class="font-display text-3xl font-semibold sm:text-4xl text-zinc-900 dark:text-zinc-100" data-reveal>Certifications</h2>
+      <h2 class="font-display text-3xl font-semibold sm:text-4xl text-ink" data-reveal>
+        Education &amp; Credentials
+      </h2>
       <ul class="mt-8 grid gap-3 sm:grid-cols-2">
-        {
-          certifications.map((cert, i) => (
-            <li
-              class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 px-5 py-4"
-              data-reveal
-              style={`--reveal-delay:${i * 50}ms`}
-            >
-              <p class="font-display font-medium text-zinc-900 dark:text-zinc-100">{cert.name}</p>
-              <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{cert.issuer}</p>
-            </li>
-          ))
-        }
+        {certifications.map((cert, i) => (
+          <li
+            class="rounded-xl border border-line bg-paper px-5 py-4"
+            data-reveal
+            style={`--reveal-delay:${i * 50}ms`}
+          >
+            <p class="font-display font-medium text-ink">{cert.name}</p>
+            <p class="mt-1 text-sm text-slate">{cert.issuer}</p>
+          </li>
+        ))}
       </ul>
     </div>
   </section>
 
   <!-- Skills -->
-  <section class="border-t border-ink/10">
+  <section class="border-t border-line">
     <div class="mx-auto max-w-4xl px-5 py-16 sm:px-8 sm:py-20">
-      <h2 class="font-display text-3xl font-semibold sm:text-4xl" data-reveal>What I work with</h2>
+      <h2 class="font-display text-3xl font-semibold sm:text-4xl text-ink" data-reveal>
+        What I work with
+      </h2>
       <div class="mt-10 grid gap-9 sm:grid-cols-2">
-        {
-          skills.map((section, i) => (
-            <div data-reveal style={`--reveal-delay:${i * 60}ms`}>
-              <h3 class="font-display text-xs font-semibold tracking-widest text-accent uppercase">
-                {section.group}
-              </h3>
-              <ul class="mt-4 flex flex-wrap gap-2">
-                {section.items.map((item) => (
-                  <li class="rounded-full border border-ink/12 bg-white/60 px-3 py-1.5 text-sm text-slate">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))
-        }
+        {skills.map((section, i) => (
+          <div data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <h3 class="font-display text-xs font-semibold tracking-widest text-accent uppercase">
+              {section.group}
+            </h3>
+            <ul class="mt-4 flex flex-wrap gap-2">
+              {section.items.map((item) => (
+                <li class="rounded-md border border-line bg-paper-dim/60 px-3 py-1.5 text-xs sm:text-sm text-slate">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- Get in touch -->
+  <!-- Call to action -->
   <section class="mx-auto max-w-4xl px-5 py-16 text-center sm:px-8 sm:py-20">
-    <h2 class="font-display text-3xl font-semibold sm:text-4xl" data-reveal>Get in touch</h2>
+    <h2 class="font-display text-3xl font-semibold sm:text-4xl text-ink" data-reveal>
+      Let's build something resilient
+    </h2>
     <p class="mx-auto mt-3 max-w-lg text-slate" data-reveal>
-      WhatsApp is fastest. Or send an email — I read them all.
+      Open for health-tech collaboration, clinical research partnerships, speaking invitations, and software engineering.
     </p>
     <div class="mt-7 flex flex-wrap justify-center gap-3" data-reveal>
-      <a
-        href={withBase('/contact')}
-        class="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform duration-200 hover:-translate-y-0.5"
-      >
-        Get in touch
-        <span class="transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
+      <a href={withBase('/contact')} class="btn btn-accent">
+        Start a conversation
+        <span aria-hidden="true">&rarr;</span>
       </a>
-      <a
-        href={withBase('/cv')}
-        class="group inline-flex items-center gap-2 rounded-full border border-ink/20 px-6 py-3 font-medium transition-all duration-200 hover:border-accent hover:text-accent"
-      >
-        View CV
+      <a href={withBase('/journey')} class="btn btn-ghost">
+        View the visual timeline
+      </a>
+      <a href={withBase('/archive')} class="btn btn-ghost">
+        Explore photo archive
       </a>
     </div>
   </section>
 </Base>
+
+<script>
+  // Mode switcher logic with URL hash/query sync
+  const btnBio = document.getElementById('btn-mode-bio');
+  const btnStory = document.getElementById('btn-mode-story');
+  const panelBio = document.getElementById('panel-mode-bio');
+  const panelStory = document.getElementById('panel-mode-story');
+  const switchCta = document.getElementById('switch-to-story-cta');
+
+  function setMode(mode: 'bio' | 'story', updateUrl = true) {
+    if (mode === 'story') {
+      btnBio?.classList.remove('is-active');
+      btnBio?.setAttribute('aria-selected', 'false');
+      btnStory?.classList.add('is-active');
+      btnStory?.setAttribute('aria-selected', 'true');
+
+      if (panelBio) panelBio.hidden = true;
+      if (panelStory) panelStory.hidden = false;
+
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('mode', 'story');
+        window.history.replaceState({}, '', url.toString());
+      }
+    } else {
+      btnStory?.classList.remove('is-active');
+      btnStory?.setAttribute('aria-selected', 'false');
+      btnBio?.classList.add('is-active');
+      btnBio?.setAttribute('aria-selected', 'true');
+
+      if (panelStory) panelStory.hidden = true;
+      if (panelBio) panelBio.hidden = false;
+
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('mode');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }
+
+  btnBio?.addEventListener('click', () => setMode('bio'));
+  btnStory?.addEventListener('click', () => setMode('story'));
+  switchCta?.addEventListener('click', () => {
+    setMode('story');
+    panelStory?.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // Check URL query on load (e.g. ?mode=story or #story)
+  const params = new URLSearchParams(window.location.search);
+  const hash = window.location.hash;
+  if (params.get('mode') === 'story' || hash.includes('story') || hash.includes('chapter')) {
+    setMode('story', false);
+  }
+</script>

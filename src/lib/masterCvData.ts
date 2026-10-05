@@ -14,21 +14,22 @@
 export const masterCvData = {
   identity: {
     name: 'Chifen Sama Nduma',
-    headline: 'Software Engineer · Health Technology Innovator · Technical Writer',
+    headline: 'Self-Trained Software Engineer (Open Source & Automations) · Health Technology Innovator · M.Tech Data Science (COLTECH UBa)',
     location: 'Buea / Yaoundé, Cameroon',
     email: 'chifensama0@gmail.com',
     whatsapp: '+237 672 835 132',
-    github: 'https://github.com/chifensama01-coder',
+    github: 'https://github.com/CHIF3N',
     linkedin: 'https://www.linkedin.com/in/chif3n/',
     website: 'https://chifen.is-a.dev',
     inkwave: 'https://inkwave-cm.vercel.app/',
   },
 
-  summary: `Registered nurse (HND + BSc) and self-taught software engineer with four years in technology,
-two in health technology infrastructure. Build digital health systems for settings with unreliable power,
-low bandwidth, and no margin for failure. Clinical domain knowledge comes from inside the workflow,
-not from user research interviews. Lead Architect of LifeDrop (WhatsApp emergency blood dispatch),
-Lead Engineer at CoastClear, and Co-Founder & CEO of INKWAVE.`,
+  summary: `Registered nurse (HND + BSc) and self-trained software engineer currently pursuing an M.Tech in Data Science at the College of Technology (COLTECH), The University of Bamenda. Specializes in open-source technologies, workflow automations, and resilient low-bandwidth health platforms. Built systems impacting 5,000+ lives with an accumulated reach of 8,500+ people across 4 countries with zero margin for error. Software engineering is entirely self-taught through hands-on system building and open-source grit; clinical intuition forged at the hospital bedside. Lead Architect of LifeDrop, Lead Engineer at CoastClear, and Co-Founder & CEO of INKWAVE.`,
+
+  softwareTraining: {
+    type: 'Self-Trained / Autodidactic Engineer (Open Source & Automations)',
+    story: '100% self-taught software engineer specializing in open-source technologies and workflow automations. Acquired systems programming, distributed backends, mobile development, and API engineering outside of traditional CS classrooms—driven by bedside clinical urgency in Cameroonian hospitals. Engineered production-grade systems using Python, TypeScript, n8n workflow automations, React Native, Redis queues, and Docker, solving 2G disconnects and offline-first health record sync.',
+  },
 
   /**
    * ACTIVE ROLES ONLY
@@ -143,13 +144,13 @@ Lead Engineer at CoastClear, and Co-Founder & CEO of INKWAVE.`,
       skills: ['DHIS2', 'Health Informatics', 'SQL Data Auditing', 'PMTCT Cohorts', 'Offline-First Workflows'],
     },
     {
-      role: 'Founding Board Member & Conference Lead',
+      role: 'Founding Board Member & Conference Lead (Volunteer)',
       org: 'Cameroon Innovative Health Network (CAMIHN / HETEFA)',
       location: 'Cameroon',
       period: '2025 – 2026',
       current: false,
       track: 'community',
-      trackLabel: 'Community & Digital Health Advocacy',
+      trackLabel: 'Volunteer / Community Initiative (Amber)',
       impact: 'Co-founded the health-tech network; organized and moderated panels for the Cameroon Innovative Health Conference.',
       effort: [
         'Formulated youth health-tech programs and organized keynote panels at the Cameroon Innovative Health Conference.',
@@ -161,13 +162,13 @@ Lead Engineer at CoastClear, and Co-Founder & CEO of INKWAVE.`,
       skills: ['Digital Health Advocacy', 'Conference Leadership', 'Health Informatics'],
     },
     {
-      role: 'Digital Health Field Volunteer',
+      role: 'Digital Health Field Volunteer (Community Gig)',
       org: 'Vision in Action Cameroon (VIAC)',
       location: 'South West Region, Cameroon',
       period: '2025 – 2026',
       current: false,
       track: 'clinical',
-      trackLabel: 'Health Field Operations',
+      trackLabel: 'Volunteer Health Field Operations (Amber)',
       impact: 'Advised youth health teams on offline-first survey and mobile data collection tools.',
       effort: [
         'Advised community outreach teams on mobile data collection tools and offline data capture for youth health interventions.',
@@ -294,16 +295,25 @@ Lead Engineer at CoastClear, and Co-Founder & CEO of INKWAVE.`,
   skills: {
     languages: ['TypeScript', 'JavaScript', 'Python', 'HTML5 / CSS3', 'SQL'],
     frameworks: ['Astro', 'Next.js (App Router)', 'React Native / Expo', 'Tailwind CSS', 'scikit-learn'],
-    platforms: ['WhatsApp Cloud API', 'Docker', 'Redis', 'Firebase / Firestore', 'Supabase', 'DHIS2', 'n8n', 'Google Gemini API'],
+    platforms: ['n8n Workflow Automations', 'WhatsApp Cloud API', 'Docker / Linux', 'Redis Queues', 'Event-Driven Webhooks', 'Firebase / Firestore', 'Supabase', 'DHIS2', 'Google Gemini API'],
     clinical: ['SPSS', 'KoboCollect', 'PRISMA', 'Clinical Data Management', 'PMTCT Cohorts', 'Health Informatics'],
     tools: ['Git / GitHub', 'Vercel', 'Figma', 'Offline-First Workflows', 'Low-Bandwidth Optimization'],
   },
 
   education: [
     {
+      degree: 'M.Tech in Data Science (Computer Engineering)',
+      institution: 'College of Technology (COLTECH), The University of Bamenda (UBa)',
+      period: '2026 – Present',
+      highlights: [
+        'Advanced computational modeling, machine learning for low-resource healthcare ecosystems, and distributed data systems',
+        'Bridging clinical nursing informatics with predictive biomedical algorithms and regional epidemiological surveillance',
+      ],
+    },
+    {
       degree: 'BSc Nursing (Top-up)',
       institution: 'Gracious Higher Institute of Excellence (mentored by University of Bamenda)',
-      period: '2024 – 2026',
+      period: '2025 – 2026',
       highlights: [
         'Dissertation: AI-assisted clinical decision-making readiness among health workers at Buea Regional Hospital (387 respondents, 92.4% response rate)',
         'Third place, MTN YaMo Pitch Competition Season 4 (LifeDrop)',
@@ -312,7 +322,7 @@ Lead Engineer at CoastClear, and Co-Founder & CEO of INKWAVE.`,
     {
       degree: 'HND Nursing',
       institution: 'Gracious Higher Institute of Excellence, Buea',
-      period: '2022 – 2024',
+      period: '2022 – 2025',
       highlights: [
         'Best Overall HND Student',
         'Best Nursing Student, HND',

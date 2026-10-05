@@ -16,7 +16,7 @@ const socials = site.socials.filter((social) => social.compact);
 ---
 
 <header class="sticky top-0 z-50 border-b border-line bg-paper/90 backdrop-blur-md">
-  <div class="shell grid grid-cols-2 items-center gap-3 py-4 md:grid-cols-[1fr_auto_1fr]">
+  <div class="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 grid grid-cols-2 items-center gap-3 py-3.5 md:grid-cols-[1fr_auto_1fr]">
     <!-- Left: call to action and socials, as on the reference. -->
     <div class="hidden items-center gap-2 md:flex">
       <a href={withBase('/contact')} class="btn btn-accent btn-sm">Let's talk</a>
@@ -43,7 +43,7 @@ const socials = site.socials.filter((social) => social.compact);
 
     <!-- Right: page links and the theme switch. -->
     <div class="flex items-center justify-end gap-2">
-      <nav aria-label="Main" class="hidden min-w-0 lg:block">
+      <nav aria-label="Main" class="hidden min-w-0 xl:block">
         <ul class="flex items-center gap-0.5">
           {
             site.nav.map((item) => (
@@ -52,13 +52,13 @@ const socials = site.socials.filter((social) => social.compact);
                   href={withBase(item.href)}
                   aria-current={isActive(item.href) ? 'page' : undefined}
                   class:list={[
-                    'relative block px-3 py-2 text-sm font-semibold tracking-tight whitespace-nowrap transition-colors',
+                    'relative block px-2.5 py-1.5 text-xs 2xl:text-sm font-semibold tracking-tight whitespace-nowrap transition-colors',
                     isActive(item.href) ? 'text-ink' : 'text-slate hover:text-ink',
                   ]}
                 >
                   <FlipLink text={item.label} />
                   {isActive(item.href) && (
-                    <span class="absolute inset-x-3 bottom-0.5 h-0.5 rounded-full bg-accent" />
+                    <span class="absolute inset-x-2.5 bottom-0.5 h-0.5 rounded-full bg-accent" />
                   )}
                 </a>
               </li>
@@ -72,7 +72,7 @@ const socials = site.socials.filter((social) => social.compact);
       <button
         id="menu-toggle"
         type="button"
-        class="relative h-9 w-9 shrink-0 lg:hidden"
+        class="relative h-9 w-9 shrink-0 xl:hidden"
         aria-label="Open menu"
         aria-expanded="false"
         aria-controls="mobile-menu"
@@ -85,12 +85,12 @@ const socials = site.socials.filter((social) => social.compact);
   </div>
 </header>
 
-<div id="menu-backdrop" class="fixed inset-0 z-40 hidden bg-ink/50 lg:hidden"></div>
+<div id="menu-backdrop" class="fixed inset-0 z-40 hidden bg-ink/50 xl:hidden"></div>
 
 <nav
   id="mobile-menu"
   aria-label="Mobile"
-  class="menu-panel hidden fixed inset-y-0 right-0 z-[60] w-72 max-w-[80vw] bg-paper shadow-2xl lg:hidden"
+  class="menu-panel hidden fixed inset-y-0 right-0 z-[60] w-72 max-w-[80vw] bg-paper shadow-2xl xl:hidden overflow-y-auto"
 >
   <ul class="mt-20 flex flex-col px-3">
     {

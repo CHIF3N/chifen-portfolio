@@ -1,18 +1,7 @@
 export interface ArchiveItem {
   id: string;
   title: string;
-  category:
-    | 'childhood'
-    | 'innovative-engineering'
-    | 'mast-hats'
-    | 'bluecube-genius'
-    | 'air-sanitizer'
-    | 'drones'
-    | 'ayodah'
-    | 'nursing-clinical'
-    | 'conferences-speaking'
-    | 'volunteering'
-    | 'current-work';
+  category: string;
   categoryLabel: string;
   year?: string;
   date?: string;
@@ -20,13 +9,20 @@ export interface ArchiveItem {
   caption: string;
   altText: string;
   imageSrc: string;
+  images?: string[]; // Multiple photos and animated GIFs for this archive entry
   isAvailable: boolean;
   aspect?: 'square' | 'video' | 'portrait' | 'wide';
   tags?: string[];
   verifiedNote?: string;
 }
 
-export const archiveCategories = [
+export interface ArchiveCategory {
+  id: string;
+  label: string;
+  description?: string;
+}
+
+export const archiveCategories: ArchiveCategory[] = [
   { id: 'all', label: 'All Artifacts' },
   { id: 'current-work', label: 'Current Work' },
   { id: 'nursing-clinical', label: 'Nursing & Clinical' },
@@ -39,7 +35,7 @@ export const archiveCategories = [
   { id: 'innovative-engineering', label: 'Innovative Engineering' },
   { id: 'drones', label: 'Drones & Aerodynamics' },
   { id: 'childhood', label: 'Childhood & Early' },
-] as const;
+];
 
 export const archiveItems: ArchiveItem[] = [
   {

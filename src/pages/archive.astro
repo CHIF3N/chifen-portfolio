@@ -1,0 +1,547 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../lib/site';
+import { withBase } from '../lib/url';
+import { archiveItems, archiveCategories } from '../data/archiveData';
+
+const itemsWithCount = archiveCategories.map((cat) => {
+  const count =
+    cat.id === 'all'
+      ? archiveItems.length
+      : archiveItems.filter((i) => i.category === cat.id).length;
+  return { ...cat, count };
+});
+---
+
+<Base
+  title="The Evidence &amp; Archive"
+  description="Personal photographic archive and documentation of Chifen Sama Nduma: prototypes, community initiatives, clinical research, speaking engagements, and engineering artifacts."
+  accent={site.accents.archive}
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'ImageGallery',
+    name: 'Personal Photographic Archive & Evidence — Chifen Sama Nduma',
+    description: 'Documented visual archive of prototypes, research, community initiatives, and fieldwork.',
+  }}
+>
+  <header class="border-b border-line bg-paper-dim/60">
+    <div class="mx-auto max-w-6xl px-5 pt-14 pb-12 sm:px-8 sm:pt-20">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="eyebrow text-accent">Documentary Proof</span>
+        <span class="text-slate-light" aria-hidden="true">&middot;</span>
+        <span class="text-xs font-semibold text-slate uppercase">Photographs &amp; Artifacts</span>
+      </div>
+      <h1 class="mt-3 font-display text-4xl font-semibold sm:text-6xl text-ink">
+        The Evidence
+      </h1>
+      <p class="mt-4 max-w-2xl text-lg leading-relaxed text-slate">
+        Primary photographic artifacts, research figures, prototype screenshots, and community milestones.
+        Every item records concrete evidence of effort, clinical engagement, and technical experimentation.
+      </p>
+
+      <!-- Category Filter Pills -->
+      <div id="archive-categories-nav" class="mt-8 flex flex-wrap items-center gap-2" role="tablist" aria-label="Archive category filter">
+        {itemsWithCount.map((cat) => (
+          <button
+            type="button"
+            data-category={cat.id}
+            class:list={[
+              'archive-filter-btn rounded-full border px-3.5 py-1.5 text-xs sm:text-sm font-semibold tracking-wide transition-all cursor-pointer',
+              cat.id === 'all'
+                ? 'border-ink bg-ink text-paper'
+                : 'border-line bg-paper text-slate hover:border-accent hover:text-ink',
+            ]}
+          >
+            {cat.label}
+            <span class="ml-1.5 opacity-60 text-xs">({cat.count})</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </header>
+
+  <!-- Gallery Grid -->
+  <section class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-16">
+    <div id="archive-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {archiveItems.map((item, i) => (
+        <article
+          data-category={item.category}
+          class="archive-card group flex flex-col overflow-hidden rounded-2xl border border-line bg-paper transition-all duration-200 hover:-translate-y-1 hover:border-accent/50 hover:shadow-lg cursor-pointer"
+          data-image-src={item.imageSrc}
+          data-images={JSON.stringify(item.images && item.images.length > 0 ? item.images : [item.imageSrc])}
+          data-title={item.title}
+          data-caption={item.caption}
+          data-date={item.year ?? ''}
+          data-category-label={item.categoryLabel}
+          data-location={item.location ?? ''}
+          data-reveal
+          style={`--reveal-delay:${Math.min(i, 6) * 50}ms`}
+        >
+          <!-- Media Preview Container -->
+          <div class="relative w-full overflow-hidden bg-paper-dim aspect-[16/11]">
+            {item.imageSrc.endsWith('.mp4') ? (
+              <video
+                src={withBase(item.imageSrc)}
+                autoplay
+                loop
+                muted
+                playsinline
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              ></video>
+            ) : (
+              <img
+                src={withBase(item.imageSrc.replace('/src', ''))}
+                alt={item.altText}
+                loading="lazy"
+                decoding="async"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            )}
+
+            <!-- Overlay Badges (GIF / Multi-Photo Indicator) -->
+            <div class="absolute top-3 left-3 flex items-center gap-1.5 z-10">
+              {(item.imageSrc.toLowerCase().endsWith('.gif') || (item.images && item.images.some(img => img.toLowerCase().endsWith('.gif')))) && (
+                <span class="rounded bg-purple-600 px-2 py-0.5 text-[10px] font-mono font-bold text-white shadow-xs">
+                  GIF
+                </span>
+              )}
+              {item.images && item.images.length > 1 && (
+                <span class="rounded bg-zinc-950/80 px-2 py-0.5 text-[10px] font-semibold text-zinc-200 backdrop-blur-sm border border-white/10 flex items-center gap-1">
+                  <span>📷</span>
+                  <span>+{item.images.length}</span>
+                </span>
+              )}
+            </div>
+
+            <!-- Overlay Badge -->
+            <div class="absolute top-3 right-3 z-10">
+              <span class="rounded-full bg-ink/75 px-2.5 py-1 text-[11px] font-semibold text-paper backdrop-blur-sm">
+                {item.year ?? item.categoryLabel}
+              </span>
+            </div>
+          </div>
+
+          <!-- Metadata & Caption -->
+          <div class="flex flex-1 flex-col p-5">
+            <div class="flex items-center justify-between text-xs text-slate-light">
+              <span class="font-semibold uppercase tracking-wider text-accent">
+                {item.categoryLabel}
+              </span>
+              {item.location && <span>{item.location}</span>}
+            </div>
+
+            <h3 class="mt-2 font-display text-xl font-semibold text-ink group-hover:text-accent transition-colors leading-tight">
+              {item.title}
+            </h3>
+
+            <p class="mt-2 text-xs sm:text-sm text-slate line-clamp-3 leading-relaxed">
+              {item.caption}
+            </p>
+
+            {item.verifiedNote && (
+              <p class="mt-3 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                <span>&#10003;</span> {item.verifiedNote}
+              </p>
+            )}
+
+            <div class="mt-auto pt-4 flex items-center justify-between border-t border-line/60 text-xs font-semibold text-slate group-hover:text-ink">
+              <span>View Artifact</span>
+              <span aria-hidden="true">&rarr;</span>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- Empty State -->
+    <div id="archive-empty" hidden class="py-20 text-center text-slate">
+      <p class="font-display text-2xl font-semibold text-ink">No artifacts in this category yet</p>
+      <p class="mt-2 text-sm text-slate">Historical photographs from this folder will be populated as files are uploaded.</p>
+    </div>
+  </section>
+
+  <!-- Lightbox Modal -->
+  <dialog
+    id="archive-lightbox"
+    class="backdrop:bg-ink/80 fixed inset-0 z-50 m-auto max-w-4xl w-[92vw] overflow-hidden rounded-2xl border border-line bg-paper p-0 shadow-2xl"
+    aria-label="Artifact preview modal"
+  >
+    <div class="flex flex-col max-h-[90vh]">
+      <!-- Header Bar -->
+      <div class="flex items-center justify-between border-b border-line px-5 py-3.5 bg-paper-dim/50">
+        <div class="flex items-center gap-2">
+          <span id="modal-category" class="text-xs font-bold uppercase tracking-wider text-accent"></span>
+          <span id="modal-date" class="text-xs text-slate"></span>
+          <span id="modal-counter" class="rounded-full bg-paper px-2 py-0.5 text-[10px] font-mono font-semibold text-slate border border-line hidden"></span>
+        </div>
+        <button
+          id="btn-close-modal"
+          type="button"
+          class="rounded-full p-1.5 text-slate hover:bg-line hover:text-ink transition-colors cursor-pointer"
+          aria-label="Close dialog"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Media Frame with Multi-Photo / GIF Carousel -->
+      <div class="relative flex items-center justify-center bg-black/95 p-2 sm:p-4 overflow-hidden min-h-[38vh] max-h-[55vh]">
+        <img
+          id="modal-img"
+          src=""
+          alt=""
+          class="max-h-[50vh] max-w-full object-contain rounded"
+        />
+        <video
+          id="modal-video"
+          src=""
+          autoplay
+          loop
+          muted
+          playsinline
+          controls
+          class="max-h-[50vh] max-w-full object-contain rounded hidden"
+        ></video>
+
+        <!-- Carousel Navigation Controls -->
+        <button
+          id="modal-btn-prev"
+          type="button"
+          class="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm border border-white/20 transition-transform hover:scale-110 hover:bg-black/90 hidden cursor-pointer"
+          aria-label="Previous photo or GIF"
+        >
+          &#8249;
+        </button>
+        <button
+          id="modal-btn-next"
+          type="button"
+          class="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm border border-white/20 transition-transform hover:scale-110 hover:bg-black/90 hidden cursor-pointer"
+          aria-label="Next photo or GIF"
+        >
+          &#8250;
+        </button>
+      </div>
+
+      <!-- Gallery Thumbnail Strip -->
+      <div id="modal-gallery-strip" class="flex items-center gap-2 overflow-x-auto p-2.5 bg-zinc-950 border-t border-zinc-800 no-scrollbar hidden">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Caption & Details -->
+      <div class="p-6 bg-paper overflow-y-auto">
+        <h2 id="modal-title" class="font-display text-2xl font-bold text-ink"></h2>
+        <p id="modal-location" class="text-xs text-slate-light mt-1"></p>
+        <p id="modal-caption" class="mt-3 text-sm sm:text-base text-slate leading-relaxed"></p>
+      </div>
+    </div>
+  </dialog>
+</Base>
+
+<script>
+  (() => {
+    const STORAGE_KEY = 'chifen_site_overrides';
+    const grid = document.getElementById('archive-grid');
+    const categoriesNav = document.getElementById('archive-categories-nav');
+    const emptyState = document.getElementById('archive-empty');
+    const modal = document.getElementById('archive-lightbox') as HTMLDialogElement | null;
+    const btnClose = document.getElementById('btn-close-modal');
+
+    const modalImg = document.getElementById('modal-img') as HTMLImageElement | null;
+    const modalVideo = document.getElementById('modal-video') as HTMLVideoElement | null;
+    const modalTitle = document.getElementById('modal-title');
+    const modalCategory = document.getElementById('modal-category');
+    const modalDate = document.getElementById('modal-date');
+    const modalLocation = document.getElementById('modal-location');
+    const modalCaption = document.getElementById('modal-caption');
+    const modalCounter = document.getElementById('modal-counter');
+    const btnPrev = document.getElementById('modal-btn-prev');
+    const btnNext = document.getElementById('modal-btn-next');
+    const galleryStrip = document.getElementById('modal-gallery-strip');
+
+    let currentImages: string[] = [];
+    let currentImageIndex = 0;
+
+    function sanitizeSrc(src: string): string {
+      if (!src) return '';
+      return src.startsWith('/src') ? src.replace('/src', '') : src;
+    }
+
+    function showImageAtIndex(idx: number) {
+      if (!currentImages.length) return;
+      currentImageIndex = (idx + currentImages.length) % currentImages.length;
+      const rawSrc = currentImages[currentImageIndex];
+      const cleanSrc = sanitizeSrc(rawSrc);
+
+      if (rawSrc.endsWith('.mp4')) {
+        if (modalImg) modalImg.classList.add('hidden');
+        if (modalVideo) {
+          modalVideo.src = cleanSrc;
+          modalVideo.classList.remove('hidden');
+        }
+      } else {
+        if (modalVideo) {
+          modalVideo.classList.add('hidden');
+          modalVideo.src = '';
+        }
+        if (modalImg) {
+          modalImg.src = cleanSrc;
+          modalImg.classList.remove('hidden');
+        }
+      }
+
+      if (modalCounter) {
+        if (currentImages.length > 1) {
+          modalCounter.textContent = `${currentImageIndex + 1} of ${currentImages.length}`;
+          modalCounter.classList.remove('hidden');
+        } else {
+          modalCounter.classList.add('hidden');
+        }
+      }
+
+      // Update thumbnails in gallery strip
+      if (galleryStrip) {
+        galleryStrip.querySelectorAll('.gallery-thumb').forEach((th, i) => {
+          if (i === currentImageIndex) {
+            th.classList.add('ring-2', 'ring-accent', 'opacity-100');
+            th.classList.remove('opacity-60');
+          } else {
+            th.classList.remove('ring-2', 'ring-accent', 'opacity-100');
+            th.classList.add('opacity-60');
+          }
+        });
+      }
+    }
+
+    btnPrev?.addEventListener('click', () => showImageAtIndex(currentImageIndex - 1));
+    btnNext?.addEventListener('click', () => showImageAtIndex(currentImageIndex + 1));
+
+    document.addEventListener('keydown', (e) => {
+      if (!modal?.open) return;
+      if (e.key === 'ArrowLeft') showImageAtIndex(currentImageIndex - 1);
+      if (e.key === 'ArrowRight') showImageAtIndex(currentImageIndex + 1);
+    });
+
+    function attachCardListeners() {
+      const cards = document.querySelectorAll<HTMLElement>('.archive-card');
+      cards.forEach((card) => {
+        card.addEventListener('click', () => {
+          const rawImagesStr = card.dataset.images;
+          let parsedImages: string[] = [];
+          try {
+            parsedImages = rawImagesStr ? JSON.parse(rawImagesStr) : [];
+          } catch {
+            parsedImages = [];
+          }
+          const primarySrc = card.dataset.imageSrc || '';
+          if (!parsedImages.length && primarySrc) parsedImages = [primarySrc];
+          if (primarySrc && !parsedImages.includes(primarySrc)) parsedImages.unshift(primarySrc);
+
+          currentImages = parsedImages.filter(Boolean);
+          currentImageIndex = 0;
+
+          const title = card.dataset.title || '';
+          const caption = card.dataset.caption || '';
+          const date = card.dataset.date || '';
+          const catLabel = card.dataset.categoryLabel || '';
+          const location = card.dataset.location || '';
+
+          if (modalTitle) modalTitle.textContent = title;
+          if (modalCaption) modalCaption.textContent = caption;
+          if (modalDate) modalDate.textContent = date ? `· ${date}` : '';
+          if (modalCategory) modalCategory.textContent = catLabel;
+          if (modalLocation) modalLocation.textContent = location ? `📍 ${location}` : '';
+
+          // Setup navigation buttons
+          if (btnPrev && btnNext) {
+            if (currentImages.length > 1) {
+              btnPrev.classList.remove('hidden');
+              btnNext.classList.remove('hidden');
+            } else {
+              btnPrev.classList.add('hidden');
+              btnNext.classList.add('hidden');
+            }
+          }
+
+          // Build gallery thumbnail strip if multiple photos/GIFs
+          if (galleryStrip) {
+            if (currentImages.length > 1) {
+              galleryStrip.innerHTML = currentImages.map((src, idx) => {
+                const isGif = src.toLowerCase().endsWith('.gif');
+                return `
+                  <button type="button" class="gallery-thumb relative shrink-0 h-12 w-16 overflow-hidden rounded border border-zinc-700 transition-opacity hover:opacity-100 ${idx === 0 ? 'ring-2 ring-accent opacity-100' : 'opacity-60'}" data-idx="${idx}">
+                    ${src.endsWith('.mp4') ? `
+                      <video src="${sanitizeSrc(src)}" class="h-full w-full object-cover"></video>
+                    ` : `
+                      <img src="${sanitizeSrc(src)}" class="h-full w-full object-cover" loading="lazy" />
+                    `}
+                    ${isGif ? '<span class="absolute bottom-0 right-0 bg-purple-600 text-white text-[8px] font-mono font-bold px-1 rounded-tl">GIF</span>' : ''}
+                  </button>
+                `;
+              }).join('');
+              galleryStrip.classList.remove('hidden');
+              galleryStrip.querySelectorAll('.gallery-thumb').forEach((th) => {
+                th.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  const targetIdx = Number((th as HTMLElement).dataset.idx);
+                  showImageAtIndex(targetIdx);
+                });
+              });
+            } else {
+              galleryStrip.innerHTML = '';
+              galleryStrip.classList.add('hidden');
+            }
+          }
+
+          showImageAtIndex(0);
+          modal?.showModal();
+        });
+      });
+    }
+
+    function attachFilterListeners() {
+      const filterBtns = document.querySelectorAll<HTMLButtonElement>('.archive-filter-btn');
+      const cards = document.querySelectorAll<HTMLElement>('.archive-card');
+
+      filterBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetCat = btn.dataset.category;
+
+          filterBtns.forEach((b) => {
+            b.classList.remove('border-ink', 'bg-ink', 'text-paper');
+            b.classList.add('border-line', 'bg-paper', 'text-slate');
+          });
+          btn.classList.remove('border-line', 'bg-paper', 'text-slate');
+          btn.classList.add('border-ink', 'bg-ink', 'text-paper');
+
+          let visible = 0;
+          cards.forEach((card) => {
+            const cat = card.dataset.category;
+            const show = targetCat === 'all' || cat === targetCat;
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+          });
+
+          if (emptyState) emptyState.hidden = visible > 0;
+        });
+      });
+    }
+
+    // Hydrate client overrides if changes were saved in /admin
+    function hydrateLiveOverrides() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return;
+        const parsed = JSON.parse(stored);
+        const customItems = parsed.archiveItems;
+        const customCategories = parsed.archiveCategories;
+
+        if (customCategories && Array.isArray(customCategories) && categoriesNav && customItems) {
+          // Recalculate counts
+          const catsWithCount = customCategories.map((c: any) => {
+            const count = c.id === 'all'
+              ? customItems.length
+              : customItems.filter((item: any) => item.category === c.id).length;
+            return { ...c, count };
+          });
+
+          categoriesNav.innerHTML = catsWithCount.map((cat: any, idx: number) => `
+            <button
+              type="button"
+              data-category="${cat.id}"
+              class="archive-filter-btn rounded-full border px-3.5 py-1.5 text-xs sm:text-sm font-semibold tracking-wide transition-all cursor-pointer ${
+                idx === 0 ? 'border-ink bg-ink text-paper' : 'border-line bg-paper text-slate hover:border-accent hover:text-ink'
+              }"
+            >
+              ${cat.label}
+              <span class="ml-1.5 opacity-60 text-xs">(${cat.count})</span>
+            </button>
+          `).join('');
+        }
+
+        if (customItems && Array.isArray(customItems) && grid) {
+          grid.innerHTML = customItems.map((item: any, i: number) => {
+            const allImgs = item.images && item.images.length > 0 ? item.images : [item.imageSrc];
+            const isGif = item.imageSrc?.toLowerCase().endsWith('.gif') || allImgs.some((u: string) => u?.toLowerCase().endsWith('.gif'));
+            const cleanMain = sanitizeSrc(item.imageSrc || allImgs[0] || '');
+
+            return `
+              <article
+                data-category="${item.category || ''}"
+                class="archive-card group flex flex-col overflow-hidden rounded-2xl border border-line bg-paper transition-all duration-200 hover:-translate-y-1 hover:border-accent/50 hover:shadow-lg cursor-pointer"
+                data-image-src="${item.imageSrc || ''}"
+                data-images='${JSON.stringify(allImgs)}'
+                data-title="${item.title || ''}"
+                data-caption="${item.caption || ''}"
+                data-date="${item.year || ''}"
+                data-category-label="${item.categoryLabel || item.category || ''}"
+                data-location="${item.location || ''}"
+                data-reveal
+                style="--reveal-delay:${Math.min(i, 6) * 50}ms"
+              >
+                <div class="relative w-full overflow-hidden bg-paper-dim aspect-[16/11]">
+                  ${item.imageSrc?.endsWith('.mp4') ? `
+                    <video src="${cleanMain}" autoplay loop muted playsinline class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"></video>
+                  ` : `
+                    <img src="${cleanMain}" alt="${item.altText || item.title || ''}" loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  `}
+                  
+                  <div class="absolute top-3 left-3 flex items-center gap-1.5 z-10">
+                    ${isGif ? '<span class="rounded bg-purple-600 px-2 py-0.5 text-[10px] font-mono font-bold text-white shadow-xs">GIF</span>' : ''}
+                    ${allImgs.length > 1 ? `<span class="rounded bg-zinc-950/80 px-2 py-0.5 text-[10px] font-semibold text-zinc-200 backdrop-blur-sm border border-white/10 flex items-center gap-1"><span>📷</span><span>+${allImgs.length}</span></span>` : ''}
+                  </div>
+
+                  <div class="absolute top-3 right-3 z-10">
+                    <span class="rounded-full bg-ink/75 px-2.5 py-1 text-[11px] font-semibold text-paper backdrop-blur-sm">
+                      ${item.year || item.categoryLabel || ''}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="flex flex-1 flex-col p-5">
+                  <div class="flex items-center justify-between text-xs text-slate-light">
+                    <span class="font-semibold uppercase tracking-wider text-accent">
+                      ${item.categoryLabel || item.category || ''}
+                    </span>
+                    ${item.location ? `<span>${item.location}</span>` : ''}
+                  </div>
+
+                  <h3 class="mt-2 font-display text-xl font-semibold text-ink group-hover:text-accent transition-colors leading-tight">
+                    ${item.title || ''}
+                  </h3>
+
+                  <p class="mt-2 text-xs sm:text-sm text-slate line-clamp-3 leading-relaxed">
+                    ${item.caption || ''}
+                  </p>
+
+                  ${item.verifiedNote ? `
+                    <p class="mt-3 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                      <span>✓</span> ${item.verifiedNote}
+                    </p>
+                  ` : ''}
+
+                  <div class="mt-auto pt-4 flex items-center justify-between border-t border-line/60 text-xs font-semibold text-slate group-hover:text-ink">
+                    <span>View Artifact</span>
+                    <span aria-hidden="true">&rarr;</span>
+                  </div>
+                </div>
+              </article>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.warn('Could not hydrate live archive overrides', err);
+      }
+    }
+
+    hydrateLiveOverrides();
+    attachFilterListeners();
+    attachCardListeners();
+
+    btnClose?.addEventListener('click', () => modal?.close());
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) modal.close();
+    });
+  })();
+</script>

@@ -21,17 +21,17 @@ export interface StoryChapter {
 }
 
 export const professionalBio = {
-  summary: `Chifen Sama Nduma ("The Nurse Who Codes") is a software engineer, registered nurse, and health technology researcher based in Buea, Cameroon. Working at the intersection of clinical practice, low-bandwidth communication protocols, and artificial intelligence, he designs resilient digital health platforms engineered specifically for resource-constrained environments.`,
+  summary: `Chifen Sama Nduma ("The Nurse Who Codes") is a self-trained software engineer, registered nurse, and health technology researcher currently pursuing an M.Tech in Data Science at the College of Technology (COLTECH), The University of Bamenda. Working at the convergence of clinical practice, autodidactic software architecture, and artificial intelligence, he designs resilient digital health platforms engineered specifically for resource-constrained environments.`,
   paragraphs: [
-    `Chifen Sama Nduma holds a Bachelor of Science in Nursing Science from Gracious Higher Institute of Excellence (mentored by the University of Bamenda). His undergraduate thesis investigated "Knowledge, Attitude, and Factors Influencing the Implementation of Artificial Intelligence in Clinical Decision-Making Among Health Professionals at Buea Regional Hospital," conducting an empirical 387-respondent cross-sectional study (92.4% response rate) that established foundational readiness metrics for clinical AI in Cameroon.`,
-    `With four years of software engineering experience and over two years architecting health technology infrastructure, Chifen combines frontline clinical intuition with modern systems engineering. Following his tenure as District Data Manager and PMTCT Departmental Head for Kumba South District Health Service—where he automated DHIS2 local-to-cloud facility synchronization pipelines and elevated reporting completeness above 95%—he architects LifeDrop, an asynchronous emergency blood dispatch network leveraging the WhatsApp Cloud API to achieve zero-install donor triage.`,
+    `Chifen Sama Nduma holds a Bachelor of Science in Nursing Science from Gracious Higher Institute of Excellence (mentored by the University of Bamenda) and is currently enrolled in the Master of Technology (M.Tech) in Data Science program at the College of Technology (COLTECH), The University of Bamenda. His undergraduate thesis investigated "Knowledge, Attitude, and Factors Influencing the Implementation of Artificial Intelligence in Clinical Decision-Making Among Health Professionals at Buea Regional Hospital," conducting an empirical 387-respondent cross-sectional study (92.4% response rate) that established foundational readiness metrics for clinical AI in Cameroon.`,
+    `A 100% self-trained software engineer, Chifen taught himself systems programming, distributed backends, and low-bandwidth mobile protocols through real-world trial and open-source grit alongside demanding clinical nursing shifts. Following his tenure as District Data Manager and PMTCT Departmental Head for Kumba South District Health Service—where he automated DHIS2 local-to-cloud facility synchronization pipelines and elevated reporting completeness above 95%—he architects LifeDrop, an asynchronous emergency blood dispatch network leveraging the WhatsApp Cloud API to achieve zero-install donor triage.`,
     `In parallel, he serves as Lead Engineer for CoastClear, building offline-first spatial logging and localized computer-vision dashboards for coastal conservation, and Co-Founder & CEO of INKWAVE, a digital storytelling and developer advocacy agency advancing technical communication across Central and West Africa. Chifen's work demonstrates that technology in emerging markets must be designed not for idealized lab conditions, but for the ward, the power cut, and the 2G connection.`,
   ],
   focusAreas: [
-    { title: 'Clinical Nursing & Informatics', desc: 'BSc Nursing Science, ward triage, PMTCT workflow automation, and electronic registry audits.' },
-    { title: 'Health Systems & Offline-First Tech', desc: 'Low-bandwidth sync pipelines, WhatsApp Cloud API webhooks, and distributed healthcare dispatch.' },
-    { title: 'Artificial Intelligence & Data Science', desc: 'Clinical decision support readiness, maternal risk stratification models, and SPSS empirical research.' },
-    { title: 'Community & Technical Advocacy', desc: 'INKWAVE ecosystem building, grassroots STEM academies, and open-source documentation.' },
+    { title: 'Data Science & Applied AI (COLTECH)', desc: 'M.Tech Data Science at COLTECH UBa, clinical decision support algorithms, maternal risk stratification, and biostatistics.' },
+    { title: 'Self-Taught Software Engineering', desc: 'Autodidactic systems builder: WhatsApp Cloud API webhooks, distributed queues, offline-first SQLite sync, and low-bandwidth architectures.' },
+    { title: 'Clinical Nursing & Informatics', desc: 'BSc Nursing Science, frontline ward triage, PMTCT cohort automation, and electronic health registry audits.' },
+    { title: 'Community & Technical Advocacy', desc: 'INKWAVE ecosystem building, grassroots developer workshops, and open-source documentation mentorship.' },
   ],
 };
 
@@ -44,7 +44,7 @@ export const storyChapters: StoryChapter[] = [
     headline: 'A childhood fascination with surgery systems, precision, and the tools that make the impossible possible.',
     era: 'origins',
     paragraphs: [
-      `My name is Chifen Sama Nduma. For a long time I went by Sama Chifen because, to my young mind, it sounded like a superhero's alter ego. I was 23 in 2026, but as far back as memory reaches, I was fixated on medicine.`,
+      `My name is Chifen Sama Nduma. For a long time I went by Sama Chifen because, to my young mind, it sounded like a superhero's alter ego. At 23, as far back as memory reaches, I have always been fixated on medicine.`,
       `I remember watching Gifted Hands and being utterly captivated by Dr Ben Carson. What gripped me was not simply the status of being a surgeon; it was the surgery itself. The technology. The surgical instruments. The interdisciplinary coordination in the operating theater. The sheer precision required to navigate human anatomy. Technology had advanced just enough to make things that once seemed impossible completely possible.`,
       `I devoured books and medical documentaries. The film Something the Lord Made fascinated me because it laid bare the indispensable role of relentless innovation and cross-disciplinary collaboration in cardiovascular medicine. Alongside the science, Harry Potter captured my imagination—Gryffindor by heart. At the time, I had no inkling that this intersection of curiosity and experimentation would one day become "The Nurse Who Codes."`,
     ],
@@ -229,11 +229,11 @@ export const storyChapters: StoryChapter[] = [
     number: '12',
     year: '2022 – 2026',
     title: 'Nursing Science & The AI Readiness Dissertation',
-    headline: 'Graduating top of the HND cohort, clinical wards at Kumba, and defending a 387-respondent AI readiness study at Buea.',
+    headline: 'Graduating top of the HND cohort (2022–2025), top-up BSc in Nursing Science (2025–2026), and defending a 387-respondent AI readiness study at Buea.',
     era: 'clinical',
     paragraphs: [
-      `Formal clinical training fundamentally grounded everything I built. I completed my Higher National Diploma (HND) in Nursing at Gracious Higher Institute of Excellence, graduating with five honors: Best Overall Student, Best Nursing Student, Innovative Excellence Award, Best Creative Thinker, and Proactive Student Award.`,
-      `I topped up to a Bachelor of Science in Nursing Science (mentored by the University of Bamenda), defending my dissertation on 25 July 2026: "Knowledge, Attitude, and Factors Influencing the Implementation of Artificial Intelligence in Clinical Decision-Making Among Health Professionals at Buea Regional Hospital." I surveyed 387 clinical personnel across six cadres (nurses, physicians, lab scientists, midwives, pharmacists, allied staff), achieving a 92.4% response rate.`,
+      `Formal clinical training fundamentally grounded everything I built. I completed my Higher National Diploma (HND) in Nursing (2022–2025) at Gracious Higher Institute of Excellence, graduating with five honors: Best Overall Student, Best Nursing Student, Innovative Excellence Award, Best Creative Thinker, and Proactive Student Award.`,
+      `I completed a top-up Bachelor of Science in Nursing Science (2025–2026, mentored by the University of Bamenda), defending my dissertation on 25 July 2026: "Knowledge, Attitude, and Factors Influencing the Implementation of Artificial Intelligence in Clinical Decision-Making Among Health Professionals at Buea Regional Hospital." I surveyed 387 clinical personnel across six cadres (nurses, physicians, lab scientists, midwives, pharmacists, allied staff), achieving a 92.4% response rate.`,
       `My clinical internships at Regional Hospital Kumba and subsequent mandate as District Data Manager & PMTCT Head for Kumba South Health District immersed me in the unvarnished realities of African healthcare: power blackouts during triage, medication stockouts, and paper registers. By automating DHIS2 facility sync pipelines, we lifted reporting completeness above 95%. That was where "The Nurse Who Codes" stopped being a catchy phrase and became my unfair engineering advantage.`,
     ],
     pullQuote: 'The workforce meeting AI at the bedside in Buea is a young nursing workforce. My research proved they are not resistant; they are under-equipped and under-trained.',
@@ -264,5 +264,25 @@ export const storyChapters: StoryChapter[] = [
     status: 'LIVE',
     relatedUrl: '/work/lifedrop',
     relatedLabel: 'Explore LifeDrop',
+  },
+  {
+    id: 'postgraduate-data-science-coltech',
+    number: '14',
+    year: '2026 – Present',
+    title: 'The Postgraduate Frontier: M.Tech in Data Science & The Self-Taught Dev Edge',
+    headline: 'Commencing Master of Technology in Data Science at COLTECH, University of Bamenda, while championing the autodidactic engineer.',
+    era: 'active',
+    paragraphs: [
+      `In 2026, I officially commenced my Master of Technology (M.Tech) in Data Science at the College of Technology (COLTECH), The University of Bamenda (UBa), Bambili. Transitioning from frontline clinical nursing into postgraduate computer engineering data science represents the deliberate culmination of everything I have worked toward: uniting empirical healthcare datasets with advanced machine learning architectures, statistical computing, and predictive epidemiology.`,
+      `Crucially, my software engineering background is 100% self-trained. I did not sit in undergraduate computer science lectures to learn how to write code. I taught myself how to build software by reverse-engineering protocols, reading technical RFCs, contributing to open-source codebases, debugging Redis queues through power outages, and writing code in the quiet hours between hospital night shifts.`,
+      `Being an autodidactic developer gave me an invaluable edge: I learned technology to solve immediate, life-or-death human constraints rather than to pass written examinations. Combining this self-taught engineering grit with formal nursing clinical credentials and rigorous postgraduate data science training at COLTECH defines the next chapter of "The Nurse Who Codes."`,
+    ],
+    pullQuote: 'I taught myself software engineering to solve bedside clinical emergencies. Formal postgraduate data science now equips me to scale those solutions across Africa.',
+    whatIBuilt: 'Predictive health algorithms, clinical AI evaluation frameworks, and scalable machine learning pipelines at COLTECH UBa.',
+    whatILearned: 'Self-directed engineering disciplines your problem-solving instinct; postgraduate data science equips you with the statistical rigor to prove it at scale.',
+    metric: 'M.Tech Data Science Candidate · 100% Self-Trained Software Engineer',
+    status: 'ONGOING',
+    relatedUrl: '/cv',
+    relatedLabel: 'View Academic & Career CV',
   },
 ];
