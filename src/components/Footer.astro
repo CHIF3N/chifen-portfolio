@@ -100,7 +100,7 @@ const year = new Date().getFullYear();
     <div
       class="mt-16 flex flex-col gap-2 border-t border-paper/15 pt-6 text-xs text-paper/50 sm:flex-row sm:items-center sm:justify-between"
     >
-      <p>&copy; {year} Chifen Sama N. Built in {site.location}.</p>
+      <p>&copy; {year} Chifen Sama Nduma &middot; The Nurse Who Codes &middot; {site.location}</p>
       <p class="flex items-center gap-4">
         <a
           href={withBase('/search')}
@@ -115,19 +115,197 @@ const year = new Date().getFullYear();
           RSS
         </a>
         <span>Built with Astro.</span>
-        <a 
-          href="https://chifen-studio.vercel.app/login" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          class="text-zinc-400 dark:text-zinc-600 hover:text-purple-500 dark:hover:text-purple-400 transition-opacity opacity-40 hover:opacity-100 p-1 inline-flex items-center"
-          title="Studio CMS"
-          aria-label="Admin Studio Login"
+        <!-- Dedicated Footer Admin Access Button with Unique Password Gate -->
+        <button 
+          id="footer-admin-btn"
+          type="button"
+          data-admin-url={withBase('/admin')}
+          class="inline-flex items-center gap-1.5 rounded-full border border-purple-500/40 bg-purple-500/10 px-2.5 py-1 text-[11px] font-semibold text-purple-300 transition-all hover:bg-purple-500/25 hover:border-purple-400 hover:text-white"
+          title="Access Studio Admin Backend (Unique Password Required)"
         >
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
-        </a>
+          <span class="font-mono">Admin Studio</span>
+        </button>
       </p>
     </div>
   </div>
+
+  <!-- Unique Password Verification Modal -->
+  <div id="footer-admin-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-sm rounded-2xl border border-purple-500/30 bg-zinc-950 p-6 shadow-2xl text-zinc-100 space-y-4">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </span>
+          <h4 class="font-display text-sm font-bold uppercase tracking-wide text-white">Admin Studio Access</h4>
+        </div>
+        <button id="footer-modal-close" class="text-zinc-400 hover:text-white p-1" aria-label="Close">✕</button>
+      </div>
+
+      <p class="text-xs text-zinc-400 leading-relaxed">
+        This custom control suite is password protected. Enter your unique admin password to unlock and manage portfolio data.
+      </p>
+
+      <form id="footer-admin-form" class="space-y-3">
+        <div>
+          <label for="footer-admin-pass-input" class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">
+            Admin Password
+          </label>
+          <input
+            type="password"
+            id="footer-admin-pass-input"
+            required
+            autocomplete="current-password"
+            placeholder="Enter unique admin password..."
+            class="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
+          />
+          <p id="footer-admin-error" class="mt-1.5 hidden text-xs font-medium text-red-400 flex items-center gap-1">
+            <span>✕</span>
+            <span id="footer-admin-error-text">Incorrect admin password. Access denied.</span>
+          </p>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button
+            type="button"
+            id="footer-modal-cancel"
+            class="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            id="footer-admin-submit-btn"
+            class="rounded-lg bg-purple-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-purple-500 disabled:opacity-50"
+          >
+            Unlock &amp; Enter &rarr;
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script is:inline>
+    (() => {
+      const AUTH_KEY = 'chifen_admin_authenticated';
+      const AUTH_EXPIRY_KEY = 'chifen_admin_auth_expiry';
+      const FAIL_COUNT_KEY = 'chifen_admin_fail_count';
+      const LOCKOUT_KEY = 'chifen_admin_lockout_until';
+      const CUSTOM_HASH_KEY = 'chifen_custom_admin_hash';
+
+      // SHA-256 hashes of authorized administrative passphrases
+      const VALID_HASHES = [
+        'fefae624ed8b9244b84cc4dbd60b88ada0fbdb600e886735e4bd670d6d52f6b8', // chif3n-admin-2026
+        '5d69aa0e2e0b898f1b2973e5c091a92fdd8b245dca4cb004b517a4b8401fb271', // chifen2026!
+        '5456005152ac4f1f7485ce16e27fd74a14df81cfbf91c9780a76471f157a6441'  // chif3n2026
+      ];
+
+      const btn = document.getElementById('footer-admin-btn');
+      const modal = document.getElementById('footer-admin-modal');
+      const closeBtn = document.getElementById('footer-modal-close');
+      const cancelBtn = document.getElementById('footer-modal-cancel');
+      const form = document.getElementById('footer-admin-form');
+      const input = document.getElementById('footer-admin-pass-input');
+      const errorMsg = document.getElementById('footer-admin-error');
+      const errorText = document.getElementById('footer-admin-error-text');
+      const submitBtn = document.getElementById('footer-admin-submit-btn');
+      const adminUrl = btn?.getAttribute('data-admin-url') || '/admin';
+
+      async function sha256(str) {
+        const buf = new TextEncoder().encode(str);
+        const digest = await window.crypto.subtle.digest('SHA-256', buf);
+        return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      function isSessionValid() {
+        const authed = sessionStorage.getItem(AUTH_KEY) === 'true';
+        const expiry = parseInt(sessionStorage.getItem(AUTH_EXPIRY_KEY) || '0', 10);
+        return authed && expiry > Date.now();
+      }
+
+      function checkLockout() {
+        const lockoutUntil = parseInt(sessionStorage.getItem(LOCKOUT_KEY) || '0', 10);
+        const now = Date.now();
+        if (lockoutUntil > now) {
+          const remainingSecs = Math.ceil((lockoutUntil - now) / 1000);
+          if (errorText) {
+            errorText.textContent = `Security lockout active: please wait ${remainingSecs}s.`;
+          }
+          if (errorMsg) errorMsg.classList.remove('hidden');
+          if (input) input.disabled = true;
+          if (submitBtn) submitBtn.disabled = true;
+          return true;
+        }
+        if (input) input.disabled = false;
+        if (submitBtn) submitBtn.disabled = false;
+        return false;
+      }
+
+      function openModal() {
+        if (isSessionValid()) {
+          window.location.href = adminUrl;
+          return;
+        }
+        if (modal) {
+          modal.classList.remove('hidden');
+          if (checkLockout()) return;
+          if (errorMsg) errorMsg.classList.add('hidden');
+          if (input) {
+            input.value = '';
+            setTimeout(() => input.focus(), 50);
+          }
+        }
+      }
+
+      function closeModal() {
+        if (modal) modal.classList.add('hidden');
+      }
+
+      btn?.addEventListener('click', openModal);
+      closeBtn?.addEventListener('click', closeModal);
+      cancelBtn?.addEventListener('click', closeModal);
+
+      modal?.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (checkLockout()) return;
+
+        const entered = input?.value?.trim() || '';
+        if (!entered) return;
+
+        const hashed = await sha256(entered);
+        const customHash = localStorage.getItem(CUSTOM_HASH_KEY);
+        const isMatch = VALID_HASHES.includes(hashed) || (customHash && customHash === hashed);
+
+        if (isMatch) {
+          sessionStorage.removeItem(FAIL_COUNT_KEY);
+          sessionStorage.removeItem(LOCKOUT_KEY);
+          sessionStorage.setItem(AUTH_KEY, 'true');
+          sessionStorage.setItem(AUTH_EXPIRY_KEY, String(Date.now() + 8 * 60 * 60 * 1000));
+          window.location.href = adminUrl;
+        } else {
+          let fails = parseInt(sessionStorage.getItem(FAIL_COUNT_KEY) || '0', 10) + 1;
+          sessionStorage.setItem(FAIL_COUNT_KEY, String(fails));
+          if (fails >= 5) {
+            sessionStorage.setItem(LOCKOUT_KEY, String(Date.now() + 60 * 1000));
+            checkLockout();
+          } else {
+            if (errorText) {
+              errorText.textContent = `Incorrect admin password. (${5 - fails} attempts remaining)`;
+            }
+            if (errorMsg) errorMsg.classList.remove('hidden');
+          }
+          input?.focus();
+        }
+      });
+    })();
+  </script>
 </footer>

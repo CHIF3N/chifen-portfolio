@@ -14,14 +14,28 @@ const { Content } = await render(entry);
 const { title, summary, role, tags, status, year, liveUrl, repoUrl, metrics, note } = entry.data;
 
 const statusLabel: Record<string, string> = {
-  live: 'Live',
+  live: 'Live in Production',
   shipped: 'Shipped',
-  'in-progress': 'In progress',
-  concept: 'Concept',
+  'in-progress': 'In progress / Active',
+  concept: 'Concept / Prototype',
+};
+
+const projectSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: title,
+  description: summary,
+  author: {
+    '@type': 'Person',
+    name: 'Chifen Sama Nduma',
+    url: 'https://chifen.is-a.dev',
+  },
+  applicationCategory: 'HealthApplication',
+  operatingSystem: 'Web, Android, WhatsApp',
 };
 ---
 
-<Base title={title} description={summary}>
+<Base title={title} description={summary} schema={projectSchema}>
   <article>
     <header class="border-b border-ink/10 bg-ink text-paper">
       <div class="mx-auto max-w-4xl px-5 pt-12 pb-14 sm:px-8 sm:pt-16 sm:pb-16">
@@ -34,15 +48,16 @@ const statusLabel: Record<string, string> = {
         </a>
 
         <div class="mt-7 flex flex-wrap items-center gap-3">
-          <span class="rounded-full bg-accent/20 px-3 py-1 text-xs font-medium text-accent">
-            {statusLabel[status]}
+          <span class="rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold text-accent uppercase tracking-wider">
+            {statusLabel[status] ?? status}
           </span>
           <span class="text-sm text-paper/50">{year}</span>
+          <span class="text-xs text-paper/40">&middot;</span>
+          <span class="text-xs text-paper/60 uppercase tracking-wider">{role}</span>
         </div>
 
         <h1 class="mt-4 font-display text-4xl font-semibold sm:text-5xl">{title}</h1>
         <p class="mt-4 max-w-2xl text-lg leading-relaxed text-paper/70">{summary}</p>
-        <p class="mt-5 text-sm text-paper/55">{role}</p>
 
         {
           (liveUrl || repoUrl) && (
@@ -51,20 +66,20 @@ const statusLabel: Record<string, string> = {
                 <a
                   href={liveUrl}
                   target="_blank"
-                  rel="noopener"
-                  class="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-ink transition-transform duration-200 hover:-translate-y-0.5"
+                  rel="noopener noreferrer"
+                  class="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-ink transition-transform duration-200 hover:-translate-y-0.5"
                 >
-                  Visit the live site
+                  Visit live system &rarr;
                 </a>
               )}
               {repoUrl && (
                 <a
                   href={repoUrl}
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   class="rounded-full border border-paper/25 px-5 py-2.5 text-sm font-medium transition-colors hover:border-accent hover:text-accent"
                 >
-                  View the code
+                  Inspect code repository &rarr;
                 </a>
               )}
             </div>
@@ -73,15 +88,18 @@ const statusLabel: Record<string, string> = {
 
         {
           metrics.length > 0 && (
-            <dl class="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-paper/15 pt-8 sm:grid-cols-4">
-              {metrics.map((metric) => (
-                <div>
-                  <dd class="font-display text-lg leading-snug font-medium">
-                    <VerifyText text={metric} />
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <div class="mt-10 border-t border-paper/15 pt-8">
+              <p class="text-xs font-bold uppercase tracking-wider text-accent">Documented Results &amp; Metrics</p>
+              <dl class="mt-4 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3">
+                {metrics.map((metric) => (
+                  <div class="rounded-lg bg-paper/5 p-3 border border-paper/10">
+                    <dd class="font-display text-base sm:text-lg leading-snug font-medium text-paper">
+                      <VerifyText text={metric} />
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
           )
         }
       </div>
@@ -91,23 +109,56 @@ const statusLabel: Record<string, string> = {
       note && (
         <div class="mx-auto max-w-4xl px-5 pt-8 sm:px-8">
           <p class="rounded-xl border border-accent/40 bg-accent/10 px-5 py-4 text-sm leading-relaxed text-ink">
-            <strong class="font-semibold">Note.</strong> {note}
+            <strong class="font-semibold text-accent">Clinical / Engineering Note:</strong> {note}
           </p>
         </div>
       )
     }
 
-    <div class="mx-auto max-w-4xl px-5 py-14 sm:px-8">
+    <!-- Project Evidence Blueprint Card -->
+    <div class="mx-auto max-w-4xl px-5 pt-10 sm:px-8">
+      <div class="rounded-2xl border border-line bg-paper-dim/50 p-6 sm:p-7">
+        <h2 class="font-display text-xs font-bold tracking-widest text-accent uppercase">
+          Project Evidence Framework
+        </h2>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+          <div>
+            <span class="font-bold text-ink uppercase tracking-wider block">Role</span>
+            <span class="text-slate mt-0.5 block">{role}</span>
+          </div>
+          <div>
+            <span class="font-bold text-ink uppercase tracking-wider block">Status</span>
+            <span class="text-slate mt-0.5 block">{statusLabel[status] ?? status}</span>
+          </div>
+          <div>
+            <span class="font-bold text-ink uppercase tracking-wider block">Year</span>
+            <span class="text-slate mt-0.5 block">{year}</span>
+          </div>
+          <div>
+            <span class="font-bold text-ink uppercase tracking-wider block">Domain</span>
+            <span class="text-slate mt-0.5 block">{tags.join(' · ')}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-4xl px-5 py-12 sm:px-8">
       <div class="prose-body">
         <Content />
       </div>
 
-      <div class="mt-14 flex flex-wrap gap-2 border-t border-ink/10 pt-8">
-        {
-          tags.map((tag) => (
-            <span class="rounded-full bg-ink/5 px-3 py-1 text-sm text-slate">{tag}</span>
-          ))
-        }
+      <!-- Footer Tags and Navigation -->
+      <div class="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-ink/10 pt-8">
+        <div class="flex flex-wrap gap-2">
+          {
+            tags.map((tag) => (
+              <span class="rounded-full bg-ink/5 px-3 py-1 text-xs sm:text-sm text-slate">{tag}</span>
+            ))
+          }
+        </div>
+        <a href={withBase('/work')} class="text-sm font-semibold text-accent hover:underline">
+          &larr; Back to all projects
+        </a>
       </div>
     </div>
   </article>

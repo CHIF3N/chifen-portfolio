@@ -125,7 +125,7 @@ const DEFAULT_CONFIG: SiteConfig = {
   tagline: 'Architecting resilient digital health platforms, low-bandwidth communication networks, and scalable web backends.',
   pitch: 'Registered nurse (HND + BSc) and self-taught software engineer with four years in technology, two in health technology infrastructure. Building digital health systems for settings with unreliable power, low bandwidth, and no margin for failure. Clinical domain knowledge comes from inside the workflow, not user research interviews.',
   email: 'chifensama0@gmail.com',
-  github: 'https://github.com/chifensama01-coder',
+  github: 'https://github.com/CHIF3N',
   linkedin: 'https://www.linkedin.com/in/chif3n/',
   whatsapp: '+237 672 835 132',
   location: 'Buea / Yaoundé, Cameroon',

@@ -4,70 +4,89 @@ import { site } from '../lib/site';
 import { withBase } from '../lib/url';
 
 const proofChips = [
-  'Speaker @ PyCon & UbuCon Cameroon 2026',
-  'Lead Architect @ LifeDrop · WhatsApp Emergency Dispatch',
+  '⚡ SELF-TRAINED DEV',
+  'The Nurse Who Codes',
+  'Open Source & Automations',
+  'M.Tech Data Science (COLTECH UBa)',
+  'BSc Nursing Science (Top-up)',
+  'HND Nursing (Honors)',
+  'Lead Architect @ LifeDrop',
   'Lead Engineer @ CoastClear',
   'CEO @ INKWAVE',
-  'Ex-District Data Manager & PMTCT Head, Kumba South (2025 – 2026)',
+  'Speaker @ PyCon Cameroon 2026',
 ];
 ---
 
-<section class="shell pt-10 pb-16 sm:pt-16 sm:pb-24">
-  <!-- Real-Time Status Radar -->
-  <div class="hero-line mb-4" style="--i:0">
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-      <span class="relative flex h-2 w-2">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-      </span>
-      <span>Based in Buea, Cameroon • Building offline-first health tech • Open for architecture & keynotes</span>
+<section class="hero-fullscreen w-full min-h-[calc(100vh-4.5rem)] flex flex-col justify-between px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 pt-4 pb-8 sm:pt-6 sm:pb-12 overflow-x-hidden">
+  <!-- Top: Status and Location -->
+  <div class="w-full flex flex-wrap items-center justify-between gap-3 mb-2 sm:mb-4">
+    <!-- Live Positioning Radar -->
+    <div class="hero-line" style="--i:0">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-xs">
+        <span class="relative flex h-2 w-2 shrink-0">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="truncate">The Nurse Who Codes • SELF-TRAINED DEV • Open Source &amp; Automations</span>
+      </div>
     </div>
+
+    <p class="hero-line eyebrow flex items-center gap-2 text-xs sm:text-sm text-slate" style="--i:0">
+      <span class="relative flex h-2 w-2 shrink-0">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-70"></span>
+        <span class="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+      </span>
+      <span>{site.name} &mdash; {site.location}</span>
+    </p>
   </div>
 
-  <p class="hero-line eyebrow flex items-center gap-2.5" style="--i:0">
-    <span class="relative flex h-2 w-2">
-      <span
-        class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-70"
-      ></span>
-      <span class="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+  <!-- Giant Headline & Central Interactive Feature -->
+  <h1 class="w-full my-auto flex flex-col justify-center">
+    <span class="hero-line hero-giant-text block w-full text-ink tracking-tight select-none" style="--i:1">
+      The Nurse
     </span>
-    Chifen Sama Nduma &mdash; {site.location}
-  </p>
 
-  <h1 class="mt-6">
-    <span class="hero-line display-hero block" style="--i:1">Resilient</span>
-
-    <!-- The middle band sits between the two hero words: portrait on the left,
-         the pitch and call to action on the right. -->
-    <span
-      class="hero-line my-4 flex flex-col gap-6 normal-case sm:my-6 md:flex-row md:items-end"
+    <!-- The middle band: stretches edge-to-edge between the two massive typography words -->
+    <div
+      class="hero-line my-3 sm:my-5 md:my-6 flex flex-col normal-case md:flex-row md:items-center justify-between gap-6 md:gap-10 lg:gap-14 w-full"
       style="--i:2"
     >
-      <!-- Sits between the two hero words, square-cornered, same as the reference. -->
-      <span class="block w-44 shrink-0 sm:w-56">
-        <Scene3D src="/scenes/scene-hero.mp4" rounded={false} label="Animated 3D illustration" />
-      </span>
+      <div class="w-40 sm:w-52 md:w-64 lg:w-72 xl:w-80 shrink-0 mx-auto md:mx-0">
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-line/60 bg-paper-dim/40 transition-transform hover:scale-[1.02] duration-300">
+          <Scene3D src="/scenes/scene-hero.mp4" rounded={false} label="Animated 3D illustration" />
+        </div>
+      </div>
 
-      <span class="flex flex-col items-start gap-6">
-        <span class="lede block max-w-md">
-          {site.headline} Nurse-trained. Built for the ward, the power cut, and the 2G
-          connection.
-        </span>
-        <a href={withBase('/work')} class="btn btn-accent">
-          See the work
-          <span aria-hidden="true">&rarr;</span>
-        </a>
-      </span>
+      <div class="flex-1 max-w-3xl flex flex-col items-start gap-4 sm:gap-6">
+        <p class="text-base sm:text-lg md:text-xl lg:text-2xl text-slate leading-relaxed font-sans font-normal">
+          <strong class="text-ink font-semibold">The Nurse Who Codes.</strong> Self-trained software engineer, registered nurse, and health-tech innovator. Autodidactic engineering focused on open-source technologies, workflow automations, and resilient offline-first platforms.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
+          <a href={withBase('/work')} class="btn btn-accent btn-md px-6 py-3 text-sm sm:text-base font-semibold shadow-lg shadow-accent/25 hover:shadow-accent/40 transition-all">
+            See the work
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+          <a href={withBase('/about')} class="btn btn-ghost btn-md px-6 py-3 text-sm sm:text-base font-medium">
+            About &amp; Story
+          </a>
+          <a href={withBase('/cv')} class="btn btn-ghost btn-md px-4 py-3 text-xs sm:text-sm text-slate hover:text-ink">
+            View CV
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <span class="hero-line hero-giant-text block w-full text-accent tracking-tight select-none" style="--i:3">
+      Who Codes
     </span>
-
-    <span class="hero-line display-hero block" style="--i:3">Health Tech</span>
   </h1>
 
   <!-- Proof chips / credential badges -->
-  <div class="hero-line mt-8 flex flex-wrap gap-2" style="--i:4" aria-label="Credentials">
+  <div class="hero-line mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-2.5 items-center w-full" style="--i:4" aria-label="Credentials">
     {
       proofChips.map((chip) => (
-        <span class="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/8 px-3 py-1.5 text-xs font-semibold text-accent">
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper-dim/90 px-3 py-1.5 text-xs font-semibold text-slate hover:text-ink hover:border-accent/40 transition-all">
           <span aria-hidden="true" class="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
           {chip}
         </span>
@@ -77,6 +96,18 @@ const proofChips = [
 </section>
 
 <style>
+  .hero-giant-text {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3.6rem, 15.5vw, 14.5rem);
+    line-height: 0.84;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     :global(html.js) .hero-line {
       opacity: 0;

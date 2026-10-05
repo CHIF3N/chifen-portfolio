@@ -18,7 +18,7 @@ export const site = {
     'To build technologies that make quality healthcare more accessible, intelligent, and equitable across Africa.',
   emails: [siteConfig.email || 'chifensama0@gmail.com'],
   whatsapp: [{ label: siteConfig.whatsapp || '+237 672 835 132', href: `https://wa.me/${(siteConfig.whatsapp || '+237672835132').replace(/[^0-9]/g, '')}` }],
-  github: siteConfig.github || 'https://github.com/chifensama01-coder',
+  github: siteConfig.github || 'https://github.com/CHIF3N',
   linkedin: siteConfig.linkedin || 'https://www.linkedin.com/in/chif3n/',
 
   /**
@@ -27,7 +27,7 @@ export const site = {
    * footer and on the contact page.
    */
   socials: [
-    { label: 'GitHub', href: 'https://github.com/chifensama01-coder', compact: true },
+    { label: 'GitHub', href: 'https://github.com/CHIF3N', compact: true },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/chif3n/', compact: true },
     { label: 'WhatsApp', href: 'https://wa.me/237672835132', compact: true },
     { label: 'Instagram', href: 'https://www.instagram.com/chif_3n', compact: false },

@@ -11,13 +11,234 @@ interface Props {
   ogImage?: string;
   /** Per-page accent. Defaults to the site cyan. */
   accent?: string;
+  schema?: Record<string, any> | Array<Record<string, any>>;
 }
 
-const { title, description = site.description, ogImage, accent } = Astro.props;
+const {
+  title,
+  description = site.description,
+  ogImage = '/assets/photos/chifen-portrait.jpg',
+  accent,
+  schema,
+} = Astro.props;
 
-const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.role}`;
+const pageTitle = title
+  ? `${title} · Chifen Sama Nduma (8,500+ Tech Reach) — The Nurse Who Codes`
+  : `Chifen Sama Nduma — The Nurse Who Codes · 8,500+ Tech Reach · 5,000+ Lives Impacted`;
+
+const pageDescription = description || 'Chifen Sama Nduma (CHIF3N) — The Nurse Who Codes. Self-trained software engineer & registered nurse in Cameroon: 8,500+ accumulated reach across built tech, 5,000+ lives reached, 4 countries deployed, 100% open-source automations. Lead Architect at LifeDrop, CoastClear, and INKWAVE.';
+
 // Astro.url.pathname already reflects the deployed base path.
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const siteOrigin = Astro.site ? Astro.site.toString() : 'https://chifen.is-a.dev';
+const canonical = new URL(Astro.url.pathname, siteOrigin);
+
+const defaultPersonSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${siteOrigin}#person`,
+  name: 'Chifen Sama Nduma',
+  givenName: 'Chifen',
+  familyName: 'Sama Nduma',
+  additionalName: 'Sama Chifen',
+  alternateName: ['Chifen Sama', 'CHIF3N', 'The Nurse Who Codes', 'Sama Chifen', 'Chifen Sama Nduma'],
+  jobTitle: 'Self-Trained Software Engineer & Registered Nurse',
+  disambiguatingDescription: 'Self-trained software engineer, registered nurse, and health technology researcher known as The Nurse Who Codes. 8,500+ accumulated reach across built tech, 5,000+ lives reached, 4 countries deployed, specialized in open-source technologies, workflow automations, and resilient distributed platforms.',
+  description: pageDescription,
+  url: siteOrigin,
+  image: new URL(withBase(ogImage), siteOrigin).toString(),
+  sameAs: [
+    ...site.socials.map((s) => s.href),
+    'https://inkwave-cm.vercel.app/',
+    'https://github.com/CHIF3N',
+    'https://www.linkedin.com/in/chif3n/'
+  ] as string[],
+  interactionStatistic: [
+    {
+      '@type': 'InteractionCounter',
+      interactionType: 'https://schema.org/UserInteraction',
+      userInteractionCount: 8500,
+      name: 'Accumulated Reach Across Built Tech',
+      description: '8,500+ cumulative registered blood donors, coastal conservation field crews, remote STEM students, and developers reached across software platforms and automations.',
+    },
+    {
+      '@type': 'InteractionCounter',
+      interactionType: 'https://schema.org/ActiveAction',
+      userInteractionCount: 5000,
+      name: 'Lives Reached & Impacted',
+      description: '5,000+ lives directly reached and impacted through clinical bedside emergency care, donor routing, and community health initiatives.',
+    },
+    {
+      '@type': 'InteractionCounter',
+      interactionType: 'https://schema.org/DeployAction',
+      userInteractionCount: 4,
+      name: 'Countries Deployed & Reached',
+      description: '4 countries across Central and West Africa where software and data workflows have been deployed.',
+    },
+  ],
+  award: [
+    '8,500+ Accumulated Reach Across Built Tech Platforms',
+    '5,000+ Lives Reached & Impacted Across 4 African Nations',
+    'Speaker @ PyCon Cameroon 2026',
+    '3rd Place Winner @ MTN YaMo Hackathon',
+    'Batch 9 Graduate @ Wisdom for Dominion Leadership Academy',
+  ],
+  knowsAbout: [
+    'Self-Trained Software Engineering',
+    'Open-Source Software & Automations',
+    '8,500+ Accumulated Tech Reach',
+    '5,000+ Lives Reached & Impacted',
+    'Health Technology & Digital Health',
+    'Data Science & Artificial Intelligence',
+    'Nursing Informatics & Bedside Care',
+    'Clinical Decision Support Systems',
+    'WhatsApp Cloud API & Chatbot Architecture',
+    'Offline-First Mobile Architecture',
+    'Low-Bandwidth Communication Networks',
+    'Health Data Systems (DHIS2)',
+  ],
+  affiliation: [
+    {
+      '@type': 'Organization',
+      name: 'LifeDrop',
+      url: 'https://lifedrop.cm',
+    },
+    {
+      '@type': 'Organization',
+      name: 'CoastClear',
+    },
+    {
+      '@type': 'Organization',
+      name: 'INKWAVE',
+      url: 'https://inkwave-cm.vercel.app/',
+    },
+    {
+      '@type': 'EducationalOrganization',
+      name: 'College of Technology (COLTECH), The University of Bamenda',
+      location: 'Bambili, Cameroon',
+    },
+  ],
+  alumniOf: [
+    {
+      '@type': 'EducationalOrganization',
+      name: 'College of Technology (COLTECH), The University of Bamenda',
+      location: 'Bambili, Cameroon',
+    },
+    {
+      '@type': 'EducationalOrganization',
+      name: 'Gracious Higher Institute of Excellence',
+      location: 'Buea, Cameroon',
+    },
+  ],
+};
+
+const defaultProfilePageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  '@id': `${siteOrigin}#profilepage`,
+  url: siteOrigin,
+  name: pageTitle,
+  description: pageDescription,
+  mainEntity: {
+    '@id': `${siteOrigin}#person`,
+  },
+};
+
+const defaultWebsiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${siteOrigin}#website`,
+  url: siteOrigin,
+  name: 'Chifen Sama Nduma — The Nurse Who Codes · 8,500+ Tech Reach',
+  alternateName: ['CHIF3N', 'The Nurse Who Codes', 'Chifen Sama Portfolio'],
+  description: pageDescription,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${siteOrigin}/search?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+  publisher: {
+    '@id': `${siteOrigin}#person`,
+  },
+};
+
+const lifeDropSoftwareSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  '@id': `${siteOrigin}#lifedrop`,
+  name: 'LifeDrop',
+  applicationCategory: 'HealthApplication',
+  operatingSystem: 'WhatsApp Cloud API, Web, Android',
+  author: { '@id': `${siteOrigin}#person` },
+  description: 'Automated WhatsApp emergency blood donor dispatch system operating with under 90-second response latency in low-bandwidth African healthcare networks.',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+};
+
+const coastClearSoftwareSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  '@id': `${siteOrigin}#coastclear`,
+  name: 'CoastClear',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Offline-First Mobile, Web',
+  author: { '@id': `${siteOrigin}#person` },
+  description: 'Offline-first marine debris logistics and field crew coordination platform deployed along the Gulf of Guinea coastline.',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+};
+
+const defaultFaqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': `${siteOrigin}#faq`,
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How many people have used technology built by Chifen Sama Nduma?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Chifen Sama Nduma has achieved an accumulated reach of over 8,500+ people across built tech platforms including LifeDrop (emergency blood donor dispatch), CoastClear (marine debris logistics), and INKWAVE, directly impacting 5,000+ lives across 4 countries with 100% open-source tools.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What key metrics and numbers define Chifen Sama Nduma’s engineering?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Verified metrics: 8,500+ accumulated reach across built tech, 5,000+ lives reached and impacted, 4 countries deployed, 100% open-source software and automations, sub-90s blood dispatch latency on WhatsApp Cloud API, and a 387-patient maternal health risk clinical study in Cameroon.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Who is Chifen Sama Nduma (The Nurse Who Codes)?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Chifen Sama Nduma (also known as CHIF3N and The Nurse Who Codes) is a self-trained software engineer and registered nurse based in Buea, Cameroon. He holds a BSc in Nursing Science, is pursuing an M.Tech in Data Science at COLTECH (The University of Bamenda), and specializes in open-source automations, offline-first systems, and clinical AI.',
+      },
+    },
+  ],
+};
+
+const baseSchemas = [
+  defaultPersonSchema,
+  defaultProfilePageSchema,
+  defaultWebsiteSchema,
+  lifeDropSoftwareSchema,
+  coastClearSoftwareSchema,
+  defaultFaqSchema,
+];
+
+const finalSchemas = schema
+  ? Array.isArray(schema)
+    ? [...baseSchemas, ...schema]
+    : [...baseSchemas, schema]
+  : baseSchemas;
 ---
 
 <!doctype html>
@@ -31,18 +252,38 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={pageDescription} />
+    <meta name="author" content="Chifen Sama Nduma" />
+    <meta name="keywords" content="Chifen Sama, Chifen Sama Nduma, Sama Chifen, CHIF3N, The Nurse Who Codes, 8500 tech reach, 5000 lives reached, 4 countries, LifeDrop, CoastClear, INKWAVE, Self-Trained Dev, Self-Taught Software Engineer, Nurse Who Codes, Health Technology Cameroon, Buea Developer, Open Source Automations, COLTECH University of Bamenda" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
-    <link rel="alternate" type="application/rss+xml" title={site.name} href={withBase('/rss.xml')} />
+    <link rel="alternate" type="application/rss+xml" title={`${site.displayName} — ${site.brand}`} href={withBase('/rss.xml')} />
 
-    <meta property="og:type" content="website" />
+    <!-- OpenGraph Social Cards -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="Chifen Sama Nduma — The Nurse Who Codes" />
     <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={pageDescription} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="profile:first_name" content="Chifen" />
+    <meta property="profile:last_name" content="Sama Nduma" />
+    <meta property="profile:username" content="CHIF3N" />
     {ogImage && <meta property="og:image" content={new URL(withBase(ogImage), Astro.site)} />}
-    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+
+    <!-- Twitter / X Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@sama_chifen" />
+    <meta name="twitter:creator" content="@sama_chifen" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    {ogImage && <meta name="twitter:image" content={new URL(withBase(ogImage), Astro.site)} />}
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(finalSchemas)} />
 
     <link
       rel="preload"
@@ -87,7 +328,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <div data-pagefind-ignore>
       <Header />
     </div>
-    <main id="main" data-pagefind-body data-pagefind-meta={`title:${title ?? site.name}`}>
+    <main id="main" data-pagefind-body data-pagefind-meta={`title:${title ?? site.displayName}`}>
       <slot />
     </main>
     <div data-pagefind-ignore>
@@ -113,5 +354,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         items.forEach((item) => item.classList.add('is-visible'));
       }
     </script>
+    <script src={withBase('/scripts/site-bridge.js')} is:inline></script>
   </body>
 </html>

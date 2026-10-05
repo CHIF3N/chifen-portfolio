@@ -18,7 +18,7 @@ export const masterCvData = {
     location: 'Buea / Yaoundé, Cameroon',
     email: 'chifensama0@gmail.com',
     whatsapp: '+237 672 835 132',
-    github: 'https://github.com/chifensama01-coder',
+    github: 'https://github.com/CHIF3N',
     linkedin: 'https://www.linkedin.com/in/chif3n/',
     website: 'https://chifen.is-a.dev',
     inkwave: 'https://inkwave-cm.vercel.app/',

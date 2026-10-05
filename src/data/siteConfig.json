@@ -3,13 +3,15 @@
   "displayName": "Chifen Sama",
   "brand": "The Nurse Who Codes",
   "creativeIdentity": "CHIF3N",
-  "role": "The Nurse Who Codes · Software Engineer · Health Technology Researcher",
-  "tagline": "The Nurse Who Codes: Architecting resilient digital health platforms, clinical AI, and low-bandwidth communication networks across Africa.",
-  "pitch": "Registered nurse (BSc Nursing Science) and software engineer with four years in technology, two in health technology infrastructure. Building digital health systems for settings with unreliable power, low bandwidth, and no margin for failure. Clinical domain knowledge comes from inside the workflow, not user research interviews.",
+  "role": "The Nurse Who Codes · Self-Trained Software Engineer (Open Source & Automations) · M.Tech Data Science (COLTECH UBa)",
+  "tagline": "The Nurse Who Codes: Self-trained engineer architecting open-source automations, resilient digital health platforms, and clinical AI across Africa.",
+  "pitch": "Registered nurse (BSc Nursing) and self-trained software engineer specializing in open-source technologies and workflow automations, currently pursuing M.Tech in Data Science at COLTECH (The University of Bamenda). Built systems impacting 5,000+ lives across 4 countries with zero margin for failure. Clinical intuition forged at the bedside, software mastery forged by autodidactic practice.",
   "email": "chifensama0@gmail.com",
-  "github": "https://github.com/chifensama01-coder",
+  "github": "https://github.com/CHIF3N",
   "linkedin": "https://www.linkedin.com/in/chif3n/",
   "whatsapp": "+237 672 835 132",
   "location": "Buea / Yaoundé, Cameroon",
-  "inkwave": "https://inkwave-cm.vercel.app/"
+  "inkwave": "https://inkwave-cm.vercel.app/",
+  "educationSummary": "M.Tech in Data Science at COLTECH University of Bamenda (2026–Present) · BSc Nursing Science (Top-up, 2025–2026) · HND Nursing (2022–2025)",
+  "softwareBackground": "100% self-trained software engineer; four years of hands-on production engineering in Python, TypeScript, React Native, and distributed low-bandwidth systems."
 }
