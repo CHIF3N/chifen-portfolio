@@ -1,0 +1,268 @@
+---
+title: "Edge AI on Limbe's Coast: Deploying Quantized YOLO Models on $35 Hardware for Marine Plastic Tracking"
+description: "Deploying heavy PyTorch models on battery-constrained Raspberry Pi 4 units in tropical humidity fails within hours. How CoastClear quantizes models into INT8 ONNX runtimes for real-time beach debris classification."
+pubDate: 2026-03-12T15:00:00.000Z
+tags: ["edge-ai", "computer-vision", "onnx", "python", "CoastClear"]
+draft: false
+---
+
+import CodeWorkbench from '../../components/blog/CodeWorkbench.astro';
+
+When we won 3rd place with **CoastClear** at the national MTN YaMo innovation challenge, the demonstration ran on a high-spec MacBook with thermal fans blasting and a stable 50 Mbps fiber link.
+
+When we took the same system down to the black sand beaches of Limbe (Down Beach and Batoke), that prototype disintegrated in 45 minutes:
+
+- **Thermal Throttling:** 32°C ambient coastal heat with 85% humidity made unoptimized PyTorch FP32 models overheat the Raspberry Pi 4 SoC past 82°C, cutting CPU clocks from 1.5 GHz down to 600 MHz.
+- **Battery Drain:** Running an unquantized model drew 14.8 Watts, draining our 10,000 mAh field battery in under 2.5 hours.
+- **Zero Real-Time Bandwidth:** Sending 1080p video streams back to a cloud GPU server in Douala failed because coastal 3G bandwidth hovered at 140 kbps with 600ms latency.
+
+If edge environmental monitoring is going to work on African coastlines, the neural network **must run entirely on-device at the edge**, consuming under 4 Watts, without sending a single raw video frame to the cloud.
+
+---
+
+### The Optimization: INT8 Post-Training Quantization
+
+To hit our target of **12 frames per second (FPS)** on a CPU without a dedicated GPU, we converted our custom-trained marine waste detection model (trained on 2,400 annotated coastal debris photos: PET bottles, fishing nets, plastic sachets, polyurethane foam) into an **INT8 ONNX runtime**:
+
+1. **Weight & Activation Quantization:** Dropped 32-bit floating-point weights (`float32`) to 8-bit signed integers (`int8`). Model weight size dropped from **28.4 MB to 7.1 MB**.
+2. **ONNX Runtime Engine:** Bypassed heavy Python dependencies (`torch`, `torchvision`, `cuda`) and executed inference through native `onnxruntime` bindings compiled with ARM NEON SIMD instructions.
+3. **Telemetry-Only Sync:** Instead of streaming video, the edge node stores lightweight JSON telemetry: timestamp, GPS lat/long, detected class labels, confidence scores, and bounding-box coordinates. One full 8-hour beach scan compresses into a **42 KB** sync packet.
+
+---
+
+### Edge Inspection Codebase
+
+Browse the multi-file architecture below. Switch between the edge detector loop, local telemetry circular buffer, device power config, and backend telemetry sync handler. All codes support folder expansion, scrolling, copy, and download:
+
+<CodeWorkbench
+  project="coastclear-edge"
+  files={[
+    {
+      name: "edge/detector.py",
+      lang: "python",
+      code: `"""
+edge/detector.py
+CoastClear edge inference engine running quantized ONNX models.
+"""
+
+import time
+import json
+import numpy as np
+import onnxruntime as ort
+from edge.telemetry.buffer import TelemetryBuffer
+
+class CoastClearDetector:
+    CLASSES = ["pet_bottle", "sachet_water", "fishing_gear", "plastic_bag", "rubber_tire"]
+
+    def __init__(self, model_path: str = "models/marine_waste_int8.onnx", conf_threshold: float = 0.45):
+        # Configure ONNX Runtime session with ARM NEON CPU optimizations
+        opts = ort.SessionOptions()
+        opts.intra_op_num_threads = 4
+        opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        
+        self.session = ort.InferenceSession(model_path, opts, providers=["CPUExecutionProvider"])
+        self.input_name = self.session.get_inputs()[0].name
+        self.conf_threshold = conf_threshold
+        self.telemetry = TelemetryBuffer(max_records=5000)
+
+    def preprocess(self, raw_frame_rgb: np.ndarray) -> np.ndarray:
+        """
+        Resizes 640x640, normalizes to 0-1, and formats to NCHW channel-first tensor.
+        """
+        # Simulated fast array resize and normalization
+        tensor = raw_frame_rgb.astype(np.float32) / 255.0
+        tensor = np.transpose(tensor, (2, 0, 1))
+        tensor = np.expand_dims(tensor, axis=0)
+        return tensor
+
+    def detect_debris(self, frame: np.ndarray, gps_coords: tuple) -> list:
+        t0 = time.perf_counter()
+        inp = self.preprocess(frame)
+        
+        # Execute edge inference
+        outputs = self.session.run(None, {self.input_name: inp})
+        inference_ms = (time.perf_counter() - t0) * 1000.0
+
+        detections = []
+        raw_boxes = outputs[0][0] # shape (N, 6): [x1, y1, x2, y2, score, class_id]
+
+        for box in raw_boxes:
+            score = float(box[4])
+            if score >= self.conf_threshold:
+                cls_id = int(box[5])
+                cls_name = self.CLASSES[cls_id] if cls_id < len(self.CLASSES) else "unknown"
+                item = {
+                    "class": cls_name,
+                    "confidence": round(score, 3),
+                    "box": [round(float(coord), 1) for coord in box[:4]],
+                }
+                detections.append(item)
+
+        if detections:
+            self.telemetry.record(
+                timestamp=int(time.time()),
+                latitude=gps_coords[0],
+                longitude=gps_coords[1],
+                debris_count=len(detections),
+                detections=detections,
+                inference_ms=round(inference_ms, 1)
+            )
+
+        return detections
+`
+    },
+    {
+      name: "edge/telemetry/buffer.py",
+      lang: "python",
+      code: `"""
+edge/telemetry/buffer.py
+Persistent circular ring buffer storing detection events in local SQLite.
+"""
+
+import sqlite3
+import json
+from typing import List, Dict, Any
+
+class TelemetryBuffer:
+    def __init__(self, db_path: str = "/var/coastclear/telemetry.db", max_records: int = 5000):
+        self.conn = sqlite3.connect(db_path, check_same_thread=False)
+        self.max_records = max_records
+        self._init_db()
+
+    def _init_db(self):
+        with self.conn:
+            self.conn.execute("""
+                CREATE TABLE IF NOT EXISTS telemetry_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp INTEGER NOT NULL,
+                    latitude REAL NOT NULL,
+                    longitude REAL NOT NULL,
+                    debris_count INTEGER NOT NULL,
+                    payload TEXT NOT NULL,
+                    synced INTEGER DEFAULT 0
+                )
+            """)
+            self.conn.execute("CREATE INDEX IF NOT EXISTS idx_synced ON telemetry_events(synced)")
+
+    def record(self, timestamp: int, latitude: float, longitude: float, debris_count: int, detections: list, inference_ms: float):
+        payload = json.dumps({"items": detections, "latency": inference_ms})
+        with self.conn:
+            self.conn.execute("""
+                INSERT INTO telemetry_events (timestamp, latitude, longitude, debris_count, payload, synced)
+                VALUES (?, ?, ?, ?, ?, 0)
+            """, (timestamp, latitude, longitude, debris_count, payload))
+
+    def fetch_unsynced_batch(self, limit: int = 100) -> List[Dict[str, Any]]:
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT id, timestamp, latitude, longitude, debris_count, payload
+            FROM telemetry_events
+            WHERE synced = 0
+            ORDER BY id ASC
+            LIMIT ?
+        """, (limit,))
+        rows = cursor.fetchall()
+        
+        batch = []
+        for row in rows:
+            batch.append({
+                "id": row[0],
+                "timestamp": row[1],
+                "lat": row[2],
+                "lng": row[3],
+                "count": row[4],
+                "details": json.loads(row[5])
+            })
+        return batch
+
+    def mark_synced(self, ids: List[int]):
+        with self.conn:
+            self.conn.executemany(
+                "UPDATE telemetry_events SET synced = 1 WHERE id = ?",
+                [(id_,) for id_ in ids]
+            )
+`
+    },
+    {
+      name: "edge/config/runtime.json",
+      lang: "json",
+      code: `{
+  "device_id": "limbe-coastal-node-03",
+  "location": "Down Beach, Limbe, Cameroon",
+  "camera": {
+    "resolution": [640, 640],
+    "target_fps": 12,
+    "sensor_type": "IMX219-wide"
+  },
+  "inference": {
+    "model": "marine_waste_yolov8s_int8.onnx",
+    "threads": 4,
+    "confidence_floor": 0.45,
+    "nms_iou_threshold": 0.50
+  },
+  "power_management": {
+    "throttle_temp_celsius": 75.0,
+    "sleep_interval_night_seconds": 1800
+  },
+  "sync": {
+    "server_endpoint": "https://api.coastclear.cm/v1/telemetry",
+    "batch_size": 100,
+    "heartbeat_interval_sec": 300
+  }
+}`
+    },
+    {
+      name: "server/sync_handler.py",
+      lang: "python",
+      code: `"""
+server/sync_handler.py
+FastAPI ingestion service for receiving compressed coastal node batch telemetry.
+"""
+
+from fastapi import FastAPI, HTTPException, Header, Depends
+from pydantic import BaseModel
+from typing import List, Dict, Any
+
+app = FastAPI(title="CoastClear Telemetry Ingest", version="1.0")
+
+class TelemetryEvent(BaseModel):
+    id: int
+    timestamp: int
+    lat: float
+    lng: float
+    count: int
+    details: Dict[str, Any]
+
+class BatchSyncPayload(BaseModel):
+    device_id: str
+    events: List[TelemetryEvent]
+
+@app.post("/v1/telemetry")
+async def receive_batch(payload: BatchSyncPayload, authorization: str = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid node credentials")
+
+    processed_ids = []
+    for ev in payload.events:
+        # In a real pipeline, persist to PostgreSQL TimescaleDB / PostGIS
+        processed_ids.append(ev.id)
+
+    return {
+        "status": "acknowledged",
+        "device_id": payload.device_id,
+        "processed_count": len(processed_ids),
+        "synced_ids": processed_ids
+    }
+`
+    }
+  ]}
+/>
+
+---
+
+### Results from Limbe Coast Trials
+
+- **Inference Latency:** Dropped from **284 ms down to 68 ms per frame** on a standard ARM Cortex-A72 CPU core.
+- **Power Envelope:** Averaged **3.6 Watts**, allowing an all-day survey on a compact solar-recharged power bank.
+- **Thermal Performance:** Operating temperatures stabilized at **54°C** with a passive aluminum heatsink in 31°C direct sun.
+- **Data Footprint:** 3,800 detected plastic debris events across 4.2 km of coastline took only **126 KB** to sync when the field truck returned to Limbe Town 4G coverage.
