@@ -1,104 +1,55 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/caveat/wght.css';
+@import '@fontsource/instrument-serif/latin-400.css';
+@import '@fontsource/instrument-serif/latin-400-italic.css';
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
 
-/* Display face. Condensed grotesque, used uppercase at large sizes. */
-@font-face {
-  font-family: 'Big Shoulders';
-  src: url('/fonts/big-shoulders-500.woff2') format('woff2'), url('/chifen-portfolio/fonts/big-shoulders-500.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Big Shoulders';
-  src: url('/fonts/big-shoulders-600.woff2') format('woff2'), url('/chifen-portfolio/fonts/big-shoulders-600.woff2') format('woff2');
-  font-weight: 600;
-  font-display: swap;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Big Shoulders';
-  src: url('/fonts/big-shoulders-700.woff2') format('woff2'), url('/chifen-portfolio/fonts/big-shoulders-700.woff2') format('woff2');
-  font-weight: 700;
-  font-display: swap;
-  font-style: normal;
-}
+/* ==========================================================================
+   CHIF3N design system: warm paper, deep ink, a few loud accents.
 
-/* Editorial Display face: Clash Display */
-@font-face {
-  font-family: 'Clash Display';
-  src: url('/fonts/clash-display-400.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-  font-style: normal;
-}
+   Three type roles:
+   - Clash Display   the wordmark, headlines, big numbers
+   - General Sans    everything people actually read
+   - Caveat          handwritten margin notes, labels, asides (seasoning only)
+   Instrument Serif italic is the occasional editorial emphasis.
+   ========================================================================== */
+
 @font-face {
   font-family: 'Clash Display';
   src: url('/fonts/clash-display-500.woff2') format('woff2');
   font-weight: 500;
   font-display: swap;
-  font-style: normal;
 }
 @font-face {
   font-family: 'Clash Display';
   src: url('/fonts/clash-display-600.woff2') format('woff2');
   font-weight: 600;
   font-display: swap;
-  font-style: normal;
 }
 @font-face {
   font-family: 'Clash Display';
   src: url('/fonts/clash-display-700.woff2') format('woff2');
   font-weight: 700;
   font-display: swap;
-  font-style: normal;
 }
-
-/* Refined Editorial Body face: General Sans */
 @font-face {
   font-family: 'General Sans';
   src: url('/fonts/general-sans-400.woff2') format('woff2');
   font-weight: 400;
   font-display: swap;
-  font-style: normal;
 }
 @font-face {
   font-family: 'General Sans';
   src: url('/fonts/general-sans-500.woff2') format('woff2');
   font-weight: 500;
   font-display: swap;
-  font-style: normal;
 }
 @font-face {
   font-family: 'General Sans';
   src: url('/fonts/general-sans-600.woff2') format('woff2');
   font-weight: 600;
   font-display: swap;
-  font-style: normal;
-}
-
-/* Body face. */
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/inter-400.woff2') format('woff2'), url('/chifen-portfolio/fonts/inter-400.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/inter-500.woff2') format('woff2'), url('/chifen-portfolio/fonts/inter-500.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/inter-600.woff2') format('woff2'), url('/chifen-portfolio/fonts/inter-600.woff2') format('woff2');
-  font-weight: 600;
-  font-display: swap;
-  font-style: normal;
 }
 
 /* `inline` makes the generated utilities point at the custom properties below
@@ -110,76 +61,172 @@
   --color-ink-600: var(--ink-600);
   --color-paper: var(--paper);
   --color-paper-dim: var(--paper-dim);
+  --color-sheet: var(--sheet);
 
-  /* Inverted blocks: footer, dark cards, the marquee strip. Kept separate from
-     `ink` because those surfaces stay dark in both themes, while `ink` is the
-     text colour and has to invert. */
   --color-panel: var(--panel);
   --color-panel-ink: var(--panel-ink);
 
-  --color-accent: var(--accent);
+  /* Per-page accent, readable as text in both themes. */
+  --color-accent: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
 
   --color-slate: var(--slate);
   --color-slate-light: var(--slate-light);
   --color-line: var(--line);
 
-  --font-display: 'Clash Display', 'Big Shoulders', ui-sans-serif, sans-serif;
-  --font-headline: 'Big Shoulders', 'Clash Display', ui-sans-serif, sans-serif;
-  --font-sans: 'General Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* Fill colours for folders, notes and highlights. Never body text. */
+  --color-lime: var(--lime);
+  --color-cobalt: var(--cobalt);
+  --color-orange: var(--orange);
+  --color-lavender: var(--lavender);
+
+  --font-display: 'Clash Display', ui-sans-serif, system-ui, sans-serif;
+  --font-headline: 'Clash Display', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'General Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-hand: 'Caveat Variable', 'Caveat', 'Segoe Print', cursive;
+  --font-serif: 'Instrument Serif', Georgia, serif;
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-paper: cubic-bezier(0.34, 1.36, 0.64, 1);
 
-  /* Pill buttons and cards share these two radii and nothing else. */
   --radius-pill: 90px;
-  --radius-card: 20px;
+  --radius-card: 14px;
+}
+
+/* Tailwind's stock greys and a few hues are remapped onto the paper palette,
+   so every existing page (which leans on zinc/slate/cyan/purple utilities)
+   picks up the new identity without being rewritten line by line. */
+@theme {
+  --color-zinc-50: #fffcf6;
+  --color-zinc-100: #f5f0e7;
+  --color-zinc-200: #e8e0d1;
+  --color-zinc-300: #d5ccba;
+  --color-zinc-400: #a0988a;
+  --color-zinc-500: #7a7369;
+  --color-zinc-600: #68645e;
+  --color-zinc-700: #48443e;
+  --color-zinc-800: #2c2925;
+  --color-zinc-900: #1f1d1a;
+  --color-zinc-950: #141311;
+
+  --color-slate-50: #fffcf6;
+  --color-slate-100: #f5f0e7;
+  --color-slate-200: #e8e0d1;
+  --color-slate-300: #d5ccba;
+  --color-slate-400: #a0988a;
+  --color-slate-500: #7a7369;
+  --color-slate-600: #68645e;
+  --color-slate-700: #48443e;
+  --color-slate-800: #2c2925;
+  --color-slate-900: #1f1d1a;
+  --color-slate-950: #141311;
+
+  --color-cyan-50: #eef2ff;
+  --color-cyan-100: #dfe6ff;
+  --color-cyan-200: #c2cfff;
+  --color-cyan-300: #97abff;
+  --color-cyan-400: #6a85ff;
+  --color-cyan-500: #315cff;
+  --color-cyan-600: #2547d6;
+  --color-cyan-700: #1e38a8;
+  --color-cyan-800: #1a2f82;
+  --color-cyan-900: #172863;
+  --color-cyan-950: #0f1a40;
+
+  --color-purple-50: #f6f3ff;
+  --color-purple-100: #ede7ff;
+  --color-purple-200: #d9ccff;
+  --color-purple-300: #bfa9ff;
+  --color-purple-400: #9f80f5;
+  --color-purple-500: #7f5be6;
+  --color-purple-600: #6a44cc;
+  --color-purple-700: #5636a8;
+  --color-purple-800: #432a82;
+  --color-purple-900: #33215f;
+  --color-purple-950: #20143d;
+
+  --color-amber-50: #fff4ee;
+  --color-amber-100: #ffe6d9;
+  --color-amber-200: #ffcbb0;
+  --color-amber-300: #ffa97e;
+  --color-amber-400: #ff8247;
+  --color-amber-500: #f06a2c;
+  --color-amber-600: #c94f17;
+  --color-amber-700: #a84115;
+  --color-amber-800: #7f3214;
+  --color-amber-900: #5e2711;
+  --color-amber-950: #3a170a;
 }
 
 :root {
-  --ink: #000000;
-  --ink-700: #0f0f0f;
-  --ink-600: #1f1f1f;
-  --paper: #ffffff;
-  --paper-dim: #f2f2f2;
-  --panel: #000000;
-  --panel-ink: #ffffff;
-  --slate: #575757;
-  --slate-light: #636363;
-  --line: #e3e3e3;
+  color-scheme: light;
+  --ink: #191919;
+  --ink-700: #222120;
+  --ink-600: #33312e;
+  --paper: #f5f0e7;
+  --paper-dim: #ece5d8;
+  --sheet: #fffcf6;
+  --panel: #191919;
+  --panel-ink: #f5f0e7;
+  --slate: #57534d;
+  --slate-light: #68645e;
+  --line: #ddd4c4;
 
-  /* Per-page accent. Base.astro overrides this on <body>. */
-  --accent: #08b9d4;
-  --accent-soft: #cff9ff;
+  --lime: #d5ff45;
+  --cobalt: #315cff;
+  --orange: #ff8247;
+  --lavender: #d9ccff;
+
+  /* Per-page accent. Base.astro overrides --accent on <html>. */
+  --accent: #2f55f0;
+  --accent-ink: var(--accent);
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+
+  --shadow-paper: 0 1px 0 rgba(25, 25, 25, 0.04), 0 10px 24px -14px rgba(60, 40, 10, 0.35);
+  --shadow-lift: 0 2px 0 rgba(25, 25, 25, 0.05), 0 26px 40px -22px rgba(60, 40, 10, 0.45);
+  --grain-opacity: 0.35;
 }
 
-/* Dark theme. Applied by the toggle, and by system preference when the visitor
-   has not chosen explicitly. */
 :root[data-theme='dark'],
 :root.dark {
-  --ink: #f4f4f5;
-  --ink-700: #fafafa;
-  --ink-600: #e4e4e7;
-  --paper: #09090b;
-  --paper-dim: #18181b;
-  --panel: #18181b;
-  --panel-ink: #f4f4f5;
-  --slate: #a1a1aa;
-  --slate-light: #71717a;
-  --line: #27272a;
+  color-scheme: dark;
+  --ink: #f2ede3;
+  --ink-700: #faf6ee;
+  --ink-600: #e6dfd2;
+  --paper: #171513;
+  --paper-dim: #211e1b;
+  --sheet: #24211d;
+  --panel: #0f0e0d;
+  --panel-ink: #f2ede3;
+  --slate: #b9b1a4;
+  --slate-light: #a39b8e;
+  --line: #3a3530;
+  --lavender: #b9a6ff;
+  --accent-ink: color-mix(in oklab, var(--accent) 62%, white);
+  --shadow-paper: 0 1px 0 rgba(0, 0, 0, 0.3), 0 12px 26px -14px rgba(0, 0, 0, 0.7);
+  --shadow-lift: 0 2px 0 rgba(0, 0, 0, 0.3), 0 28px 44px -20px rgba(0, 0, 0, 0.8);
+  --grain-opacity: 0.18;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --ink: #f4f4f5;
-    --ink-700: #fafafa;
-    --ink-600: #e4e4e7;
-    --paper: #09090b;
-    --paper-dim: #18181b;
-    --panel: #18181b;
-    --panel-ink: #f4f4f5;
-    --slate: #a1a1aa;
-    --slate-light: #71717a;
-    --line: #27272a;
+    color-scheme: dark;
+    --ink: #f2ede3;
+    --ink-700: #faf6ee;
+    --ink-600: #e6dfd2;
+    --paper: #171513;
+    --paper-dim: #211e1b;
+    --sheet: #24211d;
+    --panel: #0f0e0d;
+    --panel-ink: #f2ede3;
+    --slate: #b9b1a4;
+    --slate-light: #a39b8e;
+    --line: #3a3530;
+    --lavender: #b9a6ff;
+    --accent-ink: color-mix(in oklab, var(--accent) 62%, white);
+    --shadow-paper: 0 1px 0 rgba(0, 0, 0, 0.3), 0 12px 26px -14px rgba(0, 0, 0, 0.7);
+    --shadow-lift: 0 2px 0 rgba(0, 0, 0, 0.3), 0 28px 44px -20px rgba(0, 0, 0, 0.8);
+    --grain-opacity: 0.18;
   }
 }
 
@@ -190,27 +237,39 @@
   }
 
   body {
+    position: relative;
     background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-weight: 500;
     font-size: 1rem;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
-  /* Display headings are uppercase and set tight. Big Shoulders is narrow
-     enough that negative tracking closes the counters, so tracking stays at 0. */
+  /* Paper grain. A tiny SVG noise tile, fixed so it never scrolls or repaints. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .16 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  :root[data-theme='dark'] body::before {
+    mix-blend-mode: screen;
+  }
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
     font-weight: 600;
-    letter-spacing: 0;
-    line-height: 0.92;
-    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1;
     text-wrap: balance;
   }
 
@@ -219,26 +278,30 @@
   }
 
   ::selection {
-    background-color: var(--color-accent);
-    color: var(--color-ink);
+    background-color: var(--lime);
+    color: #191919;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2.5px solid var(--cobalt);
     outline-offset: 3px;
-    border-radius: 2px;
+    border-radius: 4px;
+  }
+  :root[data-theme='dark'] :focus-visible {
+    outline-color: var(--lime);
   }
 }
 
+@layer components {
 /* ---------------------------------------------------------------------------
    Layout primitives
    --------------------------------------------------------------------------- */
 
 .shell {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1240px;
   margin-inline: auto;
-  padding-inline: 1.25rem;
+  padding-inline: 1rem;
 }
 @media (min-width: 640px) {
   .shell {
@@ -246,55 +309,48 @@
   }
 }
 
-/* Sections are separated by hairlines rather than whitespace alone. */
 .band {
   padding-block: clamp(4rem, 9vw, 7.5rem);
 }
 .band-line {
-  border-top: 1px solid var(--color-line);
+  border-top: 1px dashed var(--color-line);
 }
 
-/* Framed section: hairline box with a four-pointed mark at each corner, the
-   way the reference brackets its content. */
 .framed {
   position: relative;
-  border-block: 1px solid var(--color-line);
+  border-block: 1px dashed var(--color-line);
 }
 .framed::before,
-.framed::after {
-  content: '✦';
-  position: absolute;
-  font-size: 0.75rem;
-  line-height: 1;
-  color: var(--color-slate-light);
-  pointer-events: none;
-}
-.framed::before {
-  top: -0.4rem;
-  left: -0.4rem;
-}
-.framed::after {
-  bottom: -0.4rem;
-  right: -0.4rem;
-}
+.framed::after,
 .framed > .corner-tr,
 .framed > .corner-bl {
   position: absolute;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   line-height: 1;
   color: var(--color-slate-light);
   pointer-events: none;
 }
+.framed::before,
+.framed::after {
+  content: '+';
+}
+.framed::before {
+  top: -0.45rem;
+  left: -0.3rem;
+}
+.framed::after {
+  bottom: -0.45rem;
+  right: -0.3rem;
+}
 .framed > .corner-tr {
-  top: -0.4rem;
-  right: -0.4rem;
+  top: -0.45rem;
+  right: -0.3rem;
 }
 .framed > .corner-bl {
-  bottom: -0.4rem;
-  left: -0.4rem;
+  bottom: -0.45rem;
+  left: -0.3rem;
 }
 
-/* Small labelled chip used in the capability marquee. */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -302,7 +358,6 @@
   white-space: nowrap;
   font-size: 0.875rem;
   font-weight: 500;
-  letter-spacing: -0.02em;
   color: var(--color-slate);
 }
 .chip svg {
@@ -319,29 +374,26 @@
   height: 1.75rem;
   flex-shrink: 0;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--color-line);
-  background-color: var(--color-paper-dim);
-  transition: border-color 0.25s ease;
-}
-.theme-toggle:hover {
-  border-color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  background-color: var(--sheet);
 }
 .theme-toggle::after {
   content: '';
   position: absolute;
-  left: 0.1875rem;
-  width: 1.25rem;
-  height: 1.25rem;
+  left: 0.15rem;
+  width: 1.2rem;
+  height: 1.2rem;
   border-radius: var(--radius-pill);
-  background-color: var(--color-accent);
+  background-color: var(--lime);
+  border: 1.5px solid #191919;
   transition: transform 0.3s var(--ease-out-soft);
 }
 :root[data-theme='dark'] .theme-toggle::after {
-  transform: translateX(1.375rem);
+  transform: translateX(1.45rem);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .theme-toggle::after {
-    transform: translateX(1.375rem);
+    transform: translateX(1.45rem);
   }
 }
 .theme-toggle svg {
@@ -361,59 +413,49 @@
    Type scale
    --------------------------------------------------------------------------- */
 
-/* Stacked hero words. Each line is its own block so they sit flush. */
 .display-hero {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(4rem, 13.5vw, 10.5rem);
-  line-height: 0.86;
-  text-transform: uppercase;
-  letter-spacing: 0;
+  font-size: clamp(3.5rem, 12vw, 9.5rem);
+  line-height: 0.88;
+  letter-spacing: -0.04em;
 }
-
 .display-section {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(3.25rem, 7.5vw, 5.75rem);
+  font-size: clamp(2.6rem, 6.5vw, 5rem);
   line-height: 0.95;
-  text-transform: uppercase;
+  letter-spacing: -0.03em;
 }
-
 .display-card {
   font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 1.5625rem;
-  line-height: 1.4;
-  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
-/* Small all-caps label sitting above a heading or beside a number. */
+/* Small technical label: monospace-ish caps above headings, beside numbers. */
 .eyebrow {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-slate);
 }
-
 .lede {
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 500;
   line-height: 1.6;
-  letter-spacing: -0.02em;
   color: var(--color-slate);
 }
-
 .body-sm {
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.6;
-  letter-spacing: -0.02em;
   color: var(--color-slate);
 }
-
-/* Section counters: 01, 02, 03. */
 .ordinal {
   font-family: var(--font-sans);
   font-size: 0.75rem;
@@ -423,8 +465,74 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Handwriting. Short asides, labels and notes only, never paragraphs. */
+.hand {
+  font-family: var(--font-hand);
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+/* Editorial italic for the odd emphasised word. */
+.serif-i {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Highlighter swipe behind a word. */
+.mark {
+  background: linear-gradient(
+    100deg,
+    transparent 0.2em,
+    var(--mark, var(--lime)) 0.2em,
+    var(--mark, var(--lime)) calc(100% - 0.15em),
+    transparent calc(100% - 0.15em)
+  );
+  background-size: 100% 0.62em;
+  background-repeat: no-repeat;
+  background-position: 0 88%;
+  color: inherit;
+  padding-inline: 0.06em;
+}
+:root[data-theme='dark'] .mark {
+  --mark: color-mix(in oklab, var(--lime) 45%, transparent);
+}
+
+/* Inline link with a hand-drawn underline that redraws on hover. */
+.ink-link {
+  color: var(--color-ink);
+  text-decoration: none;
+  background-image: linear-gradient(var(--color-accent), var(--color-accent));
+  background-size: 100% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.35s var(--ease-out-soft), color 0.2s ease;
+  padding-bottom: 1px;
+}
+.ink-link:hover {
+  background-size: 0% 2px;
+  background-position: 100% 100%;
+  color: var(--color-accent);
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  border: 1px solid var(--color-line);
+  border-bottom-width: 2.5px;
+  border-radius: 6px;
+  background: var(--sheet);
+  padding: 0.05rem 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-slate);
+  font-family: var(--font-sans);
+}
+
 /* ---------------------------------------------------------------------------
-   Buttons
+   Buttons. Ink outlines with a hard offset shadow, like a pressed rubber stamp.
    --------------------------------------------------------------------------- */
 
 .btn {
@@ -432,61 +540,53 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 2.75rem;
   border-radius: var(--radius-pill);
-  padding: 1.125rem 1.75rem;
+  border: 1.5px solid var(--color-ink);
+  padding: 0.85rem 1.5rem;
   font-family: var(--font-sans);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
   line-height: 1;
   white-space: nowrap;
+  box-shadow: 3px 3px 0 var(--color-ink);
   transition:
-    transform 0.25s var(--ease-out-soft),
-    background-color 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease;
+    transform 0.18s var(--ease-out-soft),
+    box-shadow 0.18s var(--ease-out-soft),
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 .btn:hover {
-  transform: translateY(-2px);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--color-ink);
 }
-
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--color-ink);
+}
 .btn-accent {
-  background-color: var(--color-accent);
-  color: var(--color-ink);
+  background-color: var(--lime);
+  color: #191919;
 }
-.btn-accent:hover {
-  background-color: var(--color-ink);
-  color: var(--color-paper);
-}
-
 .btn-ink {
   background-color: var(--color-ink);
   color: var(--color-paper);
+  box-shadow: 3px 3px 0 var(--lime);
 }
 .btn-ink:hover {
-  background-color: var(--color-accent);
-  color: var(--color-ink);
+  box-shadow: 4px 4px 0 var(--lime);
 }
-
 .btn-ghost {
-  border: 1px solid var(--color-line);
+  background-color: var(--sheet);
   color: var(--color-ink);
-  background-color: transparent;
 }
-.btn-ghost:hover {
-  border-color: var(--color-ink);
-}
-
 .btn-sm {
-  padding: 0.75rem 1.25rem;
-  font-size: 0.8125rem;
+  min-height: 2.4rem;
+  padding: 0.6rem 1.05rem;
+  font-size: 0.82rem;
 }
 
-/* ---------------------------------------------------------------------------
-   Nav letter flip. Each character is wrapped twice and the stack slides up on
-   hover, so the label appears to reset one letter at a time.
-   --------------------------------------------------------------------------- */
-
+/* Nav letter flip. */
 .flip {
   display: inline-flex;
   overflow: hidden;
@@ -513,10 +613,7 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
-   Marquee strip
-   --------------------------------------------------------------------------- */
-
+/* Marquee strip */
 .marquee {
   display: flex;
   overflow: hidden;
@@ -529,7 +626,10 @@
   align-items: center;
   gap: 2rem;
   min-width: 100%;
-  animation: marquee-scroll 28s linear infinite;
+  animation: marquee-scroll 40s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
 }
 @keyframes marquee-scroll {
   from {
@@ -539,18 +639,10 @@
     transform: translateX(calc(-100% - 2rem));
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    animation: none;
-  }
-}
 
-/* ---------------------------------------------------------------------------
-   Accordion. Native <details>, no JS.
-   --------------------------------------------------------------------------- */
-
+/* Accordion. Native <details>, no JS. */
 .accordion-item {
-  border-bottom: 1px solid var(--color-line);
+  border-bottom: 1px dashed var(--color-line);
 }
 .accordion-item summary {
   display: flex;
@@ -558,13 +650,12 @@
   justify-content: space-between;
   gap: 1.5rem;
   cursor: pointer;
-  padding-block: 1.5rem;
+  padding-block: 1.4rem;
   list-style: none;
   font-family: var(--font-display);
-  font-size: 1.5625rem;
-  font-weight: 500;
-  line-height: 1.3;
-  text-transform: uppercase;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.25;
   transition: color 0.2s ease;
 }
 .accordion-item summary::-webkit-details-marker {
@@ -579,17 +670,14 @@
   height: 2.25rem;
   display: grid;
   place-items: center;
-  border: 1px solid var(--color-line);
+  border: 1.5px solid var(--color-ink);
   border-radius: var(--radius-pill);
-  transition:
-    transform 0.3s var(--ease-out-soft),
-    background-color 0.3s ease,
-    border-color 0.3s ease;
+  transition: transform 0.3s var(--ease-out-soft), background-color 0.3s ease;
 }
 .accordion-item[open] .accordion-icon {
   transform: rotate(45deg);
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
+  background-color: var(--lime);
+  color: #191919;
 }
 .accordion-body {
   padding-bottom: 1.75rem;
@@ -597,7 +685,7 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Cards
+   Cards and paper
    --------------------------------------------------------------------------- */
 
 .card-dark {
@@ -608,31 +696,409 @@
   background-color: var(--panel);
   color: var(--panel-ink);
   overflow: hidden;
-  transition:
-    transform 0.35s var(--ease-out-soft),
-    box-shadow 0.35s var(--ease-out-soft);
+  transition: transform 0.35s var(--ease-out-soft), box-shadow 0.35s var(--ease-out-soft);
 }
 .card-dark:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 24px 60px -32px rgba(0, 0, 0, 0.65);
+  transform: translateY(-4px) rotate(-0.3deg);
+  box-shadow: var(--shadow-lift);
 }
-
 .card-flat {
   border-radius: var(--radius-card);
-  background-color: var(--color-paper-dim);
-  transition:
-    transform 0.35s var(--ease-out-soft),
-    background-color 0.35s ease;
+  background-color: var(--sheet);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-paper);
+  transition: transform 0.35s var(--ease-out-soft), box-shadow 0.35s var(--ease-out-soft);
 }
 .card-flat:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* A sheet of paper. `--r` sets its resting tilt. */
+.paper {
+  position: relative;
+  background-color: var(--sheet);
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  box-shadow: var(--shadow-paper);
+  rotate: var(--r, 0deg);
+}
+.lift {
+  transition:
+    transform 0.35s var(--ease-paper),
+    rotate 0.35s var(--ease-paper),
+    box-shadow 0.35s var(--ease-out-soft);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .lift:hover,
+  .lift:focus-within {
+    transform: translateY(-5px);
+    rotate: calc(var(--r, 0deg) * 0.3);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+/* Lined notebook paper with a red margin rule. */
+.notebook {
+  background-color: var(--sheet);
+  background-image:
+    linear-gradient(90deg, transparent 2.6rem, rgba(255, 130, 71, 0.45) 2.6rem, rgba(255, 130, 71, 0.45) calc(2.6rem + 1px), transparent calc(2.6rem + 1px)),
+    repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), color-mix(in oklab, var(--cobalt) 16%, transparent) calc(1.75rem - 1px), color-mix(in oklab, var(--cobalt) 16%, transparent) 1.75rem);
+}
+.grid-paper {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--color-ink) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-ink) 6%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Masking tape. Put on any positioned element. */
+.tape {
+  position: absolute;
+  width: 6.5rem;
+  height: 1.6rem;
+  background: color-mix(in oklab, var(--tape, #f3e6b5) 78%, transparent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  rotate: var(--tr, -4deg);
+  clip-path: polygon(3% 0, 97% 4%, 100% 50%, 96% 100%, 2% 96%, 0 48%);
+  z-index: 3;
+  pointer-events: none;
+}
+:root[data-theme='dark'] .tape {
+  --tape: #8f8462;
+}
+
+/* Push pin. */
+.pin {
+  position: absolute;
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, #fff 0 12%, var(--pin, var(--orange)) 22% 100%);
+  box-shadow: 1px 3px 3px rgba(0, 0, 0, 0.3);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Sticky note. */
+.sticky-note {
+  position: relative;
+  background: var(--note, var(--lime));
+  color: #191919;
+  padding: 1rem 1.1rem 1.15rem;
+  border-radius: 2px 2px 14px 2px;
+  box-shadow: 0 12px 22px -14px rgba(60, 40, 10, 0.55);
+  rotate: var(--r, -2deg);
+}
+.sticky-note--lavender {
+  --note: var(--lavender);
+}
+.sticky-note--orange {
+  --note: #ffb48c;
+}
+.sticky-note--cobalt {
+  --note: var(--cobalt);
+  color: #fff;
+}
+.sticky-note--paper {
+  --note: var(--sheet);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+}
+
+/* Polaroid frame for real photos. */
+.polaroid {
+  position: relative;
+  background: #fffcf6;
+  padding: 0.7rem 0.7rem 2.6rem;
+  border-radius: 3px;
+  box-shadow: var(--shadow-lift);
+  rotate: var(--r, 2deg);
+}
+.polaroid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1px;
+}
+.polaroid figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.55rem;
+  text-align: center;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #2c2925;
+}
+
+/* Browser / app window chrome. */
+.window {
+  position: relative;
+  background: var(--sheet);
+  border: 1.5px solid var(--color-ink);
+  border-radius: 12px;
+  box-shadow: 5px 5px 0 var(--color-ink);
+  overflow: hidden;
+}
+.window-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1.5px solid var(--color-ink);
+  background: var(--paper-dim);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-slate);
+}
+.window-dots {
+  display: inline-flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+.window-dots i {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 999px;
+  border: 1.2px solid var(--color-ink);
+  background: var(--orange);
+}
+.window-dots i:nth-child(2) {
+  background: var(--lime);
+}
+.window-dots i:nth-child(3) {
+  background: var(--lavender);
+}
+.window-url {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid var(--color-line);
+  background: var(--sheet);
+  border-radius: 999px;
+  padding: 0.18rem 0.7rem;
+  font-weight: 500;
+}
+
+/* Folders. `--folder` sets the colour; the tab label sits on top. */
+.folder {
+  --folder: var(--lime);
+  position: relative;
+  display: block;
+  color: #191919;
+  text-decoration: none;
+  padding-top: 1.35rem;
+  rotate: var(--r, 0deg);
+  transition: rotate 0.35s var(--ease-paper), transform 0.35s var(--ease-paper);
+}
+.folder-tab {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1.6rem;
+  min-width: 42%;
+  padding: 0.3rem 0.9rem 0;
+  z-index: 0;
+  background: color-mix(in oklab, var(--folder) 82%, #191919);
+  border: 1.5px solid #191919;
+  border-bottom: 0;
+  border-radius: 10px 14px 0 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.folder-back {
+  position: absolute;
+  inset: 1.35rem 0 0 0;
+  background: color-mix(in oklab, var(--folder) 82%, #191919);
+  border: 1.5px solid #191919;
+  border-radius: 0 12px 12px 12px;
+}
+/* The sheet that peeks out of the folder. */
+.folder-sheet {
+  display: block;
+  overflow: hidden;
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 1.15rem;
+  bottom: 30%;
+  background: #fffcf6;
+  border: 1px solid rgba(25, 25, 25, 0.25);
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #48443e;
+  rotate: -2deg;
+  transition: transform 0.45s var(--ease-paper), rotate 0.45s var(--ease-paper);
+  z-index: 1;
+}
+.folder-front {
+  display: block;
+  position: relative;
+  z-index: 2;
+  margin-top: 1.4rem;
+  min-height: 8.5rem;
+  background: var(--folder);
+  border: 1.5px solid #191919;
+  border-radius: 6px 12px 12px 12px;
+  padding: 1rem 1.1rem 1.1rem;
+  box-shadow: 0 16px 24px -18px rgba(25, 25, 25, 0.7);
+  transform-origin: 50% 100%;
+  transition: transform 0.45s var(--ease-paper);
+}
+.folder--cobalt {
+  --folder: #6f8cff;
+}
+.folder--orange {
+  --folder: var(--orange);
+}
+.folder--lavender {
+  --folder: #d9ccff;
+}
+.folder--paper {
+  --folder: #efe6d3;
+}
+.folder--ink {
+  --folder: #2c2925;
+  color: #f5f0e7;
+}
+.folder--ink .folder-tab,
+.folder--ink .folder-front {
+  color: #f5f0e7;
+  border-color: #191919;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .folder:hover,
+  .folder:focus-visible {
+    rotate: 0deg;
+    transform: translateY(-4px);
+  }
+  .folder:hover .folder-sheet,
+  .folder:focus-visible .folder-sheet {
+    transform: translateY(-1.6rem);
+    rotate: 2deg;
+  }
+  .folder:hover .folder-front,
+  .folder:focus-visible .folder-front {
+    transform: perspective(700px) rotateX(-16deg);
+  }
+}
+.folder:focus-visible {
+  outline-offset: 6px;
+}
+
+/* Hand-drawn SVG strokes that draw themselves in. */
+.scribble path,
+.scribble line,
+.scribble circle,
+.scribble ellipse {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html.js .draw path,
+  html.js .draw ellipse {
+    stroke-dasharray: var(--len, 400);
+    stroke-dashoffset: var(--len, 400);
+    animation: draw 1.1s var(--ease-out-soft) forwards;
+    animation-delay: var(--d, 0.6s);
+  }
+  html.js [data-reveal] .draw path,
+  html.js [data-reveal] .draw ellipse {
+    animation-play-state: paused;
+  }
+  html.js [data-reveal].is-visible .draw path,
+  html.js [data-reveal].is-visible .draw ellipse {
+    animation-play-state: running;
+  }
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Status stamp: live / shipped / building / concept. Text always says which. */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1.5px solid currentColor;
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+.stamp::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 99px;
+  background: currentColor;
+}
+.stamp--live {
+  color: #2e7a1c;
+}
+.stamp--shipped {
+  color: #2547d6;
+}
+.stamp--in-progress {
+  color: #b54912;
+}
+.stamp--concept {
+  color: #6a44cc;
+}
+:root[data-theme='dark'] .stamp--live {
+  color: #a8e37a;
+}
+:root[data-theme='dark'] .stamp--shipped {
+  color: #97abff;
+}
+:root[data-theme='dark'] .stamp--in-progress {
+  color: #ffa97e;
+}
+:root[data-theme='dark'] .stamp--concept {
+  color: #bfa9ff;
+}
+
+/* Filter chips */
+.filter-chip {
+  border: 1.5px solid var(--color-ink);
+  border-radius: 999px;
+  background: var(--sheet);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  min-height: 2.25rem;
+  transition: background-color 0.2s ease, transform 0.2s var(--ease-paper);
+}
+.filter-chip:hover {
+  transform: translateY(-2px) rotate(-1deg);
+}
+.filter-chip[aria-pressed='true'] {
+  background: var(--color-ink);
+  color: var(--color-paper);
 }
 
 /* ---------------------------------------------------------------------------
-   Content styles carried over from the previous build
+   Content styles
    --------------------------------------------------------------------------- */
 
-/* Unconfirmed figures. Deliberately loud so they cannot ship unnoticed. */
 .verify-token {
   background-color: #fde68a;
   color: #713f12;
@@ -654,20 +1120,20 @@
 .prose-body {
   font-size: 1.0625rem;
   line-height: 1.75;
-  letter-spacing: -0.01em;
   color: var(--color-slate);
 }
 .prose-body > * + * {
-  margin-top: 1.35em;
+  margin-top: 1.3em;
 }
 .prose-body h2 {
+  position: relative;
   margin-top: 2.4em;
-  font-size: 2.25rem;
+  font-size: clamp(1.7rem, 3.5vw, 2.2rem);
   color: var(--color-ink);
 }
 .prose-body h3 {
   margin-top: 2em;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   color: var(--color-ink);
 }
 .prose-body h2 + *,
@@ -705,21 +1171,21 @@
   color: var(--color-accent);
 }
 .prose-body blockquote {
-  border-left: 3px solid var(--color-accent);
+  border-left: 3px solid var(--lime);
   padding-left: 1.1em;
-  font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.6rem;
   line-height: 1.3;
-  text-transform: uppercase;
   color: var(--color-ink);
 }
 .prose-body hr {
   border: 0;
-  border-top: 1px solid var(--color-line);
+  border-top: 1px dashed var(--color-line);
   margin-block: 2.5em;
 }
 .prose-body code {
-  background-color: var(--color-paper-dim);
+  background-color: var(--paper-dim);
   color: var(--color-ink);
   border: 1px solid var(--color-line);
   border-radius: 4px;
@@ -727,7 +1193,9 @@
   font-size: 0.9em;
 }
 .prose-body em {
-  color: var(--color-slate);
+  font-family: var(--font-serif);
+  font-size: 1.08em;
+  color: var(--color-ink);
 }
 .prose-body img {
   display: inline-block;
@@ -737,157 +1205,116 @@
   height: auto;
   max-height: 420px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 4px;
+  background: #fffcf6;
+  padding: 0.4rem;
   border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-paper);
   margin: 0.35em 0.6em 0.35em 0;
 }
 
-/* Scroll reveal: slick slide & soft de-blur transition */
+/* ---------------------------------------------------------------------------
+   Motion
+   --------------------------------------------------------------------------- */
+
+/* Scroll reveal: a sheet being set down on the desk. */
 @media (prefers-reduced-motion: no-preference) {
   html.js [data-reveal] {
     opacity: 0;
-    transform: translateY(32px);
-    filter: blur(4px);
+    transform: translateY(26px) rotate(var(--reveal-r, 0.6deg));
     transition:
-      opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-      filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 0.7s var(--ease-out-soft),
+      transform 0.8s var(--ease-paper);
     transition-delay: var(--reveal-delay, 0ms);
-    will-change: opacity, transform, filter;
   }
   html.js [data-reveal].is-visible {
     opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
+    transform: none;
+  }
+  html.js [data-reveal='slide-left'] {
+    transform: translateX(-36px);
+  }
+  html.js [data-reveal='slide-right'] {
+    transform: translateX(36px);
+  }
+  html.js [data-reveal='scale'] {
+    transform: translateY(18px) scale(0.96);
+  }
+  html.js [data-reveal].is-visible {
+    transform: none;
   }
 
-  html.js [data-reveal="slide-left"] {
-    transform: translateX(-40px);
+  /* Page-load entrance, staggered with --d. Content is never hidden without JS. */
+  html.js .enter {
+    animation: enter 0.8s var(--ease-paper) both;
+    animation-delay: var(--d, 0s);
   }
-  html.js [data-reveal="slide-left"].is-visible {
-    transform: translateX(0);
+  html.js .enter-drop {
+    animation: drop 0.9s var(--ease-paper) both;
+    animation-delay: var(--d, 0s);
   }
-
-  html.js [data-reveal="slide-right"] {
-    transform: translateX(40px);
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
   }
-  html.js [data-reveal="slide-right"].is-visible {
-    transform: translateX(0);
-  }
-
-  html.js [data-reveal="scale"] {
-    transform: translateY(20px) scale(0.96);
-  }
-  html.js [data-reveal="scale"].is-visible {
-    transform: translateY(0) scale(1);
+}
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-24px) rotate(-6deg) scale(1.04);
   }
 }
 
-/* Reading Scroll Progress Indicator */
+/* Thin progress line along the top edge. */
 #scroll-progress {
   position: fixed;
   top: 0;
   left: 0;
-  height: 2.5px;
-  background: linear-gradient(90deg, var(--color-accent), #38bdf8, #00f2fe);
-  z-index: 99999;
+  height: 3px;
   width: 0%;
+  background: var(--lime);
+  border-right: 2px solid #191919;
+  z-index: 9999;
   pointer-events: none;
-  transition: width 0.08s linear;
-  box-shadow: 0 0 10px rgba(8, 185, 212, 0.7);
 }
 
-/* Desktop Cursor Follower and Ambient Torch */
-@media (hover: hover) and (pointer: fine) {
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background: radial-gradient(
-      600px circle at var(--cursor-x, -999px) var(--cursor-y, -999px),
-      rgba(8, 185, 212, 0.04),
-      transparent 80%
-    );
+}
+
+/* Cross-document page transitions. Progressive: browsers without support just
+   navigate normally, and reduced motion turns them off entirely. */
+@view-transition {
+  navigation: auto;
+}
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 0.22s ease-in both vt-out;
+  }
+  ::view-transition-new(root) {
+    animation: 0.42s var(--ease-out-soft) both vt-in;
+  }
+  ::view-transition-group(wordmark) {
+    animation-duration: 0.45s;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+@keyframes vt-out {
+  to {
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transform: translateY(-8px);
   }
-  body.has-cursor::before {
-    opacity: 1;
-  }
-
-  .cursor-follower {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 32px;
-    height: 32px;
-    margin-top: -16px;
-    margin-left: -16px;
-    border-radius: 9999px;
-    border: 1.5px solid rgba(8, 185, 212, 0.55);
-    background: rgba(8, 185, 212, 0.08);
-    box-shadow: 0 0 16px rgba(8, 185, 212, 0.25);
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate3d(var(--cursor-x, -999px), var(--cursor-y, -999px), 0);
-    transition:
-      transform 0.06s ease-out,
-      width 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-      height 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-      margin 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-      background-color 0.2s ease,
-      border-color 0.2s ease,
-      opacity 0.25s ease;
+}
+@keyframes vt-in {
+  from {
     opacity: 0;
-    backdrop-filter: blur(0.5px);
-  }
-
-  body.has-cursor .cursor-follower {
-    opacity: 1;
-  }
-
-  .cursor-follower.is-hovering {
-    width: 52px;
-    height: 52px;
-    margin-top: -26px;
-    margin-left: -26px;
-    border-color: var(--color-accent);
-    background: rgba(8, 185, 212, 0.16);
-    box-shadow: 0 0 24px rgba(8, 185, 212, 0.4);
-  }
-
-  .cursor-follower.is-active {
-    width: 26px;
-    height: 26px;
-    margin-top: -13px;
-    margin-left: -13px;
-    border-color: var(--color-accent);
-    background: rgba(8, 185, 212, 0.32);
-    box-shadow: 0 0 12px rgba(8, 185, 212, 0.5);
-  }
-
-  .cursor-dot {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 5px;
-    height: 5px;
-    margin-top: -2.5px;
-    margin-left: -2.5px;
-    border-radius: 9999px;
-    background: var(--color-accent);
-    box-shadow: 0 0 8px var(--color-accent);
-    pointer-events: none;
-    z-index: 10000;
-    transform: translate3d(var(--cursor-x, -999px), var(--cursor-y, -999px), 0);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  body.has-cursor .cursor-dot {
-    opacity: 1;
+    transform: translateY(14px) rotate(0.4deg);
   }
 }
 
@@ -904,65 +1331,56 @@
   }
 }
 
+@layer components {
 /* ==========================================================================
-   V2 UPGRADE: Mode Switcher & Documentary Narrative Styles
+   Journey / documentary styles (used by /journey and /about)
    ========================================================================== */
 
 .mode-switch-wrapper {
   display: inline-flex;
   align-items: center;
   padding: 4px;
-  background-color: var(--paper-dim);
-  border: 1px solid var(--line);
+  background-color: var(--sheet);
+  border: 1.5px solid var(--color-ink);
   border-radius: 9999px;
   position: relative;
 }
-
 .mode-switch-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 18px;
   border-radius: 9999px;
-  font-family: var(--font-display);
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;
   white-space: nowrap;
 }
-
 .mode-switch-btn.is-active {
-  background-color: var(--ink);
-  color: var(--paper);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background-color: var(--color-ink);
+  color: var(--color-paper);
 }
-
 .mode-switch-btn:not(.is-active) {
   background-color: transparent;
-  color: var(--slate);
+  color: var(--color-slate);
 }
-
 .mode-switch-btn:not(.is-active):hover {
-  color: var(--ink);
+  color: var(--color-ink);
 }
 
-/* Documentary Chapter Card */
 .chapter-card {
   position: relative;
-  border-left: 2px solid var(--line);
+  border-left: 2px dashed var(--color-line);
   padding-left: 2rem;
   padding-bottom: 3.5rem;
 }
-
 .chapter-card:last-child {
   border-left-color: transparent;
   padding-bottom: 0;
 }
-
 .chapter-marker {
   position: absolute;
   left: -9px;
@@ -970,83 +1388,70 @@
   width: 16px;
   height: 16px;
   border-radius: 9999px;
-  background-color: var(--paper);
-  border: 3px solid var(--accent);
+  background-color: var(--lime);
+  border: 2px solid #191919;
   transition: transform 0.2s ease;
 }
-
 .chapter-card:hover .chapter-marker {
-  transform: scale(1.2);
-  background-color: var(--accent);
+  transform: scale(1.25) rotate(20deg);
 }
-
 .story-pullquote {
   position: relative;
-  font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.6rem;
   line-height: 1.25;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--ink);
-  border-left: 3px solid var(--accent);
+  font-weight: 400;
+  color: var(--color-ink);
+  border-left: 3px solid var(--lime);
   padding-left: 1.25rem;
   margin: 1.5rem 0;
 }
-
 @media (min-width: 640px) {
   .story-pullquote {
-    font-size: 1.875rem;
+    font-size: 2rem;
   }
 }
-
 .lesson-box {
-  background-color: var(--paper-dim);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  background-color: var(--sheet);
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  box-shadow: var(--shadow-paper);
   padding: 1.25rem 1.5rem;
   margin-top: 1.25rem;
 }
 
-/* Evidence Framework Metadata */
 .evidence-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.25rem 0.625rem;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.55rem;
   border-radius: 6px;
+  border: 1.5px solid currentColor;
 }
-
 .evidence-pill.status-live {
-  background-color: rgba(16, 185, 129, 0.12);
-  color: #059669;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #2e7a1c;
 }
-
 .evidence-pill.status-shipped {
-  background-color: rgba(8, 185, 212, 0.12);
-  color: #0891b2;
-  border: 1px solid rgba(8, 185, 212, 0.25);
+  color: #2547d6;
 }
-
 .evidence-pill.status-research {
-  background-color: rgba(139, 92, 246, 0.12);
-  color: #7c3aed;
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  color: #6a44cc;
 }
-
 .evidence-pill.status-experiment {
-  background-color: rgba(245, 158, 11, 0.12);
-  color: #d97706;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #b54912;
 }
-
 .evidence-pill.status-archived {
-  background-color: rgba(100, 116, 139, 0.12);
-  color: #475569;
-  border: 1px solid rgba(100, 116, 139, 0.25);
+  color: #68645e;
 }
 
+}
+
+.prose-body h2,
+.prose-body h3 {
+  scroll-margin-top: 6rem;
+}

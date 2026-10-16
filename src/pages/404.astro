@@ -1,31 +1,41 @@
-﻿---
+---
 import Base from '../layouts/Base.astro';
+import { site } from '../lib/site';
 import { withBase } from '../lib/url';
 ---
 
-<Base title="Page not found" description="This page could not be found.">
-  <section class="mx-auto flex max-w-2xl flex-col items-center px-5 py-24 text-center sm:px-8 sm:py-32">
-    <p class="font-display text-7xl font-semibold text-accent sm:text-8xl">404</p>
-    <h1 class="mt-6 font-display text-3xl font-semibold sm:text-4xl">
-      This one never made it to triage
-    </h1>
-    <p class="mt-4 max-w-md text-lg leading-relaxed text-slate">
-      The page is not here. It was either moved, renamed, or it never existed and something linked
-      to it optimistically.
-    </p>
-    <div class="mt-9 flex flex-wrap justify-center gap-3">
-      <a
-        href={withBase('/')}
-        class="rounded-full bg-ink px-6 py-3 font-medium text-paper transition-transform duration-200 hover:-translate-y-0.5"
-      >
-        Back to the start
-      </a>
-      <a
-        href={withBase('/work')}
-        class="rounded-full border border-ink/20 px-6 py-3 font-medium transition-colors hover:border-accent hover:text-accent"
-      >
-        See the work instead
-      </a>
+<Base title="Missing folder" description="This page could not be found." noindex>
+  <section class="shell grid items-center gap-12 py-16 sm:py-24 lg:grid-cols-[1fr_1fr]">
+    <div>
+      <p class="hand text-3xl text-accent">hmm. this folder is empty.</p>
+      <h1 class="display-hero mt-2">4<span class="serif-i font-normal text-accent">0</span>4</h1>
+      <p class="mt-6 max-w-md text-lg leading-relaxed text-slate">
+        The page isn't here. It was moved, renamed, or something linked to it a little too optimistically.
+        Everything that does exist is one click away.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href={withBase('/')} class="btn btn-ink">Back to the desk</a>
+        <a href={withBase('/work')} class="btn btn-ghost">See the work</a>
+        <button type="button" class="btn btn-ghost" data-open-palette>Find a page</button>
+      </div>
+    </div>
+
+    <div class="relative mx-auto w-full max-w-sm">
+      <div class="folder folder--paper" style="--r:-3deg" aria-hidden="true">
+        <span class="folder-tab">lost-file.txt</span>
+        <span class="folder-back"></span>
+        <span class="folder-front">
+          <span class="hand block text-3xl">nothing in here</span>
+          <span class="mt-2 block text-sm">except this note.</span>
+        </span>
+      </div>
+      <nav aria-label="Pages that do exist" class="sticky-note sticky-note--lavender mt-8 ml-auto w-64" style="--r:3deg">
+        <p class="eyebrow !text-[#191919]/60">try one of these</p>
+        <ul class="mt-2 space-y-1 font-semibold">
+          {site.nav.map((n) => <li><a class="underline decoration-2 underline-offset-4" href={withBase(n.href)}>{n.label}</a></li>)}
+          <li><a class="underline decoration-2 underline-offset-4" href={withBase(site.resume)}>Résumé</a></li>
+        </ul>
+      </nav>
     </div>
   </section>
 </Base>

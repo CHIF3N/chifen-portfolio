@@ -2,214 +2,138 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import WorkCard from '../../components/WorkCard.astro';
-import Scene3D from '../../components/Scene3D.astro';
-import ChipMarquee from '../../components/ChipMarquee.astro';
+import StatusStamp from '../../components/StatusStamp.astro';
 import { site } from '../../lib/site';
+import { withBase } from '../../lib/url';
 
 const entries = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 
-const tags = [...new Set(entries.flatMap((entry) => entry.data.tags))].sort();
+/* Filters come from the real tags, merged into a handful of readable groups. */
+const groups = [
+  { id: 'health-tech', label: 'Health tech', match: ['health-tech'] },
+  { id: 'whatsapp-ai', label: 'WhatsApp & AI', match: ['WhatsApp', 'AI'] },
+  { id: 'research-data', label: 'Research & data', match: ['research', 'data'] },
+  { id: 'web-mobile', label: 'Web & mobile', match: ['web', 'mobile', 'product'] },
+  { id: 'environment', label: 'Environment', match: ['climate'] },
+  { id: 'community-business', label: 'Community & business', match: ['community', 'client work', 'freelance', 'e-commerce', 'content'] },
+].filter((g) => entries.some((e) => e.data.tags.some((t) => g.match.includes(t))));
 
-function getEntryDomain(entry: (typeof entries)[number]) {
-  const id = entry.id;
-  const entryTags = entry.data.tags || [];
-  if (id === 'ai-clinical-decision-research' || id === 'nurse-intern-assistant' || id === 'abortion-safety-georegistry' || entryTags.includes('research')) {
-    return 'clinical';
-  }
-  if (id === 'lifedrop' || id === 'ayodah' || id === 'maternal-health-risk' || id === 'viac-chatbots' || entryTags.includes('health-tech')) {
-    return 'health-tech';
-  }
-  return 'tech';
-}
-
-const chips = [
-  'Live in production',
-  'Real users',
-  'Built in Cameroon',
-  'Prototypes labelled as prototypes',
-  'Numbers you can check',
-];
+const groupsFor = (tags: string[]) => groups.filter((g) => tags.some((t) => g.match.includes(t))).map((g) => g.id);
 ---
 
 <Base
   title="Work"
-  description="Projects by Chifen Sama N. across health technology, WhatsApp automation, AI in clinical decision support, and data."
+  description="Every project by Chifen Sama Nduma (CHIF3N): blood donor networks on WhatsApp, health chatbots, clinical AI research, conservation logistics and apps, each labelled live, shipped, building or concept."
   accent={site.accents.work}
 >
-  <section class="shell pt-14 pb-6 sm:pt-20">
-    <div class="grid items-center gap-10 lg:grid-cols-[1.3fr_0.7fr]">
-      <div>
-        <span class="eyebrow text-accent">Project Evidence Framework</span>
-        <h1 class="display-section mt-1">Work &amp; Systems</h1>
-        <p class="lede mt-4 max-w-2xl text-slate">
-          Emergency blood dispatch, bilingual health chatbots, clinical AI risk models, and conservation logistics.
-          Every system is catalogued with measurable outcomes, technology stack, and honest retrospective lessons.
-        </p>
-        <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-          <span class="evidence-pill status-live">Live in production</span>
-          <span class="evidence-pill status-shipped">Shipped</span>
-          <span class="evidence-pill status-research">Clinical Research</span>
-          <span class="evidence-pill status-experiment">Prototype / Concept</span>
-        </div>
+  <section class="shell pt-12 sm:pt-16">
+    <p class="eyebrow">Folder 01 · serious stuff</p>
+    <div class="mt-2 flex flex-wrap items-end justify-between gap-6">
+      <h1 class="display-section">The work.</h1>
+      <p class="hand max-w-sm text-2xl text-slate sm:text-right">
+        some live, some prototypes. the label always says which.
+      </p>
+    </div>
+    <p class="lede mt-5 max-w-2xl">
+      Blood logistics, health chatbots, clinical research, conservation tools and a few things built because the
+      problem annoyed me. {entries.length} projects, each with its own case study.
+    </p>
+
+    <div class="mt-9 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filter projects">
+        <button type="button" class="filter-chip" data-filter="all" aria-pressed="true">Everything</button>
+        {groups.map((g) => <button type="button" class="filter-chip" data-filter={g.id} aria-pressed="false">{g.label}</button>)}
       </div>
-      <Scene3D
-        src="/scenes/scene-projects.mp4"
-        bubble="Take a look"
-        label="Animated 3D illustration"
-        class="w-full max-w-xs lg:max-w-none"
-      />
+      <div class="relative w-full lg:w-72">
+        <label for="work-search" class="sr-only">Search projects</label>
+        <input
+          id="work-search"
+          type="search"
+          placeholder="Search projects…"
+          autocomplete="off"
+          class="w-full rounded-full border-[1.5px] border-ink bg-sheet px-4 py-2.5 text-sm outline-none"
+        />
+      </div>
     </div>
-
-    <div class="mt-12">
-      <ChipMarquee items={chips} />
-    </div>
-
-    <!-- Practice Domain Tabs -->
-    <div class="mt-10 flex flex-wrap items-center gap-2 border-b border-line pb-4" id="domain-filter-group">
-      <span class="text-xs font-mono font-bold uppercase tracking-wider text-slate mr-1">Domain:</span>
-      <button
-        type="button"
-        data-domain-filter="all"
-        aria-pressed="true"
-        class="domain-filter-chip rounded-full border border-ink px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all bg-ink text-paper"
-      >
-        All Systems ({entries.length})
-      </button>
-      <button
-        type="button"
-        data-domain-filter="clinical"
-        aria-pressed="false"
-        class="domain-filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:border-emerald-500 text-ink"
-      >
-        🩺 Clinical Practice &amp; Research ({entries.filter(e => getEntryDomain(e) === 'clinical').length})
-      </button>
-      <button
-        type="button"
-        data-domain-filter="health-tech"
-        aria-pressed="false"
-        class="domain-filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:border-purple-500 text-ink"
-      >
-        🏥 Health Tech &amp; AI ({entries.filter(e => getEntryDomain(e) === 'health-tech').length})
-      </button>
-      <button
-        type="button"
-        data-domain-filter="tech"
-        aria-pressed="false"
-        class="domain-filter-chip rounded-full border border-ink/15 px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:border-cyan-500 text-ink"
-      >
-        💻 Software &amp; Platforms ({entries.filter(e => getEntryDomain(e) === 'tech').length})
-      </button>
-    </div>
-
-    <!-- Detailed Tech Sub-Tags -->
-    <div class="mt-4 flex flex-wrap items-center gap-2">
-      <span class="text-xs font-mono text-slate-light mr-1">Tags:</span>
-      <button
-        type="button"
-        data-filter="all"
-        aria-pressed="true"
-        class="filter-chip rounded-full border border-ink/15 px-3 py-1 text-xs font-medium transition-colors"
-      >
-        All Tags
-      </button>
-      {
-        tags.map((tag) => (
-          <button
-            type="button"
-            data-filter={tag}
-            aria-pressed="false"
-            class="filter-chip rounded-full border border-ink/15 px-3 py-1 text-xs font-medium transition-colors"
-          >
-            {tag}
-          </button>
-        ))
-      }
-    </div>
+    <p id="work-count" class="mt-4 text-sm text-slate" role="status" aria-live="polite">Showing all {entries.length} projects.</p>
   </section>
 
-  <section class="mx-auto max-w-6xl px-5 pb-16 sm:px-8">
-    <div id="work-grid" class="grid gap-5 sm:grid-cols-2">
+  <section class="shell pt-8" aria-label="Projects">
+    <ul id="work-grid" class="grid gap-x-7 gap-y-10 sm:grid-cols-2 lg:grid-cols-3" role="list">
       {
         entries.map((entry, i) => (
-          <div
-            data-domain={getEntryDomain(entry)}
-            data-tags={entry.data.tags.join('|')}
-            class="contents-item"
+          <li
+            data-groups={groupsFor(entry.data.tags).join(' ')}
+            data-text={`${entry.data.title} ${entry.data.summary} ${entry.data.role} ${entry.data.tags.join(' ')}`.toLowerCase()}
           >
-            <WorkCard entry={entry} delay={Math.min(i, 5) * 60} />
-          </div>
+            <WorkCard entry={entry} index={i} />
+          </li>
         ))
       }
-    </div>
-
-    <p id="work-empty" hidden class="py-16 text-center text-slate">
-      Nothing under that selection yet. Try another domain or tag.
+    </ul>
+    <p id="work-empty" hidden class="hand py-16 text-center text-3xl text-slate">
+      nothing in this drawer. try another filter?
     </p>
+  </section>
+
+  <!-- The plain index: every project in one scannable table. -->
+  <section class="shell pt-24" aria-labelledby="index-title">
+    <h2 id="index-title" class="font-display text-3xl font-semibold">The plain index</h2>
+    <p class="mt-2 text-slate">Same projects, no decoration.</p>
+    <div class="mt-6 overflow-x-auto">
+      <table class="w-full min-w-[40rem] border-collapse text-left text-sm">
+        <thead>
+          <tr class="border-b-[1.5px] border-ink">
+            <th scope="col" class="py-2 pr-4 font-semibold">Project</th>
+            <th scope="col" class="py-2 pr-4 font-semibold">Role</th>
+            <th scope="col" class="py-2 pr-4 font-semibold">Year</th>
+            <th scope="col" class="py-2 font-semibold">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            entries.map((e) => (
+              <tr class="border-b border-dashed border-line">
+                <td class="py-3 pr-4"><a class="ink-link font-semibold" href={withBase(`/work/${e.id}`)}>{e.data.title}</a></td>
+                <td class="py-3 pr-4 text-slate">{e.data.role}</td>
+                <td class="py-3 pr-4 text-slate">{e.data.year}</td>
+                <td class="py-3"><StatusStamp status={e.data.status} /></td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
   </section>
 </Base>
 
-<style>
-  .domain-filter-chip[aria-pressed='true'] {
-    background-color: var(--color-ink);
-    color: var(--color-paper);
-    border-color: var(--color-ink);
-  }
-  .filter-chip[aria-pressed='true'] {
-    background-color: var(--color-ink);
-    color: var(--color-paper);
-    border-color: var(--color-ink);
-  }
-  .filter-chip[aria-pressed='false']:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-  }
-  .contents-item {
-    display: contents;
-  }
-  .contents-item[hidden] {
-    display: none;
-  }
-</style>
-
 <script>
-  const domainChips = document.querySelectorAll<HTMLButtonElement>('.domain-filter-chip');
-  const tagChips = document.querySelectorAll<HTMLButtonElement>('.filter-chip');
-  const items = document.querySelectorAll<HTMLElement>('#work-grid .contents-item');
+  const chips = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const items = document.querySelectorAll<HTMLLIElement>('#work-grid > li');
+  const search = document.getElementById('work-search') as HTMLInputElement | null;
   const empty = document.getElementById('work-empty');
+  const count = document.getElementById('work-count');
+  let filter = 'all';
 
-  let activeDomain = 'all';
-  let activeTag = 'all';
-
-  function applyFilters() {
-    let visible = 0;
+  const apply = () => {
+    const words = (search?.value ?? '').toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
     items.forEach((item) => {
-      const itemDomain = item.dataset.domain ?? '';
-      const tags = (item.dataset.tags ?? '').split('|');
-
-      const matchesDomain = activeDomain === 'all' || itemDomain === activeDomain;
-      const matchesTag = activeTag === 'all' || tags.includes(activeTag);
-
-      const show = matchesDomain && matchesTag;
-      item.hidden = !show;
-      if (show) visible += 1;
+      const inGroup = filter === 'all' || (item.dataset.groups ?? '').split(' ').includes(filter);
+      const matches = words.every((w) => (item.dataset.text ?? '').includes(w));
+      item.hidden = !(inGroup && matches);
+      if (!item.hidden) shown += 1;
     });
+    if (empty) empty.hidden = shown > 0;
+    if (count) count.textContent = shown === items.length ? `Showing all ${shown} projects.` : `Showing ${shown} of ${items.length} projects.`;
+  };
 
-    if (empty) empty.hidden = visible > 0;
-  }
-
-  domainChips.forEach((chip) => {
+  chips.forEach((chip) =>
     chip.addEventListener('click', () => {
-      activeDomain = chip.dataset.domainFilter ?? 'all';
-      domainChips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
-      applyFilters();
-    });
-  });
-
-  tagChips.forEach((chip) => {
-    chip.addEventListener('click', () => {
-      activeTag = chip.dataset.filter ?? 'all';
-      tagChips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
-      applyFilters();
-    });
-  });
+      filter = chip.dataset.filter ?? 'all';
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+      apply();
+    })
+  );
+  search?.addEventListener('input', apply);
 </script>
