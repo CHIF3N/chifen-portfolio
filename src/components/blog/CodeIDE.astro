@@ -1,0 +1,136 @@
+---
+/**
+ * Turns every markdown code fence in a blog post into a small paper "editor
+ * window": title bar with breadcrumbs, a file tab, line numbers, click-to-
+ * select lines, copy, download, soft-wrap toggle, folding for long blocks and
+ * a status bar. Highlighting is done at build time by Shiki (paper themes);
+ * this only adds the chrome, so the code reads fine without JavaScript.
+ *
+ * Name a block's tab with a title in the fence: ```ts title="dose.ts"
+ */
+---
+
+<script>
+  type LangInfo = { label: string; ext: string; dot: string };
+  const LANGS: Record<string, LangInfo> = {
+    ts: { label: 'TypeScript', ext: 'ts', dot: '#315cff' },
+    typescript: { label: 'TypeScript', ext: 'ts', dot: '#315cff' },
+    tsx: { label: 'TSX', ext: 'tsx', dot: '#315cff' },
+    js: { label: 'JavaScript', ext: 'js', dot: '#e8c41a' },
+    javascript: { label: 'JavaScript', ext: 'js', dot: '#e8c41a' },
+    jsx: { label: 'JSX', ext: 'jsx', dot: '#e8c41a' },
+    py: { label: 'Python', ext: 'py', dot: '#3776ab' },
+    python: { label: 'Python', ext: 'py', dot: '#3776ab' },
+    bash: { label: 'Shell', ext: 'sh', dot: '#3d7a16' },
+    sh: { label: 'Shell', ext: 'sh', dot: '#3d7a16' },
+    shell: { label: 'Shell', ext: 'sh', dot: '#3d7a16' },
+    json: { label: 'JSON', ext: 'json', dot: '#c24a12' },
+    yaml: { label: 'YAML', ext: 'yml', dot: '#b5338a' },
+    yml: { label: 'YAML', ext: 'yml', dot: '#b5338a' },
+    sql: { label: 'SQL', ext: 'sql', dot: '#0f766e' },
+    html: { label: 'HTML', ext: 'html', dot: '#ff8247' },
+    css: { label: 'CSS', ext: 'css', dot: '#6a44cc' },
+    nginx: { label: 'Nginx', ext: 'conf', dot: '#3d7a16' },
+    dockerfile: { label: 'Dockerfile', ext: 'dockerfile', dot: '#2547d6' },
+  };
+  const PLAIN: LangInfo = { label: 'Plain text', ext: 'txt', dot: '#a0988a' };
+
+  const body = document.querySelector('.blog-post-page__body');
+  const slug = location.pathname.replace(/\/$/, '').split('/').pop() ?? 'post';
+
+  body?.querySelectorAll<HTMLPreElement>('pre.astro-code').forEach((pre, index) => {
+    if (pre.closest('.cwb, .pide')) return;
+
+    const langKey = (pre.dataset.language ?? 'plaintext').toLowerCase();
+    const info = LANGS[langKey] ?? PLAIN;
+    const fileName = pre.dataset.title ?? `snippet-${index + 1}.${info.ext}`;
+    const lines = Array.from(pre.querySelectorAll<HTMLElement>('.line'));
+    // Shiki leaves an empty trailing line on some fences.
+    if (lines.length > 1 && !lines[lines.length - 1].textContent) lines.pop()?.remove();
+    const raw = lines.map((l) => l.textContent ?? '').join('\n');
+
+    const frame = document.createElement('figure');
+    frame.className = 'pide';
+    frame.style.setProperty('--r', `${[-0.25, 0.2, -0.15, 0.25][index % 4]}deg`);
+    frame.setAttribute('aria-label', `Code: ${fileName}`);
+    frame.innerHTML = `
+      <div class="pide-titlebar">
+        <span class="pide-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="pide-crumbs">writing › ${slug} › <b>${fileName}</b></span>
+        <span class="pide-actions">
+          <button type="button" class="pide-btn" data-act="wrap" aria-pressed="false" title="Toggle line wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h15a3 3 0 0 1 0 6h-4m0 0 2-2m-2 2 2 2M3 18h7"/></svg><span>Wrap</span>
+          </button>
+          <button type="button" class="pide-btn" data-act="copy" title="Copy code">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span data-label>Copy</span>
+          </button>
+          <button type="button" class="pide-btn" data-act="download" title="Download ${fileName}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg><span>Save</span>
+          </button>
+        </span>
+      </div>
+      <div class="pide-tabs" role="presentation">
+        <span class="pide-tab"><span class="pide-lang-dot" style="--dot:${info.dot}"></span>${fileName}</span>
+      </div>
+      <div class="pide-body"></div>
+      <div class="pide-fold"><button type="button" class="pide-btn" data-act="fold" aria-expanded="false">Show all ${lines.length} lines</button></div>
+      <div class="pide-status" aria-live="polite">
+        <span>${info.label}</span>
+        <span>${lines.length} ${lines.length === 1 ? 'line' : 'lines'}</span>
+        <span class="push" data-pos>Click a line</span>
+        <span class="opt">UTF-8</span>
+        <span class="opt">Spaces: 2</span>
+      </div>`;
+
+    pre.parentNode?.insertBefore(frame, pre);
+    frame.querySelector('.pide-body')!.appendChild(pre);
+    pre.tabIndex = 0;
+    pre.setAttribute('aria-label', `${fileName}, ${lines.length} lines. Scroll with arrow keys.`);
+
+    if (lines.length > 24) frame.classList.add('is-foldable', 'is-folded');
+
+    const pos = frame.querySelector<HTMLElement>('[data-pos]')!;
+    lines.forEach((line, i) => {
+      line.addEventListener('click', () => {
+        lines.forEach((l) => l.classList.remove('is-active'));
+        line.classList.add('is-active');
+        const sel = getSelection();
+        const col = sel && sel.anchorNode && line.contains(sel.anchorNode) ? sel.anchorOffset + 1 : 1;
+        pos.textContent = `Ln ${i + 1}, Col ${col}`;
+      });
+    });
+
+    frame.addEventListener('click', async (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-act]');
+      if (!btn) return;
+      const act = btn.dataset.act;
+      if (act === 'copy') {
+        const label = btn.querySelector('[data-label]');
+        try {
+          await navigator.clipboard.writeText(raw);
+          btn.classList.add('is-ok');
+          if (label) label.textContent = 'Copied';
+        } catch {
+          if (label) label.textContent = 'Ctrl+C';
+        }
+        setTimeout(() => {
+          btn.classList.remove('is-ok');
+          if (label) label.textContent = 'Copy';
+        }, 1800);
+      } else if (act === 'download') {
+        const url = URL.createObjectURL(new Blob([raw + '\n'], { type: 'text/plain;charset=utf-8' }));
+        const a = Object.assign(document.createElement('a'), { href: url, download: fileName.split('/').pop() });
+        a.click();
+        URL.revokeObjectURL(url);
+      } else if (act === 'wrap') {
+        const on = frame.classList.toggle('is-wrapped');
+        btn.setAttribute('aria-pressed', String(on));
+      } else if (act === 'fold') {
+        const open = frame.classList.toggle('is-folded') === false;
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? 'Fold it back' : `Show all ${lines.length} lines`;
+        if (!open) frame.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  });
+</script>

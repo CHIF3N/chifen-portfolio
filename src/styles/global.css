@@ -185,6 +185,8 @@
   --shadow-paper: 0 1px 0 rgba(25, 25, 25, 0.04), 0 10px 24px -14px rgba(60, 40, 10, 0.35);
   --shadow-lift: 0 2px 0 rgba(25, 25, 25, 0.05), 0 26px 40px -22px rgba(60, 40, 10, 0.45);
   --grain-opacity: 0.35;
+  --tear-top: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 18' preserveAspectRatio='none'%3E%3Cpath d='M0 18V11L0 11L5 3L9 4L17 4L23 5L27 9L32 2L36 3L43 4L48 4L56 3L60 5L64 8L72 2L80 5L87 2L92 2L100 6L106 3L111 9L115 5L121 9L126 4L134 5L139 11L143 9L147 5L151 5L156 7L164 3L170 7L178 7L184 10L189 6L194 4L200 6V18z'/%3E%3C/svg%3E");
+  --tear-bottom: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 18' preserveAspectRatio='none'%3E%3Cpath d='M0 0V7L0 7L5 15L9 14L17 14L23 13L27 9L32 16L36 15L43 14L48 14L56 15L60 13L64 10L72 16L80 13L87 16L92 16L100 12L106 15L111 9L115 13L121 9L126 14L134 13L139 7L143 9L147 13L151 13L156 11L164 15L170 11L178 11L184 8L189 12L194 14L200 12V0z'/%3E%3C/svg%3E");
 }
 
 :root[data-theme='dark'],
@@ -239,6 +241,9 @@
   body {
     position: relative;
     background-color: var(--color-paper);
+    /* Paper fibres: a few faint curved strands, tiled large so they never read as a pattern. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' fill='none' stroke='%23a08f6e' stroke-opacity='.16' stroke-width='.7' stroke-linecap='round'%3E%3Cpath d='M12 40c30-6 52 4 80-2'/%3E%3Cpath d='M210 18c18 10 40 6 52 20'/%3E%3Cpath d='M330 90c-20 14-24 30-48 34'/%3E%3Cpath d='M60 170c26 8 34 24 62 22'/%3E%3Cpath d='M250 210c22-4 34 10 58 4'/%3E%3Cpath d='M380 260c-14 16-36 18-44 34'/%3E%3Cpath d='M30 300c18 12 44 6 58 20'/%3E%3Cpath d='M170 350c24-8 40 6 64-2'/%3E%3Cpath d='M300 392c16-10 34-6 50-16'/%3E%3Cpath d='M120 98c8 14 24 18 30 30'/%3E%3C/svg%3E");
+    background-size: 420px 420px;
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-weight: 500;
@@ -750,6 +755,58 @@
     linear-gradient(color-mix(in oklab, var(--color-ink) 6%, transparent) 1px, transparent 1px),
     linear-gradient(90deg, color-mix(in oklab, var(--color-ink) 6%, transparent) 1px, transparent 1px);
   background-size: 28px 28px;
+}
+
+/* Torn paper edges. The section looks ripped from a pad along that edge. */
+.torn-top {
+  -webkit-mask: var(--tear-top) top / 100% 18px no-repeat, linear-gradient(#000 0 0) 0 17px / 100% calc(100% - 17px) no-repeat;
+  mask: var(--tear-top) top / 100% 18px no-repeat, linear-gradient(#000 0 0) 0 17px / 100% calc(100% - 17px) no-repeat;
+}
+.torn-bottom {
+  -webkit-mask: linear-gradient(#000 0 0) 0 0 / 100% calc(100% - 17px) no-repeat, var(--tear-bottom) bottom / 100% 18px no-repeat;
+  mask: linear-gradient(#000 0 0) 0 0 / 100% calc(100% - 17px) no-repeat, var(--tear-bottom) bottom / 100% 18px no-repeat;
+}
+.torn-top.torn-bottom {
+  -webkit-mask: var(--tear-top) top / 100% 18px no-repeat, linear-gradient(#000 0 0) 0 17px / 100% calc(100% - 34px) no-repeat, var(--tear-bottom) bottom / 100% 18px no-repeat;
+  mask: var(--tear-top) top / 100% 18px no-repeat, linear-gradient(#000 0 0) 0 17px / 100% calc(100% - 34px) no-repeat, var(--tear-bottom) bottom / 100% 18px no-repeat;
+}
+
+/* A few sheets stacked underneath, slightly askew: paper on paper. */
+.stack {
+  position: relative;
+  isolation: isolate;
+}
+.stack::before,
+.stack::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1px solid var(--color-line);
+  border-radius: inherit;
+  background: var(--sheet);
+  box-shadow: var(--shadow-paper);
+}
+.stack::before {
+  rotate: 2.2deg;
+  translate: 6px 6px;
+}
+.stack::after {
+  rotate: -1.6deg;
+  translate: -5px 9px;
+  background: var(--paper-dim);
+}
+
+/* Faint fold lines, as if the sheet was folded into a pocket once. */
+.creased {
+  background-image:
+    linear-gradient(115deg, transparent 49.6%, rgba(120, 100, 60, 0.07) 50%, transparent 50.4%),
+    linear-gradient(28deg, transparent 49.7%, rgba(255, 255, 255, 0.5) 50%, transparent 50.3%);
+}
+:root[data-theme='dark'] .creased {
+  background-image:
+    linear-gradient(115deg, transparent 49.6%, rgba(0, 0, 0, 0.25) 50%, transparent 50.4%),
+    linear-gradient(28deg, transparent 49.7%, rgba(255, 255, 255, 0.04) 50%, transparent 50.3%);
 }
 
 /* Masking tape. Put on any positioned element. */
@@ -1454,4 +1511,66 @@
 .prose-body h2,
 .prose-body h3 {
   scroll-margin-top: 6rem;
+}
+
+/* ==========================================================================
+   Print. Any page prints as clean ink on white: no site chrome, no textures,
+   no pending animations. The CV adds its own density rules on top.
+   ========================================================================== */
+@media print {
+  :root,
+  :root[data-theme='dark'],
+  :root.dark {
+    color-scheme: light;
+    --ink: #111111;
+    --paper: #ffffff;
+    --paper-dim: #f6f3ee;
+    --sheet: #ffffff;
+    --slate: #3b3833;
+    --slate-light: #55514b;
+    --line: #d9d2c4;
+    --accent-ink: var(--accent);
+    --shadow-paper: none;
+    --shadow-lift: none;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+  body::before,
+  #scroll-progress,
+  .site-header,
+  .site-footer,
+  #mobile-menu,
+  #menu-backdrop,
+  #palette,
+  [data-mascot],
+  [data-doodle],
+  .tape,
+  .pin,
+  .start-here,
+  .tidy-btn {
+    display: none !important;
+  }
+  html.js [data-reveal],
+  html.js .enter,
+  html.js .enter-drop {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .paper,
+  .window,
+  .btn,
+  .polaroid,
+  .sticky-note {
+    box-shadow: none !important;
+  }
+  a {
+    color: inherit;
+  }
+  .font-mono {
+    font-family: var(--font-sans) !important;
+  }
 }

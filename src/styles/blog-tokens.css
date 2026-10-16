@@ -121,7 +121,7 @@
 
   /* -- Line heights ----------------------------------------------------------- */
 
-  --blog-lh-display:  0.92;
+  --blog-lh-display:  1.02;
   --blog-lh-heading:  1.25;
   --blog-lh-body:     1.75;
   --blog-lh-ui:       1.6;
@@ -129,7 +129,7 @@
   /* -- Letter spacing --------------------------------------------------------- */
 
   --blog-tracking-body:    -0.02em;
-  --blog-tracking-display: 0;
+  --blog-tracking-display: -0.025em;
   --blog-tracking-label:   0.12em;
 
   /* -- Border radii ----------------------------------------------------------- */
@@ -225,7 +225,7 @@
     font-weight: 600;
     line-height: var(--blog-lh-display);
     letter-spacing: var(--blog-tracking-display);
-    text-transform: uppercase;
+    text-transform: none;
     text-wrap: balance;
     color: var(--blog-text);
   }
@@ -242,7 +242,7 @@
     font-size: var(--blog-title-card);
     font-weight: 500;
     line-height: 1.4;
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: var(--blog-tracking-display);
     color: var(--blog-text);
   }
@@ -259,7 +259,7 @@
     font-size: var(--blog-label-size);
     font-weight: 600;
     letter-spacing: var(--blog-tracking-label);
-    text-transform: uppercase;
+    text-transform: none;
     color: var(--blog-text-muted);
   }
 
