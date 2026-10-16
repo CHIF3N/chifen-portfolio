@@ -5,7 +5,7 @@
  * variables and never reach the browser:
  *   GROQ_API_KEY     primary  (https://console.groq.com)
  *   NVIDIA_API_KEY   fallback (https://build.nvidia.com)
- *   GROQ_MODEL / NVIDIA_MODEL  optional model overrides
+ *   GROQ_MODEL / NVIDIA_MODEL  optional; otherwise the best available model is picked
  *
  * Answers are grounded in api/_knowledge.json, generated from the site's own
  * content by scripts/build-knowledge.mjs. When something is not in there, the
@@ -72,21 +72,78 @@ KNOWLEDGE (generated ${knowledge.generated}):
 ${context(question)}`;
 }
 
-async function callModel({ url, key, model }, messages) {
+/**
+ * Preferred chat models per provider, best first. Providers retire model
+ * names regularly, so instead of hard-coding one, Byte asks the provider
+ * which models it has and takes the first match. GROQ_MODEL / NVIDIA_MODEL
+ * still win when set.
+ */
+const PREFERENCES = {
+  groq: [/gpt-oss-120b/, /llama-4-maverick/, /llama-4-scout/, /llama-3\.3-70b/, /kimi-k2/, /qwen3?-32b/, /gpt-oss-20b/, /llama-3\.1-8b/],
+  nvidia: [/llama-3\.1-nemotron-70b-instruct/, /nemotron-3-super/, /gpt-oss-120b/, /gpt-oss-20b/, /gemma-4-31b-it/, /mistral-large-2-instruct/, /llama.*instruct/],
+};
+const SKIP = /embed|rerank|vision|-vl-|guard|safety|whisper|tts|asr|audio|reward|ocr|parse|retriev|coder|code|translate|detector|calibration|diffusion|playai|compound/i;
+
+const chosen = new Map(); // provider name -> model id that last worked (per warm instance)
+
+async function listModels({ url, key }) {
+  const res = await fetch(url.replace('/chat/completions', '/models'), {
+    headers: { Authorization: `Bearer ${key}` },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) throw new Error(`${res.status} models`);
+  const data = await res.json();
+  return (data?.data ?? []).filter((m) => m.active !== false).map((m) => m.id).filter((id) => !SKIP.test(id));
+}
+
+async function pickModel(provider) {
+  const ids = await listModels(provider);
+  for (const pattern of PREFERENCES[provider.name] ?? []) {
+    const hit = ids.find((id) => pattern.test(id));
+    if (hit) return hit;
+  }
+  if (!ids.length) throw new Error('no chat models');
+  return ids[0];
+}
+
+async function complete({ url, key }, model, messages) {
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model, messages, temperature: 0.3, max_tokens: 380 }),
-    signal: AbortSignal.timeout(20000),
+    body: JSON.stringify({ model, messages, temperature: 0.3, max_tokens: 600 }),
+    signal: AbortSignal.timeout(25000),
   });
   if (!res.ok) {
-    const detail = (await res.text().catch(() => '')).slice(0, 160).replace(/\s+/g, ' ');
-    throw new Error(`${res.status} ${detail}`);
+    const err = new Error(`${res.status}`);
+    err.status = res.status;
+    throw err;
   }
   const data = await res.json();
   const text = data?.choices?.[0]?.message?.content?.trim();
-  if (!text) throw new Error(`${model} empty`);
-  return text;
+  if (!text) throw new Error(`empty`);
+  // Some reasoning models wrap their thinking in <think> tags; visitors only need the answer.
+  return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+}
+
+async function callModel(provider, messages) {
+  const first = provider.model ?? chosen.get(provider.name) ?? (await pickModel(provider));
+  try {
+    const answer = await complete(provider, first, messages);
+    chosen.set(provider.name, first);
+    return answer;
+  } catch (err) {
+    // Retired or unknown model: look up what the provider has now and try once more.
+    if ([400, 404, 410].includes(err.status) && !provider.model) {
+      chosen.delete(provider.name);
+      const next = await pickModel(provider);
+      if (next !== first) {
+        const answer = await complete(provider, next, messages);
+        chosen.set(provider.name, next);
+        return answer;
+      }
+    }
+    throw err;
+  }
 }
 
 export default async function handler(req, res) {
@@ -128,13 +185,13 @@ export default async function handler(req, res) {
       name: 'groq',
       url: 'https://api.groq.com/openai/v1/chat/completions',
       key: process.env.GROQ_API_KEY,
-      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+      model: process.env.GROQ_MODEL || null,
     },
     process.env.NVIDIA_API_KEY && {
       name: 'nvidia',
       url: 'https://integrate.api.nvidia.com/v1/chat/completions',
       key: process.env.NVIDIA_API_KEY,
-      model: process.env.NVIDIA_MODEL || 'meta/llama-3.3-70b-instruct',
+      model: process.env.NVIDIA_MODEL || null,
     },
   ].filter(Boolean);
 
