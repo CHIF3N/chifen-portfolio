@@ -1,0 +1,109 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import StatusStamp from '../components/StatusStamp.astro';
+import { site } from '../lib/site';
+import { withBase } from '../lib/url';
+import { storyChapters } from '../data/storyData';
+
+/* Side builds: the smaller or more personal projects from the work collection. */
+const sideIds = ['lockedin', 'nurse-intern-assistant', 'abortion-safety-georegistry', 'inkwave'];
+const work = await getCollection('work');
+const sideBuilds = sideIds
+  .map((id) => work.find((w) => w.id === id))
+  .filter((w): w is NonNullable<typeof w> => Boolean(w));
+
+/* The older drawer: experiments and detours from the journey, in the order they happened. */
+const drawerIds = [
+  '2016-the-interruption',
+  '2019-innovative-engineering',
+  'books-and-bluecube',
+  'aircraft-and-drones',
+  'genius-academy-and-africa',
+  'air-sanitizer-2020',
+  'hats-graiye-agrobot',
+  'jack-of-all-trades',
+];
+const drawer = drawerIds
+  .map((id) => storyChapters.find((c) => c.id === id))
+  .filter((c): c is NonNullable<typeof c> => Boolean(c));
+
+const tones = ['', 'sticky-note--lavender', 'sticky-note--paper', 'sticky-note--orange'];
+const tilts = [-1.6, 1.2, -0.8, 1.8, -1.2, 0.9, -1.8, 1.4];
+const statusWord = (s?: string) =>
+  s === 'EXPERIMENT' ? 'Experiment' : s === 'ARCHIVED' ? 'Archived' : s === 'COMMUNITY' ? 'Community' : s ?? '';
+---
+
+<Base
+  title="Experiments & side quests"
+  description="The side quests of Chifen Sama Nduma (CHIF3N): a focus app, an offline nurse companion, a synthetic-data health dashboard, plus the older drawer of drones, an Agrobot, an air sanitizer prototype and a lockdown study network."
+  accent={site.accents.experiments}
+>
+  <section class="shell pt-12 sm:pt-16">
+    <p class="eyebrow">Folder 04 · random experiments</p>
+    <div class="mt-2 flex flex-wrap items-end justify-between gap-6">
+      <h1 class="display-section">Open when <span class="serif-i font-normal">curious.</span></h1>
+      <p class="hand max-w-sm text-2xl text-slate sm:text-right">the drawer of things that aren't the main thing. yet.</p>
+    </div>
+    <p class="lede mt-5 max-w-2xl">
+      Health tech is the main thread, but it was never the only one. Here are the side builds I'm working on, and
+      the earlier experiments that taught me most of what I know about shipping things, usually by failing first.
+    </p>
+  </section>
+
+  <section class="shell pt-16" aria-labelledby="side-title">
+    <h2 id="side-title" class="font-display text-3xl font-semibold">Side builds</h2>
+    <p class="mt-1 text-slate">Current, smaller, or personal. Each one has a full write-up.</p>
+    <ul class="mt-8 grid gap-6 sm:grid-cols-2" role="list">
+      {
+        sideBuilds.map((w, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <a href={withBase(`/work/${w.id}`)} class="window lift block h-full" style={`--r:${tilts[i]}deg`}>
+              <span class="window-bar"><span class="window-dots"><i /><i /><i /></span><span class="window-url">{w.id}</span></span>
+              <span class="block p-6">
+                <span class="flex flex-wrap items-center gap-3"><StatusStamp status={w.data.status} /><span class="text-sm text-slate">{w.data.year} · {w.data.role}</span></span>
+                <span class="mt-3 block font-display text-2xl font-semibold">{w.data.title}</span>
+                <span class="mt-2 block text-slate">{w.data.summary}</span>
+                {w.data.note && <span class="mt-3 block text-sm font-semibold">{w.data.note}</span>}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="shell pt-24" aria-labelledby="drawer-title">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h2 id="drawer-title" class="font-display text-3xl font-semibold">The older drawer</h2>
+        <p class="mt-1 text-slate">2016 to now. Prototypes, communities and detours, with what each one taught me.</p>
+      </div>
+      <a href={withBase('/journey')} class="btn btn-ghost btn-sm">Read the full journey</a>
+    </div>
+
+    <ul class="mt-10 grid gap-8 md:grid-cols-2" role="list">
+      {
+        drawer.map((c, i) => (
+          <li data-reveal style={`--reveal-delay:${(i % 2) * 90}ms`}>
+            <article class:list={['sticky-note h-full', tones[i % tones.length]]} style={`--r:${tilts[i] / 2}deg`}>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="hand text-2xl">{c.year}</span>
+                {c.status && <span class="text-[0.68rem] font-bold tracking-[0.12em] uppercase opacity-70">{statusWord(c.status)}</span>}
+              </div>
+              <h3 class="mt-2 font-display text-2xl leading-tight font-semibold">{c.title}</h3>
+              <p class="mt-2 leading-relaxed opacity-85">{c.headline}</p>
+              {c.whatIBuilt && <p class="mt-3 text-sm leading-relaxed"><strong>Built:</strong> {c.whatIBuilt}</p>}
+              {c.whatILearned && <p class="mt-2 text-sm leading-relaxed"><strong>Learned:</strong> {c.whatILearned}</p>}
+              <a href={withBase(`/journey#${c.id}`)} class="mt-4 inline-block text-sm font-bold underline decoration-2 underline-offset-4">The full chapter →</a>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-10 max-w-2xl text-sm text-slate">
+      Figures in these chapters (community sizes, students reached, books sold) come from the project's own group
+      and administrative records, as noted on the journey page.
+    </p>
+  </section>
+</Base>

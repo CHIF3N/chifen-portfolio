@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   site: 'https://chifen.is-a.dev',
-  integrations: [mdx(), sitemap()],
+  integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/admin') && !page.includes('/explore') })],
   vite: {
     plugins: [tailwindcss()],
     resolve: {

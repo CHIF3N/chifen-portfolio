@@ -33,7 +33,7 @@ Existing instruments ask about AI in computer science vocabulary, which measures
 
 ## Screenshots
 
-Not applicable. This is a research study, not a software product. See the [full dissertation](/chifen-portfolio/research/ai-clinical-decision-making) for the complete methodology.
+Not applicable. This is a research study, not a software product. See the [full dissertation](/research/ai-clinical-decision-making) for the complete methodology.
 
 ## Architecture
 
@@ -49,4 +49,4 @@ Knowledge was moderate, averaging 61.3%. Attitudes were cautiously optimistic at
 
 Attitude turned out not to be a fixed trait. Positive attitude climbed from 1.8% among those with poor knowledge to 57.1% among those with good knowledge. Exposure raises knowledge, knowledge raises attitude. It can be moved.
 
-Read the full dissertation on the [research page](/chifen-portfolio/research/ai-clinical-decision-making).
+Read the full dissertation on the [research page](/research/ai-clinical-decision-making).

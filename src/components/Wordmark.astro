@@ -1,0 +1,105 @@
+---
+/**
+ * The CHIF3N wordmark. The 3 is the identity: it stands in for the E, sits a
+ * little off the baseline, and gets its own hand-drawn ring.
+ */
+interface Props {
+  size?: 'sm' | 'lg';
+  class?: string;
+}
+const { size = 'sm', class: className } = Astro.props;
+const letters = ['C', 'H', 'I', 'F', '3', 'N'];
+---
+
+<span class:list={['wordmark', `wordmark--${size}`, className]} aria-label="CHIF3N" role="img">
+  {
+    letters.map((l, i) =>
+      l === '3' ? (
+        <span class="wm-three" aria-hidden="true" style={`--i:${i}`}>
+          <svg class="wm-ring scribble" viewBox="0 0 100 100" aria-hidden="true">
+            <path d="M52 8 C 20 6, 6 30, 9 55 C 12 82, 40 96, 66 88 C 92 79, 96 46, 82 24 C 72 9, 50 4, 34 12" />
+          </svg>
+          <span class="wm-three-glyph">3</span>
+        </span>
+      ) : (
+        <span class="wm-l" aria-hidden="true" style={`--i:${i}`}>
+          {l}
+        </span>
+      )
+    )
+  }
+</span>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.85;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  .wordmark--sm {
+    font-size: 1.65rem;
+  }
+  .wordmark--lg {
+    font-size: clamp(4.2rem, 17vw, 11.5rem);
+  }
+  .wm-l,
+  .wm-three {
+    display: inline-block;
+    transition: transform 0.4s var(--ease-paper);
+    transform: translate(var(--px, 0px), var(--py, 0px)) rotate(var(--pr, 0deg));
+  }
+  .wm-three {
+    position: relative;
+    margin-inline: 0.02em;
+    color: var(--cobalt);
+    rotate: 8deg;
+    translate: 0 0.04em;
+  }
+  :global(:root[data-theme='dark']) .wm-three {
+    color: var(--lime);
+  }
+  .wm-three-glyph {
+    position: relative;
+    z-index: 1;
+  }
+  .wm-ring {
+    position: absolute;
+    inset: -18% -32% -12% -30%;
+    width: 162%;
+    height: 130%;
+    color: var(--orange);
+    rotate: -10deg;
+  }
+  .wordmark--sm .wm-ring path {
+    stroke-width: 7;
+  }
+  .wordmark--lg .wm-ring path {
+    stroke-width: 3.2;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    a:hover .wordmark--sm .wm-three {
+      transform: rotate(-14deg) scale(1.08);
+    }
+    :global(html.js) .wordmark--lg .wm-ring path {
+      stroke-dasharray: 300;
+      stroke-dashoffset: 300;
+      animation: draw 1.2s var(--ease-out-soft) 0.9s forwards;
+    }
+    :global(html.js) .wordmark--lg .wm-l,
+    :global(html.js) .wordmark--lg .wm-three-glyph {
+      animation: wm-in 0.8s var(--ease-paper) backwards;
+      animation-delay: calc(0.08s + var(--i) * 0.06s);
+    }
+  }
+  @keyframes wm-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.35em) rotate(6deg);
+    }
+  }
+</style>

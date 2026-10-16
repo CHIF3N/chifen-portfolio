@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import CommandPalette from '../components/CommandPalette.astro';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
 
@@ -9,236 +10,112 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
-  /** Per-page accent. Defaults to the site cyan. */
+  /** Per-page accent. Defaults to the site cobalt. */
   accent?: string;
+  /** Extra JSON-LD for this page (a project, an article, the study). */
   schema?: Record<string, any> | Array<Record<string, any>>;
+  /** Marks the page as a profile page in structured data (home, about). */
+  profile?: boolean;
+  /** Keep the page out of search engines (admin tools). */
+  noindex?: boolean;
 }
 
 const {
   title,
-  description = site.description,
-  ogImage = '/assets/photos/chifen-portrait.jpg',
+  description,
+  ogImage = '/og/default.png',
   accent,
   schema,
+  profile = false,
+  noindex = false,
 } = Astro.props;
 
 const pageTitle = title
-  ? `${title} · Chifen Sama Nduma (8,500+ Tech Reach) — The Nurse Who Codes`
-  : `Chifen Sama Nduma — The Nurse Who Codes · 8,500+ Tech Reach · 5,000+ Lives Impacted`;
+  ? `${title} · Chifen Sama (CHIF3N)`
+  : `Chifen Sama Nduma (CHIF3N) · The Nurse Who Codes`;
 
-const pageDescription = description || 'Chifen Sama Nduma (CHIF3N) — The Nurse Who Codes. Self-trained software engineer & registered nurse in Cameroon: 8,500+ accumulated reach across built tech, 5,000+ lives reached, 4 countries deployed, 100% open-source automations. Lead Architect at LifeDrop, CoastClear, and INKWAVE.';
+const pageDescription =
+  description ||
+  'Chifen Sama Nduma (CHIF3N), The Nurse Who Codes: a registered nurse and software engineer in Cameroon building health technology, WhatsApp services and research for low-bandwidth settings.';
 
-// Astro.url.pathname already reflects the deployed base path.
-const siteOrigin = Astro.site ? Astro.site.toString() : 'https://chifen.is-a.dev';
+const siteOrigin = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://chifen.is-a.dev';
 const canonical = new URL(Astro.url.pathname, siteOrigin);
+const ogUrl = new URL(withBase(ogImage), siteOrigin).toString();
 
-const defaultPersonSchema = {
+/* Only facts that are documented elsewhere on the site go in here. Headline
+   reach figures that are not traceable to a source are deliberately left out. */
+const personSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  '@id': `${siteOrigin}#person`,
+  '@id': `${siteOrigin}/#person`,
   name: 'Chifen Sama Nduma',
   givenName: 'Chifen',
   familyName: 'Sama Nduma',
-  additionalName: 'Sama Chifen',
-  alternateName: ['Chifen Sama', 'CHIF3N', 'The Nurse Who Codes', 'Sama Chifen', 'Chifen Sama Nduma'],
-  jobTitle: 'Self-Trained Software Engineer & Registered Nurse',
-  disambiguatingDescription: 'Self-trained software engineer, registered nurse, and health technology researcher known as The Nurse Who Codes. 8,500+ accumulated reach across built tech, 5,000+ lives reached, 4 countries deployed, specialized in open-source technologies, workflow automations, and resilient distributed platforms.',
-  description: pageDescription,
-  url: siteOrigin,
-  image: new URL(withBase(ogImage), siteOrigin).toString(),
-  sameAs: [
-    ...site.socials.map((s) => s.href),
-    'https://inkwave-cm.vercel.app/',
-    'https://github.com/CHIF3N',
-    'https://www.linkedin.com/in/chif3n/'
-  ] as string[],
-  interactionStatistic: [
-    {
-      '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/UserInteraction',
-      userInteractionCount: 8500,
-      name: 'Accumulated Reach Across Built Tech',
-      description: '8,500+ cumulative registered blood donors, coastal conservation field crews, remote STEM students, and developers reached across software platforms and automations.',
-    },
-    {
-      '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/ActiveAction',
-      userInteractionCount: 5000,
-      name: 'Lives Reached & Impacted',
-      description: '5,000+ lives directly reached and impacted through clinical bedside emergency care, donor routing, and community health initiatives.',
-    },
-    {
-      '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/DeployAction',
-      userInteractionCount: 4,
-      name: 'Countries Deployed & Reached',
-      description: '4 countries across Central and West Africa where software and data workflows have been deployed.',
-    },
+  alternateName: ['Chifen Sama', 'CHIF3N', 'Sama Chifen', 'The Nurse Who Codes'],
+  jobTitle: 'Registered nurse and software engineer',
+  description:
+    'Registered nurse (BSc Nursing Science) and self-taught software engineer in Cameroon, building health technology for low-bandwidth, low-resource settings.',
+  url: `${siteOrigin}/`,
+  image: new URL(withBase('/photos/chifen-portrait.jpg'), siteOrigin).toString(),
+  homeLocation: { '@type': 'Place', name: 'Buea, Cameroon' },
+  sameAs: [...site.socials.map((s) => s.href), 'https://inkwave-cm.vercel.app/'],
+  knowsAbout: [
+    'Nursing',
+    'Health technology',
+    'Digital health',
+    'Artificial intelligence in clinical decision-making',
+    'WhatsApp Cloud API',
+    'Offline-first mobile apps',
+    'Health data systems (DHIS2)',
+    'Data science',
   ],
   award: [
-    '8,500+ Accumulated Reach Across Built Tech Platforms',
-    '5,000+ Lives Reached & Impacted Across 4 African Nations',
-    'Speaker @ PyCon Cameroon 2026',
-    '3rd Place Winner @ MTN YaMo Hackathon',
-    'Batch 9 Graduate @ Wisdom for Dominion Leadership Academy',
-  ],
-  knowsAbout: [
-    'Self-Trained Software Engineering',
-    'Open-Source Software & Automations',
-    '8,500+ Accumulated Tech Reach',
-    '5,000+ Lives Reached & Impacted',
-    'Health Technology & Digital Health',
-    'Data Science & Artificial Intelligence',
-    'Nursing Informatics & Bedside Care',
-    'Clinical Decision Support Systems',
-    'WhatsApp Cloud API & Chatbot Architecture',
-    'Offline-First Mobile Architecture',
-    'Low-Bandwidth Communication Networks',
-    'Health Data Systems (DHIS2)',
-  ],
-  affiliation: [
-    {
-      '@type': 'Organization',
-      name: 'LifeDrop',
-      url: 'https://lifedrop.cm',
-    },
-    {
-      '@type': 'Organization',
-      name: 'CoastClear',
-    },
-    {
-      '@type': 'Organization',
-      name: 'INKWAVE',
-      url: 'https://inkwave-cm.vercel.app/',
-    },
-    {
-      '@type': 'EducationalOrganization',
-      name: 'College of Technology (COLTECH), The University of Bamenda',
-      location: 'Bambili, Cameroon',
-    },
+    'Winner, Silicon Mountain Challenge 2022 (Ayodah)',
+    '3rd place, MTN YaMo Pitch Season 4 (LifeDrop)',
+    'Best Overall HND Student, Gracious Higher Institute of Excellence',
   ],
   alumniOf: [
     {
       '@type': 'EducationalOrganization',
-      name: 'College of Technology (COLTECH), The University of Bamenda',
-      location: 'Bambili, Cameroon',
+      name: 'Gracious Higher Institute of Excellence',
+      address: 'Buea, Cameroon',
     },
+  ],
+  affiliation: [
     {
       '@type': 'EducationalOrganization',
-      name: 'Gracious Higher Institute of Excellence',
-      location: 'Buea, Cameroon',
+      name: 'College of Technology (COLTECH), The University of Bamenda',
     },
+    { '@type': 'Organization', name: 'INKWAVE', url: 'https://inkwave-cm.vercel.app/' },
   ],
 };
 
-const defaultProfilePageSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'ProfilePage',
-  '@id': `${siteOrigin}#profilepage`,
-  url: siteOrigin,
-  name: pageTitle,
-  description: pageDescription,
-  mainEntity: {
-    '@id': `${siteOrigin}#person`,
-  },
-};
-
-const defaultWebsiteSchema = {
+const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  '@id': `${siteOrigin}#website`,
-  url: siteOrigin,
-  name: 'Chifen Sama Nduma — The Nurse Who Codes · 8,500+ Tech Reach',
-  alternateName: ['CHIF3N', 'The Nurse Who Codes', 'Chifen Sama Portfolio'],
-  description: pageDescription,
+  '@id': `${siteOrigin}/#website`,
+  url: `${siteOrigin}/`,
+  name: 'CHIF3N · Chifen Sama Nduma',
+  alternateName: ['The Nurse Who Codes', 'Chifen Sama'],
+  inLanguage: 'en',
+  publisher: { '@id': `${siteOrigin}/#person` },
   potentialAction: {
     '@type': 'SearchAction',
     target: `${siteOrigin}/search?q={search_term_string}`,
     'query-input': 'required name=search_term_string',
   },
-  publisher: {
-    '@id': `${siteOrigin}#person`,
-  },
 };
 
-const lifeDropSoftwareSchema = {
+const profileSchema = {
   '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  '@id': `${siteOrigin}#lifedrop`,
-  name: 'LifeDrop',
-  applicationCategory: 'HealthApplication',
-  operatingSystem: 'WhatsApp Cloud API, Web, Android',
-  author: { '@id': `${siteOrigin}#person` },
-  description: 'Automated WhatsApp emergency blood donor dispatch system operating with under 90-second response latency in low-bandwidth African healthcare networks.',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-  },
+  '@type': 'ProfilePage',
+  url: canonical.toString(),
+  name: pageTitle,
+  mainEntity: { '@id': `${siteOrigin}/#person` },
 };
 
-const coastClearSoftwareSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  '@id': `${siteOrigin}#coastclear`,
-  name: 'CoastClear',
-  applicationCategory: 'BusinessApplication',
-  operatingSystem: 'Offline-First Mobile, Web',
-  author: { '@id': `${siteOrigin}#person` },
-  description: 'Offline-first marine debris logistics and field crew coordination platform deployed along the Gulf of Guinea coastline.',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-  },
-};
-
-const defaultFaqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  '@id': `${siteOrigin}#faq`,
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'How many people have used technology built by Chifen Sama Nduma?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Chifen Sama Nduma has achieved an accumulated reach of over 8,500+ people across built tech platforms including LifeDrop (emergency blood donor dispatch), CoastClear (marine debris logistics), and INKWAVE, directly impacting 5,000+ lives across 4 countries with 100% open-source tools.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'What key metrics and numbers define Chifen Sama Nduma’s engineering?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Verified metrics: 8,500+ accumulated reach across built tech, 5,000+ lives reached and impacted, 4 countries deployed, 100% open-source software and automations, sub-90s blood dispatch latency on WhatsApp Cloud API, and a 387-patient maternal health risk clinical study in Cameroon.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Who is Chifen Sama Nduma (The Nurse Who Codes)?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Chifen Sama Nduma (also known as CHIF3N and The Nurse Who Codes) is a self-trained software engineer and registered nurse based in Buea, Cameroon. He holds a BSc in Nursing Science, is pursuing an M.Tech in Data Science at COLTECH (The University of Bamenda), and specializes in open-source automations, offline-first systems, and clinical AI.',
-      },
-    },
-  ],
-};
-
-const baseSchemas = [
-  defaultPersonSchema,
-  defaultProfilePageSchema,
-  defaultWebsiteSchema,
-  lifeDropSoftwareSchema,
-  coastClearSoftwareSchema,
-  defaultFaqSchema,
-];
-
-const finalSchemas = schema
-  ? Array.isArray(schema)
-    ? [...baseSchemas, ...schema]
-    : [...baseSchemas, schema]
-  : baseSchemas;
+const extra = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+const schemas = noindex ? [] : [personSchema, websiteSchema, ...(profile ? [profileSchema] : []), ...extra];
 ---
 
 <!doctype html>
@@ -254,65 +131,41 @@ const finalSchemas = schema
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription} />
     <meta name="author" content="Chifen Sama Nduma" />
-    <meta name="keywords" content="Chifen Sama, Chifen Sama Nduma, Sama Chifen, CHIF3N, The Nurse Who Codes, 8500 tech reach, 5000 lives reached, 4 countries, LifeDrop, CoastClear, INKWAVE, Self-Trained Dev, Self-Taught Software Engineer, Nurse Who Codes, Health Technology Cameroon, Buea Developer, Open Source Automations, COLTECH University of Bamenda" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'} />
+    <meta name="theme-color" content="#f5f0e7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#171513" media="(prefers-color-scheme: dark)" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
-    <link rel="alternate" type="application/rss+xml" title={`${site.displayName} — ${site.brand}`} href={withBase('/rss.xml')} />
+    <link rel="alternate" type="application/rss+xml" title={`${site.displayName}, ${site.brand}`} href={withBase('/rss.xml')} />
 
-    <!-- OpenGraph Social Cards -->
-    <meta property="og:type" content="profile" />
-    <meta property="og:site_name" content="Chifen Sama Nduma — The Nurse Who Codes" />
+    <meta property="og:type" content={profile ? 'profile' : 'website'} />
+    <meta property="og:site_name" content="CHIF3N · Chifen Sama Nduma" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={pageDescription} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:locale" content="en_US" />
-    <meta property="profile:first_name" content="Chifen" />
-    <meta property="profile:last_name" content="Sama Nduma" />
-    <meta property="profile:username" content="CHIF3N" />
-    {ogImage && <meta property="og:image" content={new URL(withBase(ogImage), Astro.site)} />}
+    <meta property="og:locale" content="en_GB" />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="CHIF3N, The Nurse Who Codes. Chifen Sama Nduma's portfolio." />
+    {profile && <meta property="profile:first_name" content="Chifen" />}
+    {profile && <meta property="profile:last_name" content="Sama Nduma" />}
+    {profile && <meta property="profile:username" content="CHIF3N" />}
 
-    <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@sama_chifen" />
     <meta name="twitter:creator" content="@sama_chifen" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={pageDescription} />
-    {ogImage && <meta name="twitter:image" content={new URL(withBase(ogImage), Astro.site)} />}
+    <meta name="twitter:image" content={ogUrl} />
 
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify(finalSchemas).replace(/</g, '\\u003c')} />
+    {schemas.length > 0 && (
+      <script type="application/ld+json" set:html={JSON.stringify(schemas).replace(/</g, '\\u003c')} />
+    )}
 
-    <link
-      rel="preload"
-      href={withBase('/fonts/clash-display-600.woff2')}
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="preload"
-      href={withBase('/fonts/general-sans-500.woff2')}
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="preload"
-      href={withBase('/fonts/big-shoulders-600.woff2')}
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="preload"
-      href={withBase('/fonts/inter-500.woff2')}
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    <link rel="preload" href={withBase('/fonts/clash-display-600.woff2')} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={withBase('/fonts/general-sans-500.woff2')} as="font" type="font/woff2" crossorigin />
 
     <script is:inline>
       document.documentElement.classList.add('js');
@@ -320,28 +173,18 @@ const finalSchemas = schema
       try {
         var stored = localStorage.getItem('theme');
         var isDark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        if (isDark) {
-          document.documentElement.dataset.theme = 'dark';
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.dataset.theme = 'light';
-          document.documentElement.classList.remove('dark');
-        }
+        document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+        document.documentElement.classList.toggle('dark', isDark);
       } catch (e) {}
     </script>
   </head>
 
   <body class="min-h-screen">
-    <!-- Reading scroll progress indicator -->
     <div id="scroll-progress" aria-hidden="true"></div>
-
-    <!-- Desktop Interactive Cursor Halos -->
-    <div id="cursor-aura" class="cursor-follower" aria-hidden="true"></div>
-    <div id="cursor-dot" class="cursor-dot" aria-hidden="true"></div>
 
     <a
       href="#main"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-paper"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-paper"
     >
       Skip to content
     </a>
@@ -354,136 +197,50 @@ const finalSchemas = schema
     </main>
     <div data-pagefind-ignore>
       <Footer />
+      <CommandPalette />
     </div>
 
-    <!-- Interactive Motion, Slick Scroll Transitions & Desktop Cursor Engine -->
     <script>
-      (() => {
-        // ── 1. Slick Scroll Reveal Engine ─────────────────────────────────────
-        const items = document.querySelectorAll('[data-reveal]');
-        if (items.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          const observer = new IntersectionObserver(
-            (entries) => {
-              for (const entry of entries) {
-                if (entry.isIntersecting) {
-                  entry.target.classList.add('is-visible');
-                  observer.unobserve(entry.target);
-                }
+      // Scroll reveals: a sheet set down on the desk as it enters the viewport.
+      const items = document.querySelectorAll('[data-reveal]');
+      if (items.length && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
               }
-            },
-            { rootMargin: '0px 0px -6% 0px', threshold: 0.1 }
-          );
-          items.forEach((item) => observer.observe(item));
-        } else {
-          items.forEach((item) => item.classList.add('is-visible'));
-        }
-
-        // ── 2. Top Scroll Progress Indicator ──────────────────────────────────
-        const progressBar = document.getElementById('scroll-progress');
-        if (progressBar) {
-          const updateScrollProgress = () => {
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            if (docHeight > 0) {
-              const progress = Math.min(100, Math.max(0, (window.scrollY / docHeight) * 100));
-              progressBar.style.width = `${progress}%`;
             }
-          };
-          window.addEventListener('scroll', updateScrollProgress, { passive: true });
-          updateScrollProgress();
-        }
+          },
+          { rootMargin: '0px 0px -6% 0px', threshold: 0.08 }
+        );
+        items.forEach((item) => observer.observe(item));
+      } else {
+        items.forEach((item) => item.classList.add('is-visible'));
+      }
 
-        // ── 3. Desktop Interactive Cursor Movement Effect ──────────────────────
-        const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        if (isFinePointer && !prefersReducedMotion) {
-          const aura = document.getElementById('cursor-aura');
-          const dot = document.getElementById('cursor-dot');
-          let mouseX = -1000;
-          let mouseY = -1000;
-          let auraX = -1000;
-          let auraY = -1000;
-          let isHovered = false;
-          let isMoving = false;
-
-          document.body.classList.add('has-cursor');
-
-          const onMouseMove = (e: MouseEvent) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            document.body.style.setProperty('--cursor-x', `${mouseX}px`);
-            document.body.style.setProperty('--cursor-y', `${mouseY}px`);
-
-            if (!isMoving) {
-              isMoving = true;
-              requestAnimationFrame(renderCursor);
+      // Reading progress along the top edge. One passive listener, one rAF.
+      const bar = document.getElementById('scroll-progress');
+      if (bar) {
+        let queued = false;
+        const update = () => {
+          queued = false;
+          const max = document.documentElement.scrollHeight - innerHeight;
+          bar.style.width = max > 0 ? `${Math.min(100, (scrollY / max) * 100)}%` : '0%';
+        };
+        addEventListener(
+          'scroll',
+          () => {
+            if (!queued) {
+              queued = true;
+              requestAnimationFrame(update);
             }
-          };
-
-          const onMouseDown = () => {
-            aura?.classList.add('is-active');
-          };
-
-          const onMouseUp = () => {
-            aura?.classList.remove('is-active');
-          };
-
-          const onMouseLeave = () => {
-            document.body.classList.remove('has-cursor');
-          };
-
-          const onMouseEnter = () => {
-            document.body.classList.add('has-cursor');
-          };
-
-          // Smooth lerp physics for cursor halo
-          const renderCursor = () => {
-            // Lerp factor
-            const speed = isHovered ? 0.22 : 0.16;
-            auraX += (mouseX - auraX) * speed;
-            auraY += (mouseY - auraY) * speed;
-
-            if (aura) {
-              aura.style.transform = `translate3d(${auraX}px, ${auraY}px, 0)`;
-            }
-            if (dot) {
-              dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
-            }
-
-            // Keep loop active while moving
-            if (Math.abs(mouseX - auraX) > 0.1 || Math.abs(mouseY - auraY) > 0.1) {
-              requestAnimationFrame(renderCursor);
-            } else {
-              isMoving = false;
-            }
-          };
-
-          // Interactive target hover detection (expand cursor on clickable items)
-          const interactiveSelector = 'a, button, input, textarea, select, [role="button"], .card-flat, .card-interactive, [data-interactive]';
-
-          document.addEventListener('mouseover', (e) => {
-            const target = e.target as HTMLElement | null;
-            if (target && target.closest(interactiveSelector)) {
-              isHovered = true;
-              aura?.classList.add('is-hovering');
-            }
-          });
-
-          document.addEventListener('mouseout', (e) => {
-            const target = e.target as HTMLElement | null;
-            if (target && target.closest(interactiveSelector)) {
-              isHovered = false;
-              aura?.classList.remove('is-hovering');
-            }
-          });
-
-          window.addEventListener('mousemove', onMouseMove, { passive: true });
-          window.addEventListener('mousedown', onMouseDown);
-          window.addEventListener('mouseup', onMouseUp);
-          document.addEventListener('mouseleave', onMouseLeave);
-          document.addEventListener('mouseenter', onMouseEnter);
-        }
-      })();
+          },
+          { passive: true }
+        );
+        update();
+      }
     </script>
     <script src={withBase('/scripts/site-bridge.js')} is:inline></script>
   </body>
