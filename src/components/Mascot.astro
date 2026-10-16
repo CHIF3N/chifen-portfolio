@@ -1,0 +1,504 @@
+---
+/**
+ * Byte: a tiny chibi nurse-coder who lives in the bottom corner. An original
+ * character drawn for this site (nurse cap, round glasses, headphones, a lime
+ * laptop), not a copy of any existing anime character.
+ *
+ * - Click (or Enter/Space) to open a chat that answers questions about Chifen
+ *   from the site's own content, via the /api/ask Vercel Function.
+ * - Every so often, on desktop, Byte takes a short stroll along the bottom
+ *   edge and walks back. No strolling with reduced motion or on touch screens.
+ * - "Nap" hides Byte for the rest of the session.
+ */
+import { site } from '../lib/site';
+const email = site.emails[0];
+const suggestions = [
+  'What is LifeDrop?',
+  'Tell me about the AI research',
+  "What's Chifen studying now?",
+  'How do I work with him?',
+];
+---
+
+<div id="byte" class="byte" data-mascot>
+  <p class="byte-bubble" id="byte-bubble" aria-hidden="true">psst… ask me about Chifen</p>
+
+  <button type="button" class="byte-btn" id="byte-btn" aria-expanded="false" aria-controls="byte-chat" aria-label="Ask Byte, the site's AI helper, about Chifen">
+    <svg class="byte-svg" viewBox="0 0 120 140" aria-hidden="true">
+      <!-- shadow -->
+      <ellipse cx="60" cy="134" rx="26" ry="4.5" fill="rgba(25,25,25,.18)" />
+      <!-- feet -->
+      <g class="byte-foot byte-foot--l"><ellipse cx="48" cy="128" rx="9" ry="5.5" fill="#191919" /></g>
+      <g class="byte-foot byte-foot--r"><ellipse cx="72" cy="128" rx="9" ry="5.5" fill="#191919" /></g>
+      <!-- body: lavender scrubs -->
+      <path d="M33 124 C 31 104, 38 90, 60 89 C 82 90, 89 104, 87 124 Z" fill="#d9ccff" stroke="#191919" stroke-width="2.4" stroke-linejoin="round" />
+      <path d="M50 90 L60 104 L70 90" fill="#fffcf6" stroke="#191919" stroke-width="2" stroke-linejoin="round" />
+      <!-- headphones resting round the neck -->
+      <path d="M40 94 C 42 84, 78 84, 80 94" fill="none" stroke="#315cff" stroke-width="4.5" stroke-linecap="round" />
+      <rect x="34" y="90" width="9" height="12" rx="4" fill="#315cff" stroke="#191919" stroke-width="1.6" />
+      <rect x="77" y="90" width="9" height="12" rx="4" fill="#315cff" stroke="#191919" stroke-width="1.6" />
+      <!-- lime laptop -->
+      <g class="byte-laptop">
+        <rect x="38" y="104" width="44" height="22" rx="3" fill="#d5ff45" stroke="#191919" stroke-width="2.2" />
+        <text x="60" y="119.5" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="10" font-weight="700" fill="#191919">&lt;/&gt;</text>
+      </g>
+      <!-- head -->
+      <circle cx="60" cy="54" r="31" fill="#7a4e33" stroke="#191919" stroke-width="2.4" />
+      <!-- short hair -->
+      <path d="M30 50 C 28 26, 48 16, 62 18 C 80 18, 94 30, 90 50 C 84 40, 76 36, 66 38 C 56 34, 44 38, 30 50 Z" fill="#1c1a19" stroke="#191919" stroke-width="2" stroke-linejoin="round" />
+      <!-- nurse cap with an orange cross -->
+      <g transform="rotate(-10 60 22)">
+        <path d="M42 26 L46 12 L74 12 L78 26 Z" fill="#fffcf6" stroke="#191919" stroke-width="2.2" stroke-linejoin="round" />
+        <path d="M58 14.5 h4 v3.5 h3.5 v4 h-3.5 v3.5 h-4 v-3.5 h-3.5 v-4 h3.5 z" fill="#ff8247" />
+      </g>
+      <!-- blush -->
+      <ellipse cx="41" cy="66" rx="5.5" ry="3" fill="#ff8247" opacity=".45" />
+      <ellipse cx="79" cy="66" rx="5.5" ry="3" fill="#ff8247" opacity=".45" />
+      <!-- big anime eyes -->
+      <g class="byte-eyes">
+        <ellipse cx="48" cy="56" rx="5.5" ry="7" fill="#191919" />
+        <ellipse cx="72" cy="56" rx="5.5" ry="7" fill="#191919" />
+        <circle cx="50" cy="53" r="2.2" fill="#fff" />
+        <circle cx="74" cy="53" r="2.2" fill="#fff" />
+        <circle cx="46.5" cy="59" r="1" fill="#fff" />
+        <circle cx="70.5" cy="59" r="1" fill="#fff" />
+      </g>
+      <!-- round glasses -->
+      <circle cx="48" cy="56" r="10" fill="none" stroke="#191919" stroke-width="2" />
+      <circle cx="72" cy="56" r="10" fill="none" stroke="#191919" stroke-width="2" />
+      <path d="M58 55 Q60 53 62 55" fill="none" stroke="#191919" stroke-width="2" />
+      <!-- smile -->
+      <path d="M55 72 Q60 76 65 72" fill="none" stroke="#191919" stroke-width="2.2" stroke-linecap="round" />
+    </svg>
+  </button>
+
+  <section id="byte-chat" class="byte-chat" role="dialog" aria-modal="false" aria-labelledby="byte-title" hidden>
+    <header class="byte-chat-head">
+      <div>
+        <h2 id="byte-title" class="font-display text-lg font-semibold">Byte <span class="hand text-xl font-normal text-slate">· asks &amp; answers</span></h2>
+        <p class="text-[0.72rem] text-slate">An AI helper. It answers from this site's content and can still be wrong.</p>
+      </div>
+      <button type="button" class="byte-icon-btn" data-byte-close aria-label="Close chat">✕</button>
+    </header>
+
+    <div class="byte-log" id="byte-log" aria-live="polite">
+      <p class="byte-msg byte-msg--bot">Hi! I'm Byte. Ask me about Chifen's projects, research, studies, or how to reach him.</p>
+    </div>
+
+    <div class="byte-suggest" id="byte-suggest">
+      {suggestions.map((s) => <button type="button" class="byte-chip">{s}</button>)}
+    </div>
+
+    <form class="byte-form" id="byte-form">
+      <label for="byte-input" class="sr-only">Your question</label>
+      <input id="byte-input" type="text" maxlength="600" autocomplete="off" placeholder="Ask something…" required />
+      <button type="submit" class="byte-send" aria-label="Send question">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+      </button>
+    </form>
+    <p class="byte-foot-note">
+      Prefer a human? <a class="ink-link" href={`mailto:${email}`}>{email}</a> ·
+      <button type="button" class="byte-nap" data-byte-nap>let Byte nap</button>
+    </p>
+  </section>
+</div>
+
+<style>
+  .byte {
+    position: fixed;
+    right: 1rem;
+    bottom: 0.75rem;
+    z-index: 40;
+    pointer-events: none;
+  }
+  .byte > * {
+    pointer-events: auto;
+  }
+  .byte-btn {
+    display: block;
+    width: 4.6rem;
+    height: 5.4rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transform: translateX(var(--walk, 0px));
+    transition: transform var(--walk-time, 0s) linear;
+  }
+  @media (min-width: 768px) {
+    .byte-btn {
+      width: 5.6rem;
+      height: 6.5rem;
+    }
+  }
+  .byte-btn:focus-visible {
+    outline-offset: 2px;
+    border-radius: 12px;
+  }
+  .byte-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transform-origin: 50% 100%;
+    transition: transform 0.3s var(--ease-paper);
+  }
+  .byte-btn:hover .byte-svg {
+    transform: translateY(-4px) rotate(-4deg);
+  }
+
+  /* Blink: the eyes squash for a moment every few seconds. */
+  .byte-eyes {
+    transform-origin: 60px 56px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .byte-eyes {
+      animation: byte-blink 5.5s infinite;
+    }
+    .byte.is-walking .byte-foot--l {
+      animation: byte-step 0.42s ease-in-out infinite;
+    }
+    .byte.is-walking .byte-foot--r {
+      animation: byte-step 0.42s ease-in-out infinite 0.21s;
+    }
+    .byte.is-walking .byte-svg {
+      animation: byte-bob 0.42s ease-in-out infinite;
+    }
+    .byte-chat:not([hidden]) {
+      animation: byte-pop 0.3s var(--ease-paper);
+    }
+  }
+  @keyframes byte-blink {
+    0%, 94%, 100% { transform: scaleY(1); }
+    96% { transform: scaleY(0.1); }
+  }
+  @keyframes byte-step {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  @keyframes byte-bob {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -2px; }
+  }
+  @keyframes byte-pop {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  }
+
+  .byte-bubble {
+    position: absolute;
+    right: 4.2rem;
+    bottom: 4.6rem;
+    width: max-content;
+    max-width: 12rem;
+    padding: 0.35rem 0.7rem;
+    background: var(--sheet);
+    border: 1.5px solid var(--color-ink);
+    border-radius: 14px 14px 2px 14px;
+    font-family: var(--font-hand);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    box-shadow: 3px 3px 0 var(--color-ink);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s var(--ease-paper);
+    pointer-events: none;
+  }
+  .byte-bubble.is-on {
+    opacity: 1;
+    transform: none;
+  }
+
+  .byte-chat {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 0.5rem);
+    display: flex;
+    flex-direction: column;
+    width: min(23rem, calc(100vw - 2rem));
+    max-height: min(34rem, calc(100dvh - 9rem));
+    background: var(--sheet);
+    border: 1.5px solid var(--color-ink);
+    border-radius: 14px;
+    box-shadow: 6px 6px 0 var(--color-ink);
+    overflow: hidden;
+  }
+  .byte-chat[hidden] {
+    display: none;
+  }
+  .byte-chat-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 0.9rem 0.6rem;
+    background: var(--paper-dim);
+    border-bottom: 1.5px solid var(--color-ink);
+  }
+  .byte-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    border: 1.5px solid var(--color-ink);
+    border-radius: 999px;
+    background: var(--sheet);
+  }
+  .byte-icon-btn:hover {
+    background: var(--lime);
+    color: #191919;
+  }
+  .byte-log {
+    flex: 1;
+    min-height: 6rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.9rem;
+    background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.6rem - 1px), color-mix(in oklab, var(--cobalt) 12%, transparent) calc(1.6rem - 1px), color-mix(in oklab, var(--cobalt) 12%, transparent) 1.6rem);
+  }
+  .byte-msg {
+    max-width: 88%;
+    padding: 0.55rem 0.75rem;
+    border: 1.3px solid var(--color-ink);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .byte-msg :global(a) {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+  }
+  .byte-msg--bot {
+    align-self: flex-start;
+    background: var(--lavender);
+    color: #191919;
+    border-radius: 12px 12px 12px 3px;
+  }
+  .byte-msg--me {
+    align-self: flex-end;
+    background: var(--lime);
+    color: #191919;
+    border-radius: 12px 12px 3px 12px;
+  }
+  .byte-msg--typing {
+    font-family: var(--font-hand);
+    font-size: 1.15rem;
+  }
+  .byte-suggest {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0 0.9rem 0.6rem;
+  }
+  .byte-chip {
+    border: 1.2px solid var(--color-ink);
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
+    background: var(--sheet);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .byte-chip:hover {
+    background: var(--lime);
+    color: #191919;
+  }
+  .byte-form {
+    display: flex;
+    gap: 0.45rem;
+    padding: 0.6rem 0.9rem;
+    border-top: 1.5px dashed var(--color-line);
+  }
+  .byte-form input {
+    flex: 1;
+    min-width: 0;
+    border: 1.5px solid var(--color-ink);
+    border-radius: 999px;
+    background: var(--color-paper);
+    padding: 0.55rem 0.9rem;
+    font-size: 0.9rem;
+    outline: none;
+  }
+  .byte-send {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    flex-shrink: 0;
+    border: 1.5px solid var(--color-ink);
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .byte-send:disabled {
+    opacity: 0.5;
+  }
+  .byte-foot-note {
+    padding: 0 0.9rem 0.7rem;
+    font-size: 0.72rem;
+    color: var(--color-slate);
+  }
+  .byte-nap {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  @media print {
+    .byte {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const root = document.getElementById('byte');
+  const btn = document.getElementById('byte-btn') as HTMLButtonElement | null;
+  const chat = document.getElementById('byte-chat');
+  const log = document.getElementById('byte-log');
+  const form = document.getElementById('byte-form') as HTMLFormElement | null;
+  const input = document.getElementById('byte-input') as HTMLInputElement | null;
+  const bubble = document.getElementById('byte-bubble');
+  const suggest = document.getElementById('byte-suggest');
+
+  const store = {
+    get(k: string) {
+      try { return sessionStorage.getItem(k); } catch { return null; }
+    },
+    set(k: string, v: string) {
+      try { sessionStorage.setItem(k, v); } catch {}
+    },
+  };
+
+  type Msg = { role: 'user' | 'assistant'; content: string };
+  let history: Msg[] = [];
+  try {
+    history = JSON.parse(store.get('byte-history') ?? '[]');
+  } catch {}
+
+  if (store.get('byte-nap') === '1') root?.remove();
+
+  const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  // Escape first, then link site paths and full URLs. Nothing else becomes HTML.
+  const linkify = (s: string) =>
+    esc(s)
+      .replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+      .replace(/(^|[\s(])(\/(?:work|research|blog|about|contact|cv|experiments|journey|talks|archive|services|experience)(?:\/[a-z0-9-]+)?)/g, '$1<a href="$2">$2</a>')
+      .replace(/([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/gi, '<a href="mailto:$1">$1</a>');
+
+  const addMsg = (role: 'me' | 'bot', text: string, extra = '') => {
+    const p = document.createElement('p');
+    p.className = `byte-msg byte-msg--${role} ${extra}`.trim();
+    p.innerHTML = linkify(text);
+    log?.appendChild(p);
+    log && (log.scrollTop = log.scrollHeight);
+    return p;
+  };
+
+  history.forEach((m) => addMsg(m.role === 'user' ? 'me' : 'bot', m.content));
+  if (history.length && suggest) suggest.hidden = true;
+
+  const open = () => {
+    if (!chat || !btn) return;
+    chat.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    bubble?.classList.remove('is-on');
+    stopWalk();
+    input?.focus();
+  };
+  const close = () => {
+    if (!chat || !btn) return;
+    chat.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    btn.focus();
+  };
+
+  btn?.addEventListener('click', () => (chat?.hidden ? open() : close()));
+  chat?.querySelector('[data-byte-close]')?.addEventListener('click', close);
+  chat?.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'Escape') close();
+  });
+  chat?.querySelector('[data-byte-nap]')?.addEventListener('click', () => {
+    store.set('byte-nap', '1');
+    root?.remove();
+  });
+
+  async function ask(question: string) {
+    if (!question.trim() || !form) return;
+    if (suggest) suggest.hidden = true;
+    addMsg('me', question);
+    history.push({ role: 'user', content: question });
+    const typing = addMsg('bot', 'thinking…', 'byte-msg--typing');
+    const send = form.querySelector('button') as HTMLButtonElement;
+    send.disabled = true;
+    try {
+      const res = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history.slice(-8) }),
+      });
+      const data = await res.json().catch(() => ({}));
+      const answer = data.answer ?? data.error ?? 'Something went sideways. Try again in a moment.';
+      typing.remove();
+      addMsg('bot', answer);
+      if (data.answer) history.push({ role: 'assistant', content: data.answer });
+    } catch {
+      typing.remove();
+      addMsg('bot', "I can't reach my brain from here. You can always email Chifen at chifensama0@gmail.com.");
+    } finally {
+      send.disabled = false;
+      store.set('byte-history', JSON.stringify(history.slice(-12)));
+      input?.focus();
+    }
+  }
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = input?.value ?? '';
+    if (input) input.value = '';
+    ask(q);
+  });
+  suggest?.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => ask(b.textContent ?? '')));
+
+  // A one-time hello per visit.
+  if (!store.get('byte-hello') && bubble) {
+    setTimeout(() => {
+      if (chat?.hidden) bubble.classList.add('is-on');
+      store.set('byte-hello', '1');
+      setTimeout(() => bubble.classList.remove('is-on'), 5000);
+    }, 6000);
+  }
+
+  // Occasional stroll along the bottom edge: desktop, motion allowed, chat closed.
+  const canWalk = matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1024px)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let walkTimer = 0;
+  function stopWalk() {
+    clearTimeout(walkTimer);
+    root?.classList.remove('is-walking', 'is-facing-left');
+    btn?.style.setProperty('--walk-time', '0.6s');
+    btn?.style.setProperty('--walk', '0px');
+  }
+  function stroll() {
+    if (!root || !btn || !chat?.hidden || document.hidden) return schedule();
+    const distance = Math.round(160 + Math.random() * Math.min(420, innerWidth * 0.35));
+    const time = distance / 55;
+    root.classList.add('is-walking', 'is-facing-left');
+    btn.style.setProperty('--walk-time', `${time}s`);
+    btn.style.setProperty('--walk', `-${distance}px`);
+    walkTimer = window.setTimeout(() => {
+      root.classList.remove('is-facing-left');
+      btn.style.setProperty('--walk', '0px');
+      walkTimer = window.setTimeout(() => {
+        root.classList.remove('is-walking');
+        schedule();
+      }, time * 1000);
+    }, time * 1000 + 900);
+  }
+  function schedule() {
+    walkTimer = window.setTimeout(stroll, 35000 + Math.random() * 40000);
+  }
+  if (canWalk) schedule();
+</script>

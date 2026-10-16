@@ -1,0 +1,35 @@
+---
+/** One inline hand-drawn mark. Decorative only. */
+import { doodles, type DoodleName } from '../lib/doodles';
+interface Props {
+  name: DoodleName;
+  class?: string;
+  size?: number;
+  rotate?: number;
+  color?: string;
+}
+const { name, class: className, size = 36, rotate = 0, color = 'currentColor' } = Astro.props;
+---
+
+<svg
+  class:list={['scribble inline-doodle', className]}
+  viewBox="0 0 100 100"
+  width={size}
+  height={size}
+  style={`rotate:${rotate}deg;color:${color}`}
+  aria-hidden="true"
+  data-doodle
+>
+  <path d={doodles[name]} />
+</svg>
+
+<style>
+  .inline-doodle {
+    flex-shrink: 0;
+    pointer-events: none;
+  }
+  .inline-doodle path {
+    stroke-width: 3.4;
+    vector-effect: non-scaling-stroke;
+  }
+</style>

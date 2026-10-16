@@ -1,0 +1,304 @@
+/* ==========================================================================
+   Paper IDE: the shared look for every code block on the blog.
+   Markdown fences (enhanced by CodeIDE.astro) and the multi-file
+   CodeWorkbench both read these tokens, so they stay one family.
+   Syntax colours come from the Shiki paper themes (src/lib/shiki-paper.mjs)
+   as --shiki-light / --shiki-dark custom properties.
+   ========================================================================== */
+
+:root {
+  --ide-frame: #191919;
+  --ide-bg: #fffcf6;
+  --ide-bar: #ece5d8;
+  --ide-side: #f5f0e7;
+  --ide-tab: #f5f0e7;
+  --ide-tab-active: #fffcf6;
+  --ide-line: #e3dacb;
+  --ide-text: #2c2925;
+  --ide-muted: #7a7369;
+  --ide-ln: #b3aa9a;
+  --ide-ln-active: #191919;
+  --ide-hover: rgba(213, 255, 69, 0.18);
+  --ide-active: rgba(213, 255, 69, 0.42);
+  --ide-status: #191919;
+  --ide-status-ink: #f5f0e7;
+  --ide-font: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'SF Mono', Consolas, monospace;
+}
+:root[data-theme='dark'] {
+  --ide-frame: #f2ede3;
+  --ide-bg: #1d1b18;
+  --ide-bar: #26231f;
+  --ide-side: #1a1815;
+  --ide-tab: #1a1815;
+  --ide-tab-active: #1d1b18;
+  --ide-line: #34302a;
+  --ide-text: #ece6da;
+  --ide-muted: #a39b8e;
+  --ide-ln: #5c564e;
+  --ide-ln-active: #d5ff45;
+  --ide-hover: rgba(213, 255, 69, 0.06);
+  --ide-active: rgba(213, 255, 69, 0.14);
+  --ide-status: #d5ff45;
+  --ide-status-ink: #191919;
+}
+
+/* Shiki dual theme: pick the right colour per theme. */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style);
+  font-weight: var(--shiki-light-font-weight);
+}
+:root[data-theme='dark'] .astro-code,
+:root[data-theme='dark'] .astro-code span {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style);
+  font-weight: var(--shiki-dark-font-weight);
+}
+
+/* ---------------------------------------------------------------- frame */
+.pide {
+  position: relative;
+  margin-block: 2rem;
+  border: 1.5px solid var(--ide-frame);
+  border-radius: 12px;
+  background: var(--ide-bg);
+  box-shadow: 5px 5px 0 var(--ide-frame);
+  overflow: hidden;
+  font-family: var(--ide-font);
+  font-size: 0.8125rem;
+  color: var(--ide-text);
+  rotate: var(--r, 0deg);
+}
+/* A strip of tape holding the window to the page. */
+.pide::before {
+  content: '';
+  position: absolute;
+  top: -0.55rem;
+  left: 46%;
+  width: 5.5rem;
+  height: 1.3rem;
+  background: rgba(243, 230, 181, 0.85);
+  rotate: -3deg;
+  z-index: 3;
+  pointer-events: none;
+  clip-path: polygon(3% 0, 97% 4%, 100% 50%, 96% 100%, 2% 96%, 0 48%);
+}
+
+.pide-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.45rem 0.6rem 0.45rem 0.75rem;
+  background: var(--ide-bar);
+  border-bottom: 1.5px solid var(--ide-frame);
+  font-family: var(--font-sans);
+}
+.pide-dots {
+  display: inline-flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+.pide-dots i {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 99px;
+  border: 1.2px solid var(--ide-frame);
+  background: var(--orange);
+}
+.pide-dots i:nth-child(2) {
+  background: var(--lime);
+}
+.pide-dots i:nth-child(3) {
+  background: var(--lavender);
+}
+.pide-crumbs {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ide-muted);
+}
+.pide-crumbs b {
+  color: var(--ide-text);
+}
+.pide-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+.pide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.9rem;
+  padding: 0 0.6rem;
+  border: 1.2px solid var(--ide-frame);
+  border-radius: 999px;
+  background: var(--ide-bg);
+  color: var(--ide-text);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+.pide-btn:hover {
+  background: var(--lime);
+  color: #191919;
+  transform: translateY(-1px);
+}
+.pide-btn[aria-pressed='true'] {
+  background: var(--ide-frame);
+  color: var(--ide-bg);
+}
+.pide-btn.is-ok {
+  background: var(--lime);
+  color: #191919;
+}
+@media (max-width: 520px) {
+  .pide-btn span {
+    display: none;
+  }
+}
+
+.pide-tabs {
+  display: flex;
+  background: var(--ide-tab);
+  border-bottom: 1px solid var(--ide-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+  font-family: var(--font-sans);
+}
+.pide-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  background: var(--ide-tab-active);
+  border-right: 1px solid var(--ide-line);
+  box-shadow: inset 0 2px 0 var(--cobalt);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pide-lang-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 99px;
+  background: var(--dot, var(--ide-muted));
+}
+
+/* ---------------------------------------------------------------- code */
+.pide-body {
+  position: relative;
+}
+.pide pre {
+  margin: 0 !important;
+  padding: 0.75rem 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--ide-bg) !important;
+  overflow-x: auto;
+  font-family: var(--ide-font) !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.7 !important;
+  tab-size: 2;
+  counter-reset: ln;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ide-ln) transparent;
+}
+.pide pre code {
+  display: grid;
+  min-width: fit-content;
+  background: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+  font: inherit !important;
+}
+.pide .line {
+  display: block;
+  position: relative;
+  padding: 0 1.25rem 0 3.6rem;
+  min-height: 1.7em;
+  cursor: text;
+}
+.pide .line::before {
+  counter-increment: ln;
+  content: counter(ln);
+  position: absolute;
+  left: 0;
+  width: 2.6rem;
+  padding-right: 0.6rem;
+  text-align: right;
+  color: var(--ide-ln);
+  border-right: 1px solid var(--ide-line);
+  user-select: none;
+}
+.pide .line:hover {
+  background: var(--ide-hover);
+}
+.pide .line.is-active {
+  background: var(--ide-active);
+}
+.pide .line.is-active::before {
+  color: var(--ide-ln-active);
+  font-weight: 700;
+}
+.pide.is-wrapped pre code {
+  min-width: 0;
+}
+.pide.is-wrapped .line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Long blocks fold until opened. */
+.pide.is-folded .pide-body {
+  max-height: 22rem;
+  overflow: hidden;
+}
+.pide-fold {
+  display: none;
+}
+.pide.is-foldable .pide-fold {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem;
+  background: var(--ide-bg);
+  border-top: 1px dashed var(--ide-line);
+}
+.pide.is-folded .pide-fold {
+  position: absolute;
+  inset: auto 0 1.75rem 0;
+  padding-top: 3rem;
+  border-top: 0;
+  background: linear-gradient(to bottom, transparent, var(--ide-bg) 60%);
+}
+
+/* ---------------------------------------------------------------- status bar */
+.pide-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.2rem 0.75rem;
+  background: var(--ide-status);
+  color: var(--ide-status-ink);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.pide-status .push {
+  margin-left: auto;
+}
+@media (max-width: 520px) {
+  .pide-status .opt {
+    display: none;
+  }
+}

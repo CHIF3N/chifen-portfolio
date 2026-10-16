@@ -21,7 +21,7 @@ const tones = ['var(--lime)', 'var(--lavender)', '#ffb48c', '#c9d4ff'];
 const tone = tones[index % tones.length];
 ---
 
-<article class="paper lift work-card flex h-full flex-col" style={`--r:${tilt}deg`}>
+<article class="paper creased lift work-card flex h-full flex-col" style={`--r:${tilt}deg`}>
   {index % 3 === 0 && <span class="tape" style="top:-0.7rem;left:1.25rem;--tr:-5deg" aria-hidden="true" />}
   <div class="work-card-visual" style={`--tone:${tone}`}>
     {

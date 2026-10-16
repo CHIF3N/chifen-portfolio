@@ -3,6 +3,8 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CommandPalette from '../components/CommandPalette.astro';
+import Doodles from '../components/Doodles.astro';
+import Mascot from '../components/Mascot.astro';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
 
@@ -114,6 +116,16 @@ const profileSchema = {
   mainEntity: { '@id': `${siteOrigin}/#person` },
 };
 
+/* Which margin doodles this page gets. Admin tools get none. */
+const path = Astro.url.pathname;
+const doodleSet = noindex && !title?.includes('Missing')
+  ? null
+  : path === '/' ? 'home'
+  : path.startsWith('/work') || path.startsWith('/experiments') ? 'work'
+  : path.startsWith('/blog') ? 'blog'
+  : path.startsWith('/about') || path.startsWith('/journey') ? 'about'
+  : 'default';
+
 const extra = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
 const schemas = noindex ? [] : [personSchema, websiteSchema, ...(profile ? [profileSchema] : []), ...extra];
 ---
@@ -176,6 +188,20 @@ const schemas = noindex ? [] : [personSchema, websiteSchema, ...(profile ? [prof
         document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
         document.documentElement.classList.toggle('dark', isDark);
       } catch (e) {}
+      // Print is always the light theme, so dark-only classes never reach paper.
+      (function () {
+        var root = document.documentElement, saved = null;
+        addEventListener('beforeprint', function () {
+          saved = root.dataset.theme || null;
+          root.dataset.theme = 'light';
+          root.classList.remove('dark');
+        });
+        addEventListener('afterprint', function () {
+          if (saved) root.dataset.theme = saved;
+          root.classList.toggle('dark', saved === 'dark');
+        });
+        if (matchMedia('print').matches) { root.dataset.theme = 'light'; root.classList.remove('dark'); }
+      })();
     </script>
   </head>
 
@@ -192,12 +218,14 @@ const schemas = noindex ? [] : [personSchema, websiteSchema, ...(profile ? [prof
     <div data-pagefind-ignore>
       <Header />
     </div>
-    <main id="main" data-pagefind-body data-pagefind-meta={`title:${title ?? site.displayName}`}>
+    <main id="main" class="relative" data-pagefind-body data-pagefind-meta={`title:${title ?? site.displayName}`}>
+      {doodleSet && <Doodles set={doodleSet as any} />}
       <slot />
     </main>
     <div data-pagefind-ignore>
       <Footer />
       <CommandPalette />
+      {!noindex && <Mascot />}
     </div>
 
     <script>
@@ -243,5 +271,20 @@ const schemas = noindex ? [] : [personSchema, websiteSchema, ...(profile ? [prof
       }
     </script>
     <script src={withBase('/scripts/site-bridge.js')} is:inline></script>
+    {
+      /* Vercel Web Analytics: cookieless page views, only on the Vercel deployment
+         (the script path does not exist on GitHub Pages or in dev). Admin is excluded. */
+      import.meta.env.PROD && !noindex && (
+        <script is:inline>
+          if (!/github\.io$|localhost|127\.0\.0\.1/.test(location.hostname)) {
+            window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+            var va = document.createElement('script');
+            va.defer = true;
+            va.src = '/_vercel/insights/script.js';
+            document.head.appendChild(va);
+          }
+        </script>
+      )
+    }
   </body>
 </html>
