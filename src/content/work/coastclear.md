@@ -34,7 +34,10 @@ Building genuinely trilingual software is harder than adding a language toggle. 
 
 ## Screenshots
 
-No gallery here. It is live and free to click through: [coastclear-web.web.app](https://coastclear-web.web.app).
+It is live and free to click through: [coastclear-web.web.app](https://coastclear-web.web.app). Two screens from the phone version:
+
+![CoastClear's reporter home screen with the Report Rubbish Now button and reporting stats](/work/coastclear/home.jpg)
+![CoastClear's live beach map of the Cameroonian coast, from Limbe Down Beach to Idenau](/work/coastclear/beach-map.jpg)
 
 ## Architecture
 

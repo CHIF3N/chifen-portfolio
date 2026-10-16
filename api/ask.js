@@ -123,8 +123,11 @@ async function complete({ url, key }, model, messages) {
   const data = await res.json();
   const text = data?.choices?.[0]?.message?.content?.trim();
   if (!text) throw new Error(`empty`);
-  // Some reasoning models wrap their thinking in <think> tags; visitors only need the answer.
-  return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  // Strip hidden reasoning (<think> blocks) and the zero-width characters some models slip into links.
+  return text
+    .replace(/<think>[\s\S]*?<\/think>/g, '')
+    .replace(/[​-‍⁠﻿]/g, '')
+    .trim();
 }
 
 async function callModel(provider, messages) {

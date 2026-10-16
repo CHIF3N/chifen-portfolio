@@ -106,6 +106,14 @@ const deskFiles = [
 ];
 
 /* Milestones that appear, with sources, on /about and /journey. */
+/* Real moments from the archive, shown as a taped contact sheet. */
+const contactSheet = [
+  { src: '/archive/yamo-pitch-season-4.jpg', w: 964, h: 1280, alt: 'Chifen on the MTN YaMo Pitch Season 4 stage holding the prize cheque.', note: 'YaMo S4, 3rd', r: -3 },
+  { src: '/archive/agrobot-ict-week-demo.jpg', w: 958, h: 1280, alt: 'The Agrobot prototype being demonstrated to officials at Presidential ICT Week.', note: 'the Agrobot', r: 2.5 },
+  { src: '/archive/air-sanitizer-prime-hour.jpg', w: 960, h: 540, alt: 'Chifen on the Prime Hour TV set talking about the air sanitiser prototype.', note: 'on TV, 2020', r: -1.5 },
+  { src: '/archive/ayodah-team-event.jpg', w: 960, h: 719, alt: 'The Ayodah team in red T-shirts at an outreach event.', note: 'team Ayodah', r: 3 },
+];
+
 const milestones = [
   { year: '2020', text: 'Co-founded Ayodah, a blood donor platform.' },
   { year: '2022', text: 'Ayodah won the Silicon Mountain Challenge.' },
@@ -412,6 +420,20 @@ const questTones = ['sticky-note--paper', 'sticky-note--orange', 'sticky-note--l
             actually there: low data, unreliable power, a phone rather than a laptop.
           </p>
         </div>
+
+        <ul class="contact-sheet mt-10" role="list" aria-label="Moments from the archive">
+          {
+            contactSheet.map((c, i) => (
+              <li data-reveal style={`--reveal-delay:${i * 70}ms`}>
+                <a href={withBase('/archive')} class="snap" style={`--r:${c.r}deg`}>
+                  <span class="tape" style="top:-0.55rem;left:30%;width:3.5rem;height:1.1rem" aria-hidden="true" />
+                  <img src={withBase(c.src)} alt={c.alt} width={c.w} height={c.h} loading="lazy" decoding="async" />
+                  <span class="hand snap-note">{c.note}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
 
         <ol class="milestones mt-10" aria-label="Milestones">
           {
@@ -771,6 +793,50 @@ const questTones = ['sticky-note--paper', 'sticky-note--orange', 'sticky-note--l
       right: -3rem;
     }
   }
+  .contact-sheet {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1rem;
+  }
+  @media (min-width: 640px) {
+    .contact-sheet {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .snap {
+    position: relative;
+    display: block;
+    padding: 0.4rem 0.4rem 1.9rem;
+    background: #fffcf6;
+    border-radius: 2px;
+    box-shadow: var(--shadow-paper);
+    rotate: var(--r);
+    transition: rotate 0.35s var(--ease-paper), transform 0.35s var(--ease-paper), box-shadow 0.3s ease;
+  }
+  .snap img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+  .snap-note {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.3rem;
+    text-align: center;
+    font-size: 1.05rem;
+    color: #2c2925;
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .snap:hover {
+      rotate: 0deg;
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: var(--shadow-lift);
+      z-index: 2;
+    }
+  }
+
   .milestones {
     display: grid;
     gap: 0;

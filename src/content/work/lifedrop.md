@@ -36,7 +36,12 @@ We spent a year arguing with our own users about where they should ask for help.
 
 ## Screenshots
 
-No gallery here. The donor flow on the website is live and walkable today, not a mockup: [lifedropcam.netlify.app](https://lifedropcam.netlify.app/).
+The donor flow on the website is live and walkable today, not a mockup: [lifedropcam.netlify.app](https://lifedropcam.netlify.app/).
+
+The WhatsApp bot is a working prototype, so these screens come from a test number: registering as a donor in a few taps, then logging a blood request and getting matched donors in Buea.
+
+![LifeDrop's WhatsApp prototype on a test number: the welcome menu and donor registration flow](/work/lifedrop/whatsapp-register.jpg)
+![LifeDrop's WhatsApp prototype: a returning donor logs a blood request with blood type, city, hospital and urgency](/work/lifedrop/whatsapp-request.jpg)
 
 ## Architecture
 
