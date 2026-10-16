@@ -179,14 +179,22 @@
 
     // 3. ACTIVE USAGE MEDIA OVERRIDES
     if (overrides.mediaAssets && Array.isArray(overrides.mediaAssets)) {
+      // Swap a photo only if the replacement actually loads; blob: links die on reload.
+      const swap = (selector, url) => {
+        if (!url || /^blob:/.test(url)) return;
+        const probe = new Image();
+        probe.onload = () => {
+          document.querySelectorAll(selector).forEach(img => {
+            img.removeAttribute('srcset');
+            img.src = url;
+          });
+        };
+        probe.src = url;
+      };
       const heroAsset = overrides.mediaAssets.find(a => a.activeUsage === 'hero');
-      if (heroAsset && heroAsset.url) {
-        document.querySelectorAll('img[src*="chifen-portrait"]').forEach(img => img.src = heroAsset.url);
-      }
+      if (heroAsset) swap('img[src*="chifen-portrait"]', heroAsset.url);
       const storyAsset = overrides.mediaAssets.find(a => a.activeUsage === 'story');
-      if (storyAsset && storyAsset.url) {
-        document.querySelectorAll('img[src*="chifen-outdoor-1"]').forEach(img => img.src = storyAsset.url);
-      }
+      if (storyAsset) swap('img[src*="chifen-outdoor-1"]', storyAsset.url);
     }
 
     // 4. SHOW STATUS INDICATOR IF OVERRIDES ACTIVE AND NOT ON /ADMIN
