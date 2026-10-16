@@ -79,7 +79,10 @@ async function callModel({ url, key, model }, messages) {
     body: JSON.stringify({ model, messages, temperature: 0.3, max_tokens: 380 }),
     signal: AbortSignal.timeout(20000),
   });
-  if (!res.ok) throw new Error(`${model} ${res.status}`);
+  if (!res.ok) {
+    const detail = (await res.text().catch(() => '')).slice(0, 160).replace(/\s+/g, ' ');
+    throw new Error(`${res.status} ${detail}`);
+  }
   const data = await res.json();
   const text = data?.choices?.[0]?.message?.content?.trim();
   if (!text) throw new Error(`${model} empty`);
@@ -122,11 +125,13 @@ export default async function handler(req, res) {
 
   const providers = [
     process.env.GROQ_API_KEY && {
+      name: 'groq',
       url: 'https://api.groq.com/openai/v1/chat/completions',
       key: process.env.GROQ_API_KEY,
       model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
     },
     process.env.NVIDIA_API_KEY && {
+      name: 'nvidia',
       url: 'https://integrate.api.nvidia.com/v1/chat/completions',
       key: process.env.NVIDIA_API_KEY,
       model: process.env.NVIDIA_MODEL || 'meta/llama-3.3-70b-instruct',
@@ -138,13 +143,19 @@ export default async function handler(req, res) {
   }
 
   const messages = [{ role: 'system', content: systemPrompt(question) }, ...clean];
+  const failures = [];
   for (const provider of providers) {
     try {
       const answer = await callModel(provider, messages);
       return res.status(200).json({ answer });
     } catch (err) {
-      console.error('ask:', err.message);
+      console.error('ask:', provider.name, err.message);
+      // Provider name and HTTP status only. Never the key.
+      failures.push(`${provider.name} ${String(err.message).split(' ')[0]}`);
     }
   }
-  return res.status(502).json({ error: `Byte's brain is offline for a moment. Try again, or email ${knowledge.person.contact.email}.` });
+  return res.status(502).json({
+    error: `Byte's brain is offline for a moment. Try again, or email ${knowledge.person.contact.email}.`,
+    providers: failures,
+  });
 }
