@@ -1,0 +1,80 @@
+---
+/**
+ * A short strip of real photos for a journey chapter, taped down like prints
+ * in a scrapbook. Used by /journey and the Full Story mode on /about so both
+ * show the same pictures. Photos come from storyData's `photos` field.
+ */
+import { withBase } from '../lib/url';
+
+interface Photo {
+  src: string;
+  alt: string;
+  caption?: string;
+}
+interface Props {
+  photos: Photo[];
+}
+const { photos } = Astro.props;
+const tilts = [-2.5, 1.8, -1.2];
+---
+
+{
+  photos.length > 0 && (
+    <ul class:list={['story-photos', photos.length === 1 && 'story-photos--single']} role="list">
+      {photos.map((p, i) => (
+        <li>
+          <figure class="story-print" style={`--r:${tilts[i % tilts.length]}deg`}>
+            <span class="tape" style="top:-0.6rem;left:32%;width:4rem;height:1.15rem" aria-hidden="true" />
+            <img src={withBase(p.src)} alt={p.alt} loading="lazy" decoding="async" />
+            {p.caption && <figcaption class="hand">{p.caption}</figcaption>}
+          </figure>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .story-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1.4rem 1.1rem;
+    margin-top: 1.5rem;
+    max-width: 40rem;
+  }
+  .story-photos--single {
+    grid-template-columns: minmax(0, 15rem);
+  }
+  .story-print {
+    position: relative;
+    margin: 0;
+    padding: 0.4rem 0.4rem 0.5rem;
+    background: #fffcf6;
+    border-radius: 2px;
+    box-shadow: var(--shadow-paper);
+    rotate: var(--r);
+    transition: rotate 0.35s var(--ease-paper), transform 0.35s var(--ease-paper), box-shadow 0.3s ease;
+  }
+  .story-print img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+  .story-photos--single .story-print img {
+    aspect-ratio: auto;
+  }
+  .story-print figcaption {
+    padding: 0.35rem 0.2rem 0;
+    font-size: 1.05rem;
+    line-height: 1.15;
+    color: #2c2925;
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .story-print:hover {
+      rotate: 0deg;
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: var(--shadow-lift);
+    }
+  }
+</style>
