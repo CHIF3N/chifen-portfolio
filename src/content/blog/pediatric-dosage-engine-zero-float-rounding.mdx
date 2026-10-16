@@ -61,203 +61,203 @@ All codes are clickable, scrollable, copyable, and downloadable:
       name: "src/calculators/pediatricDosing.ts",
       lang: "typescript",
       code: `import { Decimal } from '../math/decimalPrecision';
-import { assertDailyDoseSafety } from '../rules/safetyGuards';
+  import { assertDailyDoseSafety } from '../rules/safetyGuards';
 
-export interface PediatricPatient {
-  id: string;
-  weightKg: number; // e.g. 3.4 kg
-  ageMonths: number;
-}
-
-export interface DrugRegimen {
-  drugName: string;
-  recommendedMgPerKgPerDay: number; // e.g. 30 mg/kg/day
-  dosesPerDay: number;              // e.g. 3 (every 8 hours)
-  stockVialMg: number;              // e.g. 500 mg vial
-  diluentVolumeMl: number;          // e.g. reconstituted in 10 ml
-  maxDailyCapMg?: number;           // hard ceiling regardless of weight
-}
-
-export interface DosageResult {
-  weightKg: number;
-  totalDailyDoseMg: string;
-  singleDoseMg: string;
-  volumeToDrawMl: string;
-  hourlyDripRateGttMin: number; // integer drops per minute
-  safetyApproved: boolean;
-}
-
-/**
- * Calculates deterministic pediatric dose with zero float representation drift.
- */
-export function calculatePediatricDose(
-  patient: PediatricPatient,
-  regimen: DrugRegimen,
-  infusionMinutes = 60
-): DosageResult {
-  const weight = Decimal.from(patient.weightKg);
-  const mgPerKg = Decimal.from(regimen.recommendedMgPerKgPerDay);
-  const frequency = Decimal.from(regimen.dosesPerDay);
-
-  // 1. Total Daily Dose = weight * mg/kg/day
-  const totalDailyMg = weight.mul(mgPerKg);
-
-  // 2. Safety guard check
-  if (regimen.maxDailyCapMg) {
-    assertDailyDoseSafety(
-      regimen.drugName,
-      totalDailyMg.toNumber(),
-      regimen.maxDailyCapMg
-    );
+  export interface PediatricPatient {
+    id: string;
+    weightKg: number; // e.g. 3.4 kg
+    ageMonths: number;
   }
 
-  // 3. Single Dose = total / frequency
-  const singleDoseMg = totalDailyMg.div(frequency);
+  export interface DrugRegimen {
+    drugName: string;
+    recommendedMgPerKgPerDay: number; // e.g. 30 mg/kg/day
+    dosesPerDay: number;              // e.g. 3 (every 8 hours)
+    stockVialMg: number;              // e.g. 500 mg vial
+    diluentVolumeMl: number;          // e.g. reconstituted in 10 ml
+    maxDailyCapMg?: number;           // hard ceiling regardless of weight
+  }
 
-  // 4. Stock concentration = stockVialMg / diluentVolumeMl
-  const stockMg = Decimal.from(regimen.stockVialMg);
-  const diluentMl = Decimal.from(regimen.diluentVolumeMl);
-  const concentrationMgPerMl = stockMg.div(diluentMl);
+  export interface DosageResult {
+    weightKg: number;
+    totalDailyDoseMg: string;
+    singleDoseMg: string;
+    volumeToDrawMl: string;
+    hourlyDripRateGttMin: number; // integer drops per minute
+    safetyApproved: boolean;
+  }
 
-  // 5. Volume to draw = singleDoseMg / concentration
-  const volumeToDrawMl = singleDoseMg.div(concentrationMgPerMl);
+  /**
+   * Calculates deterministic pediatric dose with zero float representation drift.
+   */
+  export function calculatePediatricDose(
+    patient: PediatricPatient,
+    regimen: DrugRegimen,
+    infusionMinutes = 60
+  ): DosageResult {
+    const weight = Decimal.from(patient.weightKg);
+    const mgPerKg = Decimal.from(regimen.recommendedMgPerKgPerDay);
+    const frequency = Decimal.from(regimen.dosesPerDay);
 
-  // 6. Micro-drip flow rate: (volume * 60) / minutes
-  const microDropFactor = Decimal.from(60);
-  const duration = Decimal.from(infusionMinutes);
-  const flowRate = volumeToDrawMl.mul(microDropFactor).div(duration);
+    // 1. Total Daily Dose = weight * mg/kg/day
+    const totalDailyMg = weight.mul(mgPerKg);
 
-  return {
-    weightKg: patient.weightKg,
-    totalDailyDoseMg: totalDailyMg.toFixed(2),
-    singleDoseMg: singleDoseMg.toFixed(3),
-    volumeToDrawMl: volumeToDrawMl.toFixed(3),
-    hourlyDripRateGttMin: Math.round(flowRate.toNumber()),
-    safetyApproved: true,
-  };
-}`
+    // 2. Safety guard check
+    if (regimen.maxDailyCapMg) {
+      assertDailyDoseSafety(
+        regimen.drugName,
+        totalDailyMg.toNumber(),
+        regimen.maxDailyCapMg
+      );
+    }
+
+    // 3. Single Dose = total / frequency
+    const singleDoseMg = totalDailyMg.div(frequency);
+
+    // 4. Stock concentration = stockVialMg / diluentVolumeMl
+    const stockMg = Decimal.from(regimen.stockVialMg);
+    const diluentMl = Decimal.from(regimen.diluentVolumeMl);
+    const concentrationMgPerMl = stockMg.div(diluentMl);
+
+    // 5. Volume to draw = singleDoseMg / concentration
+    const volumeToDrawMl = singleDoseMg.div(concentrationMgPerMl);
+
+    // 6. Micro-drip flow rate: (volume * 60) / minutes
+    const microDropFactor = Decimal.from(60);
+    const duration = Decimal.from(infusionMinutes);
+    const flowRate = volumeToDrawMl.mul(microDropFactor).div(duration);
+
+    return {
+      weightKg: patient.weightKg,
+      totalDailyDoseMg: totalDailyMg.toFixed(2),
+      singleDoseMg: singleDoseMg.toFixed(3),
+      volumeToDrawMl: volumeToDrawMl.toFixed(3),
+      hourlyDripRateGttMin: Math.round(flowRate.toNumber()),
+      safetyApproved: true,
+    };
+  }`
     },
     {
       name: "src/math/decimalPrecision.ts",
       lang: "typescript",
       code: `/**
- * Fixed-point scaling decimal representation to eliminate IEEE 754 float drift.
- * Multiplies by scale factor (10^6) and executes arithmetic on BigInt / scaled integers.
- */
-export class Decimal {
-  private static readonly SCALE = 1_000_000n;
-  private static readonly SCALE_NUM = 1_000_000;
-  private value: bigint;
+   * Fixed-point scaling decimal representation to eliminate IEEE 754 float drift.
+   * Multiplies by scale factor (10^6) and executes arithmetic on BigInt / scaled integers.
+   */
+  export class Decimal {
+    private static readonly SCALE = 1_000_000n;
+    private static readonly SCALE_NUM = 1_000_000;
+    private value: bigint;
 
-  private constructor(rawBigInt: bigint) {
-    this.value = rawBigInt;
-  }
+    private constructor(rawBigInt: bigint) {
+      this.value = rawBigInt;
+    }
 
-  public static from(val: number | string): Decimal {
-    if (typeof val === 'number') {
-      const fixed = val.toFixed(6);
-      const [intPart, fracPart = ''] = fixed.split('.');
+    public static from(val: number | string): Decimal {
+      if (typeof val === 'number') {
+        const fixed = val.toFixed(6);
+        const [intPart, fracPart = ''] = fixed.split('.');
+        const paddedFrac = fracPart.padEnd(6, '0').slice(0, 6);
+        const raw = BigInt(intPart + paddedFrac);
+        return new Decimal(raw);
+      }
+      const [intPart, fracPart = ''] = val.trim().split('.');
       const paddedFrac = fracPart.padEnd(6, '0').slice(0, 6);
-      const raw = BigInt(intPart + paddedFrac);
+      return new Decimal(BigInt(intPart + paddedFrac));
+    }
+
+    public add(other: Decimal): Decimal {
+      return new Decimal(this.value + other.value);
+    }
+
+    public sub(other: Decimal): Decimal {
+      return new Decimal(this.value - other.value);
+    }
+
+    public mul(other: Decimal): Decimal {
+      const raw = (this.value * other.value) / Decimal.SCALE;
       return new Decimal(raw);
     }
-    const [intPart, fracPart = ''] = val.trim().split('.');
-    const paddedFrac = fracPart.padEnd(6, '0').slice(0, 6);
-    return new Decimal(BigInt(intPart + paddedFrac));
-  }
 
-  public add(other: Decimal): Decimal {
-    return new Decimal(this.value + other.value);
-  }
+    public div(other: Decimal): Decimal {
+      if (other.value === 0n) throw new Error('Division by zero in clinical calculation');
+      const raw = (this.value * Decimal.SCALE) / other.value;
+      return new Decimal(raw);
+    }
 
-  public sub(other: Decimal): Decimal {
-    return new Decimal(this.value - other.value);
-  }
+    public toNumber(): number {
+      return Number(this.value) / Decimal.SCALE_NUM;
+    }
 
-  public mul(other: Decimal): Decimal {
-    const raw = (this.value * other.value) / Decimal.SCALE;
-    return new Decimal(raw);
-  }
-
-  public div(other: Decimal): Decimal {
-    if (other.value === 0n) throw new Error('Division by zero in clinical calculation');
-    const raw = (this.value * Decimal.SCALE) / other.value;
-    return new Decimal(raw);
-  }
-
-  public toNumber(): number {
-    return Number(this.value) / Decimal.SCALE_NUM;
-  }
-
-  public toFixed(digits = 2): string {
-    const num = this.toNumber();
-    return num.toFixed(digits);
-  }
-}`
+    public toFixed(digits = 2): string {
+      const num = this.toNumber();
+      return num.toFixed(digits);
+    }
+  }`
     },
     {
       name: "src/rules/safetyGuards.ts",
       lang: "typescript",
       code: `export class LethalOverdoseError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'LethalOverdoseError';
+    constructor(message: string) {
+      super(message);
+      this.name = 'LethalOverdoseError';
+    }
   }
-}
 
-/**
- * Validates that calculated dose does not exceed the clinical maximum threshold
- * established by the British National Formulary (BNF) or WHO Model Formulary.
- */
-export function assertDailyDoseSafety(
-  drugName: string,
-  calculatedTotalDailyMg: number,
-  hardCapDailyMg: number
-): void {
-  if (calculatedTotalDailyMg > hardCapDailyMg) {
-    throw new LethalOverdoseError(
-      \`CRITICAL CLINICAL STOP: Calculated daily dose for \${drugName} (\${calculatedTotalDailyMg.toFixed(
-        2
-      )} mg) exceeds hard hospital safety ceiling of \${hardCapDailyMg} mg.\`
-    );
-  }
-}`
+  /**
+   * Validates that calculated dose does not exceed the clinical maximum threshold
+   * established by the British National Formulary (BNF) or WHO Model Formulary.
+   */
+  export function assertDailyDoseSafety(
+    drugName: string,
+    calculatedTotalDailyMg: number,
+    hardCapDailyMg: number
+  ): void {
+    if (calculatedTotalDailyMg > hardCapDailyMg) {
+      throw new LethalOverdoseError(
+        \`CRITICAL CLINICAL STOP: Calculated daily dose for \${drugName} (\${calculatedTotalDailyMg.toFixed(
+          2
+        )} mg) exceeds hard hospital safety ceiling of \${hardCapDailyMg} mg.\`
+      );
+    }
+  }`
     },
     {
       name: "scripts/verify_dosages.py",
       lang: "python",
       code: `"""
-verify_dosages.py
-Cross-verifies dosage matrices against clinical ward references.
-"""
+  verify_dosages.py
+  Cross-verifies dosage matrices against clinical ward references.
+  """
 
-from decimal import Decimal, ROUND_HALF_UP
+  from decimal import Decimal, ROUND_HALF_UP
 
-def calculate_pediatric_ampicillin(weight_kg: float, mg_per_kg_day: float = 100.0) -> dict:
-    w = Decimal(str(weight_kg))
-    rate = Decimal(str(mg_per_kg_day))
+  def calculate_pediatric_ampicillin(weight_kg: float, mg_per_kg_day: float = 100.0) -> dict:
+      w = Decimal(str(weight_kg))
+      rate = Decimal(str(mg_per_kg_day))
     
-    total_daily = (w * rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-    single_dose_q6h = (total_daily / Decimal('4')).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
+      total_daily = (w * rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+      single_dose_q6h = (total_daily / Decimal('4')).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
     
-    # 500mg vial reconstituted into 5ml diluent = 100 mg/ml
-    concentration = Decimal('100.0')
-    volume_ml = (single_dose_q6h / concentration).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
+      # 500mg vial reconstituted into 5ml diluent = 100 mg/ml
+      concentration = Decimal('100.0')
+      volume_ml = (single_dose_q6h / concentration).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
     
-    return {
-        "weight_kg": float(w),
-        "total_daily_mg": float(total_daily),
-        "single_dose_mg": float(single_dose_q6h),
-        "volume_ml": float(volume_ml)
-    }
+      return {
+          "weight_kg": float(w),
+          "total_daily_mg": float(total_daily),
+          "single_dose_mg": float(single_dose_q6h),
+          "volume_ml": float(volume_ml)
+      }
 
-if __name__ == '__main__':
-    test_weights = [1.25, 2.40, 3.85, 5.00, 8.20]
-    print("--- Clinical Neonatal Verification ---")
-    for weight in test_weights:
-        res = calculate_pediatric_ampicillin(weight)
-        print(f"Weight: {res['weight_kg']:4.2f} kg -> Dose: {res['single_dose_mg']:6.2f} mg -> Syringe: {res['volume_ml']:5.3f} ml")
-`
+  if __name__ == '__main__':
+      test_weights = [1.25, 2.40, 3.85, 5.00, 8.20]
+      print("--- Clinical Neonatal Verification ---")
+      for weight in test_weights:
+          res = calculate_pediatric_ampicillin(weight)
+          print(f"Weight: {res['weight_kg']:4.2f} kg -> Dose: {res['single_dose_mg']:6.2f} mg -> Syringe: {res['volume_ml']:5.3f} ml")
+  `
     }
   ]}
 />

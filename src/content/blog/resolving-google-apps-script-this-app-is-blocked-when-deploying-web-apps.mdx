@@ -59,128 +59,128 @@ Switch between the files below to inspect the manifest configuration, the guarde
       name: "manifest/appsscript.json",
       language: "json",
       code: `{
-  "timeZone": "Africa/Lagos",
-  "dependencies": {},
-  "exceptionLogging": "STACKDRIVER",
-  "runtimeVersion": "V8",
-  "webapp": {
-    "executeAs": "USER_DEPLOYING",
-    "access": "MYSELF"
-  },
-  "oauthScopes": [
-    "https://www.googleapis.com/auth/spreadsheets.currentonly",
-    "https://www.googleapis.com/auth/script.container.ui"
-  ]
-}`
+    "timeZone": "Africa/Lagos",
+    "dependencies": {},
+    "exceptionLogging": "STACKDRIVER",
+    "runtimeVersion": "V8",
+    "webapp": {
+      "executeAs": "USER_DEPLOYING",
+      "access": "MYSELF"
+    },
+    "oauthScopes": [
+      "https://www.googleapis.com/auth/spreadsheets.currentonly",
+      "https://www.googleapis.com/auth/script.container.ui"
+    ]
+  }`
     },
     {
       name: "backend/Code.gs",
       language: "javascript",
       code: `/**
- * @OnlyCurrentDoc
- * Forces scope isolation to prevent Google OAuth blocks.
- */
+   * @OnlyCurrentDoc
+   * Forces scope isolation to prevent Google OAuth blocks.
+   */
 
-function doGet(e) {
-  return HtmlService.createTemplateFromFile('Index')
-    .evaluate()
-    .setTitle('Dashboard')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-}
+  function doGet(e) {
+    return HtmlService.createTemplateFromFile('Index')
+      .evaluate()
+      .setTitle('Dashboard')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
 
-function getDatabaseMetrics() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const data = sheet.getDataRange().getValues();
-  const headers = data.shift();
+  function getDatabaseMetrics() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const data = sheet.getDataRange().getValues();
+    const headers = data.shift();
   
-  return {
-    status: "healthy",
-    recordsCount: data.length,
-    lastSync: new Date().toLocaleTimeString(),
-    columns: headers
-  };
-}`
+    return {
+      status: "healthy",
+      recordsCount: data.length,
+      lastSync: new Date().toLocaleTimeString(),
+      columns: headers
+    };
+  }`
     },
     {
       name: "frontend/Index.html",
       language: "html",
       code: `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <base target="_top">
-  <meta charset="utf-8">
-  <style>
-    body {
-      background: #0d1117;
-      color: #e6edf3;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: grid;
-      place-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 2rem;
-      width: 90%;
-      max-width: 440px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
-    .badge {
-      display: inline-block;
-      padding: 0.25rem 0.6rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      background: rgba(46, 160, 67, 0.15);
-      color: #3fb950;
-      border: 1px solid rgba(46, 160, 67, 0.4);
-    }
-    button {
-      margin-top: 1.5rem;
-      width: 100%;
-      padding: 0.75rem;
-      background: #238636;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    button:hover { background: #2ea043; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <span class="badge">Connected to Sheet</span>
-    <h2 style="margin: 0.75rem 0 0.25rem;">Workspace Dashboard</h2>
-    <p style="color: #8b949e; font-size: 0.875rem;">Live data stream bypassing OAuth locks.</p>
+  <html lang="en">
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <style>
+      body {
+        background: #0d1117;
+        color: #e6edf3;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 12px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 440px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      }
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(46, 160, 67, 0.15);
+        color: #3fb950;
+        border: 1px solid rgba(46, 160, 67, 0.4);
+      }
+      button {
+        margin-top: 1.5rem;
+        width: 100%;
+        padding: 0.75rem;
+        background: #238636;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover { background: #2ea043; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <span class="badge">Connected to Sheet</span>
+      <h2 style="margin: 0.75rem 0 0.25rem;">Workspace Dashboard</h2>
+      <p style="color: #8b949e; font-size: 0.875rem;">Live data stream bypassing OAuth locks.</p>
     
-    <div id="output" style="margin-top: 1.5rem; font-family: monospace;">Fetching state...</div>
-    <button onclick="refreshData()">Query Metrics</button>
-  </div>
+      <div id="output" style="margin-top: 1.5rem; font-family: monospace;">Fetching state...</div>
+      <button onclick="refreshData()">Query Metrics</button>
+    </div>
 
-  <script>
-    function refreshData() {
-      document.getElementById('output').innerText = "Syncing with Apps Script...";
-      google.script.run
-        .withSuccessHandler(res => {
-          document.getElementById('output').innerHTML = 
-            \`Status: \${res.status}<br>Rows: \${res.recordsCount}<br>Updated: \${res.lastSync}\`;
-        })
-        .withFailureHandler(err => {
-          document.getElementById('output').innerText = "Sync failed: " + err.message;
-        })
-        .getDatabaseMetrics();
-    }
+    <script>
+      function refreshData() {
+        document.getElementById('output').innerText = "Syncing with Apps Script...";
+        google.script.run
+          .withSuccessHandler(res => {
+            document.getElementById('output').innerHTML = 
+              \`Status: \${res.status}<br>Rows: \${res.recordsCount}<br>Updated: \${res.lastSync}\`;
+          })
+          .withFailureHandler(err => {
+            document.getElementById('output').innerText = "Sync failed: " + err.message;
+          })
+          .getDatabaseMetrics();
+      }
     
-    refreshData();
-  </script>
-</body>
-</html>`
+      refreshData();
+    </script>
+  </body>
+  </html>`
     }
   ]}
 />

@@ -1,160 +1,119 @@
 ---
 /**
- * BlogEngagement — zero-backend edition
+ * Comments and reactions for a blog post, powered by giscus
+ * (GitHub Discussions on CHIF3N/chifen-portfolio, "Announcements" category).
  *
- * Likes:    localStorage only. Instant, no backend needed.
- * Comments: Giscus (GitHub Discussions). Zero cost, no backend.
+ * Every number shown here is real: reactions and comments live on GitHub.
+ * The old per-browser localStorage like counter was removed because each
+ * visitor only ever saw their own clicks.
  *
- * Props:
- *   postId  — the blog post slug (used as localStorage key and Giscus term)
+ * One-time setup that has to be done by the repo owner:
+ *   - Discussions enabled on the repo (done)
+ *   - The giscus GitHub App installed on the repo: https://github.com/apps/giscus
  *
- * Giscus setup (one-time):
- *   1. Install the Giscus GitHub App on CHIF3N/chifen-portfolio:
- *      https://github.com/apps/giscus
- *   2. Enable Discussions on the repo (Settings → Features → Discussions)
- *   3. Run https://giscus.app to get your repo ID and category ID
- *   4. Paste the values into giscusConfig below
+ * The widget loads only when the comments section scrolls near the viewport,
+ * and follows the site's light/dark toggle.
  */
-
 interface Props {
   postId: string;
 }
 
 const { postId } = Astro.props;
 
-// ── Giscus configuration ────────────────────────────────────────────────────
-// Replace these placeholders after running https://giscus.app
-const giscusConfig = {
+const giscus = {
   repo: 'CHIF3N/chifen-portfolio',
-  repoId: 'PLACEHOLDER_REPO_ID',          // from giscus.app
-  category: 'Blog Comments',
-  categoryId: 'PLACEHOLDER_CATEGORY_ID',  // from giscus.app
-  mapping: 'specific',
-  term: postId,
-  theme: 'preferred_color_scheme',
-  lang: 'en',
+  repoId: 'R_kgDOTnMjXQ',
+  category: 'Announcements',
+  categoryId: 'DIC_kwDOTnMjXc4DIlaQ',
 };
-
-const giscusReady = !giscusConfig.repoId.startsWith('PLACEHOLDER');
 ---
 
-<div id="blog-engagement" data-post-id={postId} class="mt-16 border-t border-line pt-10">
-  <!-- ── Likes ── -->
-  <div class="flex items-center gap-4">
-    <button
-      id="like-btn"
-      type="button"
-      class="group flex items-center gap-2.5 rounded-full border border-line px-4 py-2.5 text-sm font-semibold transition-all hover:border-accent hover:text-accent"
-      aria-label="Like this post"
-      aria-pressed="false"
-    >
-      <svg
-        id="like-icon"
-        xmlns="http://www.w3.org/2000/svg"
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-        class="transition-colors"
-      >
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-      </svg>
-      <span id="like-count">–</span>
-    </button>
-    <p id="like-msg" class="text-sm text-slate-light" aria-live="polite"></p>
+<section id="blog-engagement" class="engagement" aria-labelledby="comments-title" data-term={`blog/${postId}`}>
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <p class="hand text-2xl text-slate">leave a note in the margin</p>
+      <h2 id="comments-title" class="font-display text-3xl font-semibold">Comments &amp; reactions</h2>
+    </div>
+    <p class="text-sm text-slate">Sign in with GitHub to react or comment.</p>
   </div>
 
-  <!-- ── Comments (Giscus) ── -->
-  <div class="mt-12">
-    <h2 class="font-display text-2xl font-semibold">Comments</h2>
-
-    {giscusReady ? (
-      <div class="mt-6" id="giscus-container">
-        <script
-          is:inline
-          src="https://giscus.app/client.js"
-          data-repo={giscusConfig.repo}
-          data-repo-id={giscusConfig.repoId}
-          data-category={giscusConfig.category}
-          data-category-id={giscusConfig.categoryId}
-          data-mapping={giscusConfig.mapping}
-          data-term={giscusConfig.term}
-          data-strict="1"
-          data-reactions-enabled="0"
-          data-emit-metadata="0"
-          data-input-position="top"
-          data-theme={giscusConfig.theme}
-          data-lang={giscusConfig.lang}
-          crossorigin="anonymous"
-          async
-        ></script>
-      </div>
-    ) : (
-      <p class="mt-4 text-sm text-slate-light">
-        Comments coming soon. Set up{' '}
-        <a
-          href="https://giscus.app"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-accent underline underline-offset-2 hover:no-underline"
-        >
-          Giscus
-        </a>{' '}
-        on the repo to enable them.
-      </p>
-    )}
+  <div
+    id="giscus-mount"
+    class="paper mt-6 min-h-[12rem] p-3 sm:p-5"
+    style="--r:-0.3deg"
+    data-repo={giscus.repo}
+    data-repo-id={giscus.repoId}
+    data-category={giscus.category}
+    data-category-id={giscus.categoryId}
+  >
+    <p class="giscus-placeholder text-sm text-slate">Loading comments…</p>
+    <noscript><p class="text-sm text-slate">Comments need JavaScript. You can also reply on <a class="ink-link" href={`https://github.com/${giscus.repo}/discussions`}>GitHub Discussions</a>.</p></noscript>
   </div>
-</div>
+</section>
+
+<style>
+  .engagement {
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1.5px dashed var(--color-line);
+  }
+</style>
 
 <script>
-  /**
-   * localStorage-based likes.
-   * Count and liked state are stored locally — no backend required.
-   */
-  const container = document.getElementById('blog-engagement');
-  if (container) {
-    const POST_ID = container.dataset.postId ?? '';
-    const COUNT_KEY = `like_count:${POST_ID}`;
-    const LIKED_KEY = `liked:${POST_ID}`;
+  const section = document.getElementById('blog-engagement');
+  const mount = document.getElementById('giscus-mount');
 
-    const likeBtn = document.getElementById('like-btn') as HTMLButtonElement;
-    const likeCountEl = document.getElementById('like-count')!;
-    const likeMsgEl = document.getElementById('like-msg')!;
-    const likeIcon = document.getElementById('like-icon')!;
+  const currentTheme = () => {
+    const dark =
+      document.documentElement.dataset.theme === 'dark' ||
+      (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+    return `${location.origin}/giscus/paper-${dark ? 'dark' : 'light'}.css`;
+  };
 
-    let count = parseInt(localStorage.getItem(COUNT_KEY) ?? '0', 10);
-    let liked = localStorage.getItem(LIKED_KEY) === '1';
+  const load = () => {
+    if (!section || !mount || mount.querySelector('script')) return;
+    const s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    const attrs: Record<string, string> = {
+      'data-repo': mount.dataset.repo!,
+      'data-repo-id': mount.dataset.repoId!,
+      'data-category': mount.dataset.category!,
+      'data-category-id': mount.dataset.categoryId!,
+      'data-mapping': 'specific',
+      'data-term': section.dataset.term!,
+      'data-strict': '1',
+      'data-reactions-enabled': '1',
+      'data-emit-metadata': '0',
+      'data-input-position': 'top',
+      'data-theme': currentTheme(),
+      'data-lang': 'en',
+      'data-loading': 'lazy',
+    };
+    Object.entries(attrs).forEach(([k, v]) => s.setAttribute(k, v));
+    mount.querySelector('.giscus-placeholder')?.remove();
+    mount.appendChild(s);
+  };
 
-    function render() {
-      likeCountEl.textContent = String(count);
-      likeBtn.setAttribute('aria-pressed', liked ? 'true' : 'false');
-      likeBtn.classList.toggle('border-accent', liked);
-      likeBtn.classList.toggle('text-accent', liked);
-      likeIcon.setAttribute('fill', liked ? 'currentColor' : 'none');
-    }
-
-    render();
-
-    likeBtn.addEventListener('click', () => {
-      if (liked) {
-        liked = false;
-        count = Math.max(0, count - 1);
-        localStorage.removeItem(LIKED_KEY);
-        likeMsgEl.textContent = '';
-      } else {
-        liked = true;
-        count += 1;
-        localStorage.setItem(LIKED_KEY, '1');
-        likeMsgEl.textContent = 'Thanks for the like.';
-        setTimeout(() => (likeMsgEl.textContent = ''), 3000);
-      }
-      localStorage.setItem(COUNT_KEY, String(count));
-      render();
-    });
+  if (section && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          load();
+        }
+      },
+      { rootMargin: '600px 0px' }
+    );
+    io.observe(section);
+  } else {
+    load();
   }
+
+  // Keep the comments in step with the site's theme toggle.
+  new MutationObserver(() => {
+    const frame = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: currentTheme() } } }, 'https://giscus.app');
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 </script>
