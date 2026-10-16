@@ -1,0 +1,105 @@
+---
+export interface Props {
+  content: string;
+  type?: 'default' | 'tiny' | 'small' | 'medium' | 'large' | 'wide' | 'narrow' | 'floating';
+  rotation?: number;
+  class?: string;
+}
+
+const {
+  content,
+  type = 'default',
+  rotation = 0,
+  class: customClass = ''
+} = Astro.props;
+
+// Type-based sizing
+const typeClasses = {
+  tiny: 'text-[0.75rem] px-2 py-1',
+  small: 'text-[0.875rem] px-3 py-2',
+  medium: 'text-[1rem] px-4 py-3',
+  large: 'text-[1.125rem] px-5 py-4',
+  wide: 'text-[1rem] px-6 py-3 max-w-2xl',
+  narrow: 'text-[0.875rem] px-3 py-2 max-w-sm',
+  floating: 'text-[0.75rem] px-2 py-1 bg-accent/[0.1]',
+  default: 'text-[0.875rem] px-3 py-2'
+};
+---
+<!-- Paper Note Component -->
+<div
+  class={[
+    'workspace-paper-note',
+    typeClasses[type],
+    customClass,
+    'rounded-lg border border-paper/[0.6] bg-paper/[0.8] backdrop-blur',
+    'shadow-sm shadow-accent/[0.1]',
+    'transition-all duration-300',
+    'hover:workspace-note-hover',
+    'relative',
+    'overflow-hidden',
+    'transform',
+    `rotate-${rotation}deg`
+  ].join(' ')}
+>
+  {/* Decorative elements */}
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="top-left corner-corner"></div>
+    <div class="top-right corner-corner"></div>
+    <div class="bottom-left corner-corner"></div>
+    <div class="bottom-right corner-corner"></div>
+  </div>
+
+  {/* Content */}
+  <div class="workspace-note-content relative">
+    <p class="whitespace-pre-wrap break-words text-slate-500/[0.9]">
+      {content}
+    </p>
+  </div>
+
+  {/* Interactive hover elements */}
+  <div class="workspace-note-hover-effect absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-accent/[0.05]"></div>
+  </div>
+</div>
+
+<style>
+  .workspace-paper-note {
+    @apply cursor-default;
+    @apply transition-all duration-300;
+  }
+
+  .workspace-note-hover {
+    @apply bg-paper/[0.9] backdrop-blur;
+    @apply shadow-md shadow-accent/[0.2];
+    @apply transform scale-105;
+  }
+
+  .workspace-note-hover-effect {
+    @apply transition-opacity duration-300;
+  }
+
+  .workspace-paper-note:hover .workspace-note-hover-effect {
+    @apply opacity-100;
+  }
+
+  .corner-corner {
+    @apply absolute size-2;
+    @apply bg-accent/[0.3];
+  }
+
+  .top-left.corner-corner {
+    @apply top-0 left-0;
+  }
+
+  .top-right.corner-corner {
+    @apply top-0 right-0;
+  }
+
+  .bottom-left.corner-corner {
+    @apply bottom-0 left-0;
+  }
+
+  .bottom-right.corner-corner {
+    @apply bottom-0 right-0;
+  }
+</style>

@@ -1,0 +1,168 @@
+---
+export interface Props {
+  entry: any;
+  index?: number;
+  type?: 'featured' | 'preview' | 'placeholder';
+}
+
+const { entry, index = 0, type = 'featured' } = Astro.props;
+---
+<!-- Workspace Item Component -->
+<div
+  class={[
+    'workspace-item',
+    type === 'featured' && 'workspace-item-featured',
+    type === 'preview' && 'workspace-item-preview',
+    type === 'placeholder' && 'workspace-item-placeholder',
+    'transition-all',
+    'duration-300',
+    'hover:workspace-item-hover',
+    'data-reveal',
+    `style:--reveal-delay:${index * 100}ms`
+  ].join(' ')}
+>
+  <div class="workspace-item-content relative">
+    {/* Project thumbnail/cover */}
+    {entry.data.cover && (
+      <div class="workspace-item-cover mb-[4px] rounded-xl overflow-hidden border border-accent/20">
+        {/* In a real implementation, this would use the Astro Image component */}
+        <div class="w-full h-48 bg-paper/70 backdrop-blur flex items-center justify-center text-slate-500/[0.5]">
+          Cover Image: {entry.data.title}
+        </div>
+      </div>
+    )}
+
+    {/* Item content */}
+    <div class="workspace-item-details p-4">
+      {/* Project type badge */}
+      {entry.data.tags && entry.data.tags.length > 0 && (
+        <div class="workspace-item-tags flex flex-wrap gap-2 mb-[3px]">
+          {entry.data.tags.map((tag: string, idx: number) => (
+            <span
+              key={idx}
+              class="px-2 py-1 text-[0.75rem] font-medium rounded-full bg-accent/20 text-accent"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Title */}
+      <h3 class="workspace-item-title text-[1.25rem] font-medium text-accent mb-[2px] truncate">
+        {entry.data.title}
+      </h3>
+
+      {/* Role and metadata */}
+      <div class="workspace-item-meta flex flex-wrap gap-3 mb-[3px] text-slate-500/[0.6] text-[0.75rem]">
+        <span>Role: {entry.data.role}</span>
+        <span>•</span>
+        <span>{entry.data.year}</span>
+        {entry.data.status && (
+          <>
+            <span>•</span>
+            <span class="text-accent/60">{entry.data.status}</span>
+          </>
+        )}
+      </div>
+
+      {/* Short description */}
+      <p class="workspace-item-description text-slate-500/[0.7] mb-[4px] line-clamp-3">
+        {entry.data.summary}
+      </p>
+
+      {/* Action button */}
+      <div class="workspace-item-actions flex justify-end">
+        <a
+          href={withBase(`/work/${entry.id}`)}
+          class="btn btn-accent btn-sm px-4 py-2"
+        >
+          Explore
+          <span aria-hidden="true">▶</span>
+        </a>
+      </div>
+    </div>
+
+    {/* Interactive elements */}
+    <div class="workspace-item-interactions absolute inset-0 pointer-events-none">
+      <PaperNote
+        class="top-2 left-2"
+        content="✓"
+        type="tiny"
+        rotation="-5"
+      />
+      <SketchElement
+        class="bottom-2 right-2"
+        type="corner"
+        rotation="3"
+      />
+    </div>
+  </div>
+</div>
+
+<style>
+  .workspace-item {
+    @apply cursor-pointer bg-paper/60 backdrop-blur rounded-xl border border-dashed border-accent/20 p-6;
+    @apply transition-all duration-300 hover:workspace-item-hover;
+  }
+
+  .workspace-item-hover {
+    @apply bg-paper/70 backdrop-blur;
+    @apply transform -translate-y-1 scale-102;
+    @apply shadow-lg shadow-accent/20;
+    @apply border-accent/40;
+  }
+
+  .workspace-item-featured {
+    @apply bg-paper/70 backdrop-blur;
+    @apply border-border-accent/30;
+  }
+
+  .workspace-item-preview {
+    @apply bg-paper/50 backdrop-blur;
+    @apply border-dashed border-accent/20;
+  }
+
+  .workspace-item-placeholder {
+    @apply bg-paper/40 backdrop-blur;
+    @apply border-dashed border-accent/10;
+  }
+
+  .workspace-item-content {
+    @apply relative;
+  }
+
+  .workspace-item-cover {
+    @apply mb-4 rounded-xl overflow-hidden;
+  }
+
+  .workspace-item-details {
+    @apply p-4;
+  }
+
+  .workspace-item-tags {
+    @apply flex flex-wrap gap-2 mb-3;
+  }
+
+  .workspace-item-title {
+    @apply text-[1.25rem] font-medium text-accent mb-[2px] truncate;
+    @apply max-w-xs;
+  }
+
+  .workspace-item-meta {
+    @apply flex flex-wrap gap-3 mb-3 text-slate-500/[0.6] text-[0.75rem];
+  }
+
+  .workspace-item-description {
+    @apply text-slate-500/[0.7] mb-[4px] line-clamp-3;
+    @apply max-w-md;
+  }
+
+  .workspace-item-actions {
+    @apply flex justify-end;
+  }
+
+  .workspace-item-interactions {
+    @apply absolute inset-0 pointer-events-none;
+  }
+</style>

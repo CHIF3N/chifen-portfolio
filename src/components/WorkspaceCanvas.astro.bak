@@ -1,0 +1,305 @@
+---
+import FolderNav from './FolderNav.astro';
+import { site } from '../lib/site';
+import { withBase } from '../lib/url';
+import { getCollection } from 'astro:content';
+import WorkspaceItem from './WorkspaceItem.astro';
+import PaperNote from './PaperNote.astro';
+import SketchElement from './SketchElement.astro';
+
+const folders = [
+  { label: 'MY WORK', href: '/work', icon: '📁', type: 'work' },
+  { label: 'ABOUT ME', href: '/about', icon: '👤', type: 'about' },
+  { label: 'RESEARCH LAB', href: '/research', icon: '🔬', type: 'research' },
+  { label: 'SIDE QUESTS', href: '/experience', icon: '🎯', type: 'experience' },
+  { label: 'OPEN WHEN CURIOUS', href: '/blog', icon: '💭', type: 'blog' },
+  { label: 'CONTACT', href: '/contact', icon: '📞', type: 'contact' },
+];
+---
+
+<!-- Workspace Canvas - The main interactive workspace experience -->
+<div class="workspace-canvas relative min-h-[80vh] pb-20">
+  <!-- Background layers -->
+  <div class="workspace-bg-layers absolute inset-0 pointer-events-none">
+    <div class="workspace-bg paper-texture warm-grain inset-0"></div>
+    <div class="workspace-bg notebook-lines inset-0 opacity-[0.3]"></div>
+
+    <!-- Decorative sketch elements -->
+    <SketchElement class="top-10 left-10" type="corner" rotation={-5} />
+    <SketchElement class="top-20 right-15" type="arrow" rotation={15} />
+    <SketchElement class="bottom-15 left-20" type="note" rotation={-10} />
+    <SketchElement class="bottom-10 right-5" type="underline" rotation={5} />
+  </div>
+
+  <!-- Main workspace content -->
+  <div class="workspace-content relative z-10 pb-12">
+    <!-- Scene 1: First Impression -->
+    <div class="workspace-scene first-impression mt-3">
+      <div class="workspace-grid grid-cols-[1fr_auto] gap-[8px] items-start">
+        <p class="eyebrow mb-[8px]">Healthcare × Technology</p>
+        <!-- Left side: Introduction -->
+        <div class="workspace-intro space-y-[4px]">
+          <!-- CHIF3N Wordmark -->
+          <div class="workspace-chif3n-wordmark flex items-center gap-2">
+            <span class="handwritten-accent text-[3rem]">CHIF</span>
+            <span class="text-accent text-[3.75rem] font-display">3</span>
+            <span class="handwritten-accent text-[3rem]">N</span>
+          </div>
+
+          <!-- Title -->
+          <p class="mt-2 text-[1.25rem] font-medium text-accent uppercase tracking-wider">
+            The Nurse Who Codes
+          </p>
+
+          <!-- Introduction -->
+          <p class="workspace-intro-text text-[1.125rem] leading-[1.5] text-slate-500/[0.9] max-w-xl">
+            Healthcare taught me to understand people. Code gives me another way to solve their problems.
+          </p>
+
+          <!-- Call to action -->
+          <div class="mt-6 flex items-center gap-4">
+            <a href={withBase('/work')} class="btn btn-accent btn-lg px-8">
+              Explore My Work
+              <span aria-hidden="true">▶</span>
+            </a>
+            <a href={withBase('/about')} class="btn btn-ghost btn-lg px-8">
+              About Me
+              <span aria-hidden="true">▶</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Right side: Portrait and interactions -->
+        <div class="workspace-portrait relative">
+          <!-- Portrait placeholder -->
+          <div class="w-64 h-80 bg-paper/[0.8] backdrop-blur rounded-2xl border-2 border-paper/[0.6]">
+            <div class="absolute inset-0">
+              <div class="pin-corner top-left"></div>
+              <div class="pin-corner top-right"></div>
+              <div class="tape-strip top"></div>
+            </div>
+            <!-- In a real implementation, this would be an actual portrait -->
+            <div class="absolute inset-0 flex items-center justify-center text-slate-500/[0.5] italic">
+              Portrait Placeholder
+            </div>
+          </div>
+
+          <!-- Interactive notes -->
+          <PaperNote
+            class="top-4 right-0 mt-[8px] mr-[8px]"
+            content="Where healthcare meets technology"
+            rotation={3}
+          />
+          <PaperNote
+            class="bottom-4 left-0 mb-[8px] ml-[8px]"
+            content="Building solutions that matter"
+            rotation={-2}
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 2: Desktop of Ideas (Folder Navigation) -->
+    <div class="workspace-scene desktop-folders mb-[8px]">
+      <h2 class="workspace-section-title text-[1.875rem] font-display text-center mb-[8px]">
+        Your Journey Through My Workspace
+      </h2>
+
+      <!-- Folder Grid -->
+      <div class="workspace-folders grid gap-6">
+        {folders.map((folder) => (
+          <a
+            href={withBase(folder.href)}
+            class={[
+              'relative flex items-center gap-2 p-3 rounded border border-line bg-paper/[0.8] backdrop-blur transition-all duration-300 hover:border-ink hover:text-ink',
+              'cursor-pointer',
+            ].join(' ')}
+          >
+            <span class="text-2xl">{folder.icon}</span>
+            <span class="folder-label text-[0.875rem] font-medium whitespace-nowrap">
+              {folder.label}
+            </span>
+          </a>
+        ))}
+      </div>
+
+      <div class="workspace-items grid gap-8">
+        {(await getCollection('work')).map((entry, index) => (
+          <WorkspaceItem
+            entry={entry}
+            index={index}
+            type="preview"
+          />
+        ))}
+      </div>
+    </div>
+
+    <!-- Scene 3: Selected Work Preview -->
+    {
+      (await getCollection('work'))
+        .filter((entry) => entry.data.featured)
+        .sort((a, b) => a.data.order - b.data.order)
+        .length > 0 && (
+          <div class="workspace-scene featured-work mb-[8px]">
+            <h2 class="workspace-section-title text-[1.875rem] font-display text-center mb-[8px]">
+              Featured Projects
+            </h2>
+            <div class="workspace-featured-grid grid gap-6">
+              {
+                (await getCollection('work'))
+                  .filter((entry) => entry.data.featured)
+                  .sort((a, b) => a.data.order - b.data.order)
+                  .map((entry, index) => (
+                    <WorkspaceItem
+                      entry={entry}
+                      index={index}
+                      type="featured"
+                    />
+                  ))
+              }
+            </div>
+          </div>
+        )
+    }
+
+    <!-- Scene 4: Quick Insights -->
+    <div class="workspace-scene insights mb-[8px]">
+      <h2 class="workspace-section-title text-[1.875rem] font-display text-center mb-[8px]">
+        Workspace Insights
+      </h2>
+      <div class="workspace-insights grid gap-6">
+        <PaperNote
+          class="col-span-2"
+          content="387 respondents shared their perspectives on AI in healthcare"
+          rotation={1}
+          type="wide"
+        />
+        <PaperNote
+          class="col-span-1"
+          content="LifeDrop: 3rd place MTN YaMo Season 4"
+          rotation={-2}
+          type="narrow"
+        />
+        <PaperNote
+          class="col-span-1"
+          content="CoastClear: AI-powered waste detection"
+          rotation={3}
+          type="narrow"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating interactions -->
+  <div class="workspace-floating absolute inset-0 pointer-events-none">
+    <PaperNote
+      class="top-5 left-5"
+      content="Click, drag, explore"
+      rotation={-5}
+      type="floating"
+    />
+    <SketchElement
+      class="bottom-5 right-5"
+      type="squiggle"
+      rotation={10}
+    />
+  </div>
+</div>
+
+<style>
+  .workspace-canvas {
+    @apply relative overflow-hidden;
+  }
+
+  .workspace-bg-layers {
+    @apply pointer-events-none;
+  }
+
+  .workspace-content {
+    @apply relative z-10;
+  }
+
+  .workspace-scene {
+    @apply mb-[8px] last:mb-[8px];
+  }
+
+  .first-impression {
+    @apply flex flex-col items-start;
+  }
+
+  .workspace-grid {
+    @apply gap-[8px] items-start;
+  }
+
+  .workspace-intro {
+    @apply space-y-[4px];
+  }
+
+  .workspace-chif3n-wordmark {
+    @apply flex items-center gap-[2px];
+  }
+
+  .workspace-intro-text {
+    @apply text-[1.125rem] leading-[1.5] text-slate-500/[0.9] max-w-xl;
+  }
+
+  .workspace-portrait {
+    @apply relative;
+  }
+
+  .desktop-folders {
+    @apply text-center;
+  }
+
+  .workspace-section-title {
+    @apply text-3xl font-display text-center mb-[8px];
+  }
+
+  .workspace-folders {
+    @apply grid gap-[6px];
+  }
+
+  .workspace-items {
+    @apply grid gap-[8px];
+  }
+
+  .workspace-item {
+    @apply bg-paper/50 backdrop-blur rounded-xl border border-dashed border-accent/20 p-6 transition-all duration-300 hover:bg-paper/60;
+  }
+
+  .workspace-item-content {
+    @apply flex flex-col items-center text-center;
+  }
+
+  .workspace-item-icon {
+    @apply text-4xl mb-[8px];
+  }
+
+  .workspace-item-title {
+    @apply text-[1.25rem] font-medium text-accent mb-[8px];
+  }
+
+  .workspace-item-description {
+    @apply text-slate-500/[0.7];
+  }
+
+  .featured-work {
+    @apply mb-[8px];
+  }
+
+  .workspace-featured-grid {
+    @apply grid gap-[6px];
+  }
+
+  .insights {
+    @apply mb-[8px];
+  }
+
+  .workspace-insights {
+    @apply grid gap-[6px];
+  }
+
+  .workspace-floating {
+    @apply absolute inset-0 pointer-events-none;
+  }
+</style>

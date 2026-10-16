@@ -1,0 +1,87 @@
+---
+export interface Props {
+  type?: 'corner' | 'arrow' | 'note' | 'underline' | 'squiggle' | 'circle' | 'line';
+  rotation?: number;
+  class?: string;
+}
+
+const {
+  type = 'corner',
+  rotation = 0,
+  class: customClass = ''
+} = Astro.props;
+
+// Type-based styling
+const typeClasses = {
+  corner: 'w-6 h-6',
+  arrow: 'w-8 h-3',
+  note: 'w-4 h-4',
+  underline: 'w-10 h-1',
+  squiggle: 'w-8 h-2',
+  circle: 'w-5 h-5',
+  line: 'w-10 h-1'
+};
+---
+<!-- Sketch Element Component -->
+<div
+  class={[
+    'workspace-sketch-element',
+    typeClasses[type],
+    customClass,
+    'inline-block',
+    'transition-transform duration-300',
+    'hover:workspace-sketch-hover',
+    'transform',
+    `rotate-${rotation}deg`
+  ].join(' ')}
+  aria-hidden="true"
+>
+  {/* The actual sketch rendering would be done via CSS background or SVG */}
+  <div class="workspace-sketch-content">
+    {/* Placeholder for sketch rendering */}
+    {/* In a full implementation, these would be SVG paths or CSS drawings */}
+  </div>
+</div>
+
+<style>
+  .workspace-sketch-element {
+    @apply transition-transform duration-300;
+    @apply hover:workspace-sketch-hover;
+  }
+
+  .workspace-sketch-hover {
+    @apply transform scale-110;
+    @apply filter brightness-110;
+  }
+
+  /* Type-specific styles */
+  .workspace-sketch-element.corner {
+    @apply bg-accent/[0.2] rounded-lg;
+  }
+
+  .workspace-sketch-element.arrow {
+    @apply bg-accent/[0.3];
+    @apply clip-path polygon(0% 50%, 100% 0%, 100% 100%);
+  }
+
+  .workspace-sketch-element.note {
+    @apply bg-accent/[0.2] rounded-full;
+  }
+
+  .workspace-sketch-element.underline {
+    @apply bg-accent/[0.4];
+  }
+
+  .workspace-sketch-element.squiggle {
+    @apply bg-accent/[0.3];
+    @apply clip-path polygon(0% 20%, 30% 0%, 70% 0%, 100% 20%, 100% 80%, 70% 100%, 30% 100%, 0% 80%);
+  }
+
+  .workspace-sketch-element.circle {
+    @apply bg-accent/[0.2] rounded-full;
+  }
+
+  .workspace-sketch-element.line {
+    @apply bg-accent/[0.4];
+  }
+</style>

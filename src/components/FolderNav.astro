@@ -1,0 +1,319 @@
+---
+import FlipLink from './FlipLink.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import SocialIcon from './SocialIcon.astro';
+import { site } from '../lib/site';
+import { withBase } from '../lib/url';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => {
+  const target = withBase(href);
+  return path === target || path.startsWith(target + '/');
+};
+
+/* Folder-based navigation concept */
+const folders = [
+  { label: 'MY WORK', href: '/work', icon: '📁', type: 'work' },
+  { label: 'ABOUT ME', href: '/about', icon: '👤', type: 'about' },
+  { label: 'RESEARCH LAB', href: '/research', icon: '🔬', type: 'research' },
+  { label: 'SIDE QUESTS', href: '/experience', icon: '🎯', type: 'experience' },
+  { label: 'OPEN WHEN CURIOUS', href: '/blog', icon: '💭', type: 'blog' },
+  { label: 'CONTACT', href: '/contact', icon: '📞', type: 'contact' },
+];
+---
+<header class="sticky top-0 z-50 border-b border-line bg-paper/[0.9] backdrop-blur-md">
+  <div class="shell grid grid-cols-2 items-center gap-3 py-4 md:grid-cols-[1fr_auto_1fr]">
+    <!-- Left: call to action and socials -->
+    <div class="hidden items-center gap-2 md:flex">
+      <a href={withBase('/contact')} class="btn btn-accent btn-sm">Let's talk</a>
+      {
+        site.socials.filter(social => social.compact).map((social) => (
+          <a
+            href={social.href}
+            class="grid h-8 w-8 place-items-center rounded-full border border-line text-slate-500/[0.9] transition-colors hover:border-ink hover:text-ink"
+            aria-label={social.label}
+          >
+            <SocialIcon label={social.label} />
+          </a>
+        ))
+      }
+    </div>
+
+    <!-- Center: CHIF3N wordmark with folder concept -->
+    <div class="flex items-center justify-center gap-4">
+      <div class="relative">
+        <div class="workspace-corner">
+          <div class="pin-corner"></div>
+        </div>
+        <div class="workspace-chif3n">
+          <a
+            href={withBase('/')}
+            class="flex items-center gap-2"
+          >
+            <span class="handwritten-accent text-[1.875rem]">CHIF</span>
+            <span class="text-accent text-[2.25rem] font-display">3</span>
+            <span class="handwritten-accent text-[1.875rem]">N</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Folder navigation -->
+      <nav aria-label="Workspace folders" class="hidden md:flex">
+        <ul class="flex items-center gap-4">
+          {folders.map((folder) => (
+            <li
+              data-reveal
+              style={{ '--reveal-delay': `${folders.indexOf(folder) * 50}ms` }}
+              class={[
+                'relative',
+                'flex',
+                'items-center',
+                'gap-2',
+                'cursor-pointer',
+                'transition-all',
+                'duration-300',
+                isActive(folder.href) ? 'folder-active' : 'folder-inactive',
+                folder.type === 'work' && 'folder-work',
+                folder.type === 'about' && 'folder-about',
+                folder.type === 'research' && 'folder-research',
+                folder.type === 'experience' && 'folder-experience',
+                folder.type === 'blog' && 'folder-blog',
+                folder.type === 'contact' && 'folder-contact',
+              ].join(' ')}
+            >
+              <button
+                type="button"
+                class="flex items-center gap-2 p-2 rounded-full hover:bg-paper/[0.1] transition-colors focus:outline-none focus-2 focus-accent"
+                aria-label={`Open ${folder.label} folder`}
+              >
+                <span class="text-2xl">{folder.icon}</span>
+                <span class="folder-label text-[0.875rem] font-medium whitespace-nowrap">
+                  {folder.label}
+                </span>
+              </button>
+
+              {/* Folder preview/hover state */}
+              <div class="folder-preview absolute left-0 top-full mt-2 w-56 rounded border border-line bg-paper/[0.9] backdrop-blur p-3 opacity-0 pointer-events-hidden transition-opacity duration-200">
+                <div class="folder-preview-content">
+                  <p class="text-[0.75rem] text-slate-500/[0.8]">
+                    {folder.label.toLowerCase()}
+                  </p>
+                  <div class="flex items-center gap-2 mt-1">
+                    {
+                      folder.type === 'work' && (
+                        <>
+                          <span class="text-xs text-accent/60">◉</span>
+                          <span class="text-xs">Active projects</span>
+                        </>
+                      )
+                    }
+                    {
+                      folder.type === 'about' && (
+                        <>
+                          <span class="text-xs text-accent/60">◉</span>
+                          <span class="text-xs">Biography & CV</span>
+                        </>
+                      )
+                    }
+                    {
+                      folder.type === 'research' && (
+                        <>
+                          <span class="text-xs text-accent/60">◉</span>
+                          <span class="text-xs">Studies & findings</span>
+                        </>
+                      )
+                    }
+                    {
+                      folder.type === 'experience' && (
+                        <>
+                          <span class="text-xs text-accent/60">◉</span>
+                          <span class="text-xs">Professional journey</span>
+                        </>
+                      )
+                    }
+                    {
+                      folder.type === 'blog' && (
+                        <>
+                          <span class="text-xs text-accent/60">◉</span>
+                          <span class="text-xs">Writing & thoughts</span>
+                        </>
+                      )
+                    }
+                    {
+                      folder.type === 'contact' && (
+                        <>
+                          <span class="text-xs text-accent/60">◉</span>
+                          <span class="text-xs">Get in touch</span>
+                        </>
+                      )
+                    }
+                </div>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Right: page links and theme switch -->
+    <div class="flex items-center justify-end gap-2">
+      <nav aria-label="Secondary" class="hidden min-w-0 lg:block">
+        <ul class="flex items-center gap-0.5">
+          {
+            ['Experience', 'Talks'].map((item) => {
+              const href = item.toLowerCase();
+              return (
+                <li>
+                  <a
+                    href={withBase(href)}
+                    aria-current={isActive(href) ? 'page' : undefined}
+                    class:list={[
+                      'relative block px-3 py-2 text-[0.875rem] font-semibold tracking-tight whitespace-nowrap transition-colors',
+                      isActive(href) ? 'text-ink' : 'text-slate-500/[0.9] hover:text-ink',
+                    ]}
+                  >
+                    <FlipLink text={item} />
+                    {isActive(href) && (
+                      <span class="absolute inset-x-3 bottom-0.5 h-0.5 rounded-full bg-accent" />
+                    )}
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+
+      <ThemeToggle />
+
+      <button
+        id="menu-toggle"
+        type="button"
+        class="relative h-9 w-9 shrink-0 lg:hidden"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="menu-icon-bar top-[13px]"></span>
+        <span class="menu-icon-bar top-[18px]"></span>
+        <span class="menu-icon-bar top-[23px]"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="menu-backdrop" class="fixed inset-0 z-40 hidden bg-ink/50 lg:hidden"></div>
+
+<nav
+  id="mobile-menu"
+  aria-label="Mobile"
+  class="menu-panel hidden fixed inset-y-0 right-0 z-[60] w-72 max-w-[80vw] bg-paper shadow-2xl lg:hidden"
+>
+  <ul class="mt-20 flex flex-col px-3">
+    {
+      folders.map((folder) => (
+        <li>
+          <button
+            type="button"
+            class="flex w-items-center justify-between gap-4 px-4 py-3.5 font-display text-[1.875rem] font-semibold uppercase transition-colors w-full text-left"
+            aria-current={isActive(folder.href) ? 'page' : undefined}
+            class:class={[
+              isActive(folder.href) ? 'text-accent' : 'text-ink hover:text-accent',
+              'border-b',
+              'border-line',
+              'pb-3'
+            ]}
+          >
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">{folder.icon}</span>
+              <span>{folder.label}</span>
+            </div>
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+  <div class="mt-6 px-4">
+    <a href={withBase('/contact')} class="btn btn-accent w-full">Let's talk</a>
+  </div>
+</nav>
+
+<style>
+  .menu-icon-bar {
+    position: absolute;
+    left: 6px;
+    width: 24px;
+    height: 2px;
+    background-color: var(--color-ink);
+    border-radius: 1px;
+    transition:
+      transform 0.25s ease,
+      opacity 0.2s ease,
+      top 0.25s ease;
+  }
+  html.menu-open .menu-icon-bar:nth-child(1) {
+    top: 18px;
+    transform: rotate(45deg);
+  }
+  html.menu-open .menu-icon-bar:nth-child(2) {
+    opacity: 0;
+  }
+  html.menu-open .menu-icon-bar:nth-child(3) {
+    top: 18px;
+    transform: rotate(-45deg);
+  }
+  .menu-panel {
+    opacity: 0;
+  }
+  .menu-panel.is-open {
+    opacity: 1;
+    transition: opacity 0.2s ease-out;
+  }
+  html.menu-open #menu-backdrop {
+    display: block;
+  }
+  html.menu-open {
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const backdrop = document.getElementById('menu-backdrop');
+  const menu = document.getElementById('mobile-menu');
+  const root = document.documentElement;
+
+  function closeMenu() {
+    root.classList.remove('menu-open');
+    menu?.classList.remove('is-open');
+    menu?.classList.add('hidden');
+    toggle?.setAttribute('aria-expanded', 'false');
+    toggle?.setAttribute('aria-label', 'Open menu');
+  }
+
+  function openMenu() {
+    root.classList.add('menu-open');
+    menu?.classList.remove('hidden');
+    // Force a reflow so the opacity transition actually plays instead of
+    // jumping straight to is-open before the browser paints the hidden state.
+    void menu?.offsetHeight;
+    menu?.classList.add('is-open');
+    toggle?.setAttribute('aria-expanded', 'true');
+    toggle?.setAttribute('aria-label', 'Close menu');
+  }
+
+  toggle?.addEventListener('click', () => {
+    root.classList.contains('menu-open') ? closeMenu() : openMenu();
+  });
+
+  backdrop?.addEventListener('click', closeMenu);
+
+  menu?.querySelectorAll('button').forEach((button) => {
+    button.addEventListener('click', closeMenu);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+</script>
