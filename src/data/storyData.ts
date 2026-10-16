@@ -18,6 +18,8 @@ export interface StoryChapter {
     alt: string;
     caption: string;
   };
+  /** Real photos for the chapter, shown as a taped strip (see StoryPhotos.astro). */
+  photos?: { src: string; alt: string; caption?: string }[];
 }
 
 export const professionalBio = {
@@ -106,6 +108,10 @@ export const storyChapters: StoryChapter[] = [
   },
   {
     id: 'aircraft-and-drones',
+    photos: [
+      { src: '/archive/quadcopter-frame.jpg', alt: 'A home-built white quadcopter frame with black propellers on a workbench.', caption: 'the quadcopter frame' },
+      { src: '/archive/quadcopter-build.jpg', alt: 'The quadcopter build on a cluttered desk, mid-wiring.', caption: 'mid-build, mid-mess' },
+    ],
     number: '05',
     year: '2019 – 2020',
     title: 'Aerodynamics, Drones & Hardware Prototyping',
@@ -140,6 +146,11 @@ export const storyChapters: StoryChapter[] = [
   },
   {
     id: 'air-sanitizer-2020',
+    photos: [
+      { src: '/archive/air-sanitizer-prime-hour.jpg', alt: 'Chifen on the Prime Hour TV set, captioned as inventor of the wireless air sanitiser.', caption: 'on Prime Hour TV' },
+      { src: '/archive/air-sanitizer-prototype.jpg', alt: 'Chifen and a collaborator in lab coats holding the air sanitiser prototype.', caption: 'with the prototype' },
+      { src: '/archive/air-sanitizer-device.jpg', alt: 'The boxy air sanitiser prototype with its fan opening, sitting on the grass.', caption: 'the device itself' },
+    ],
     number: '07',
     year: '2020',
     title: 'The Wireless Air Sanitizer',
@@ -157,6 +168,10 @@ export const storyChapters: StoryChapter[] = [
   },
   {
     id: 'hats-graiye-agrobot',
+    photos: [
+      { src: '/archive/agrobot-ict-week-demo.jpg', alt: 'The Agrobot prototype on the floor while officials watch a demonstration at Presidential ICT Week.', caption: 'demo for officials' },
+      { src: '/archive/agrobot-ict-week-close.jpg', alt: 'Chifen crouched beside the Agrobot, explaining it at Presidential ICT Week.', caption: 'explaining the Agrobot' },
+    ],
     number: '08',
     year: '2021 – 2024',
     title: 'HATS, GRAIYE & The Autonomous Agrobot',
@@ -175,6 +190,11 @@ export const storyChapters: StoryChapter[] = [
   },
   {
     id: 'ayodah-the-personal-turning-point',
+    photos: [
+      { src: '/archive/ayodah-team-event.jpg', alt: 'The Ayodah team in red T-shirts at an outreach event.', caption: 'team Ayodah' },
+      { src: '/archive/ayodah-stand.jpg', alt: 'Chifen at the Ayodah donor-registration stand with banners behind him.', caption: 'the donor stand' },
+      { src: '/archive/ayodah-badges.jpg', alt: 'A stack of Ayodah volunteer badges on lanyards.', caption: 'volunteer badges' },
+    ],
     number: '09',
     year: '2021 – 2023',
     title: 'Ayodah — The Turning Point',
@@ -195,6 +215,9 @@ export const storyChapters: StoryChapter[] = [
   },
   {
     id: 'volunteering-and-leadership',
+    photos: [
+      { src: '/archive/cremah-workshop.jpg', alt: 'Chifen in a dark suit beside a Cremah two-day public speaking workshop poster.', caption: 'Cremah public speaking' },
+    ],
     number: '10',
     year: '2020 – 2025',
     title: 'Community, Leadership & Public Speaking',
@@ -211,6 +234,9 @@ export const storyChapters: StoryChapter[] = [
   },
   {
     id: 'jack-of-all-trades',
+    photos: [
+      { src: '/photos/chifen-camera.jpg', alt: 'Chifen smiling behind a camera, photographing his reflection.', caption: 'behind the camera' },
+    ],
     number: '11',
     year: '2023 – 2026',
     title: 'The "Jack of All Trades" Era',
@@ -246,6 +272,11 @@ export const storyChapters: StoryChapter[] = [
   },
   {
     id: 'present-and-next',
+    photos: [
+      { src: '/archive/yamo-pitch-season-4.jpg', alt: 'Chifen holding a prize cheque on the MTN YaMo Pitch Season 4 stage.', caption: 'YaMo S4, LifeDrop 3rd' },
+      { src: '/work/lifedrop/whatsapp-register.jpg', alt: 'LifeDrop\'s WhatsApp prototype welcoming a donor and starting registration.', caption: 'LifeDrop on WhatsApp' },
+      { src: '/work/coastclear/beach-map.jpg', alt: 'CoastClear\'s live beach map of the Cameroonian coast.', caption: 'CoastClear\'s beach map' },
+    ],
     number: '13',
     year: '2025 – Present & Beyond',
     title: 'Active Ventures & What Comes Next',

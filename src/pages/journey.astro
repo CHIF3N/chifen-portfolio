@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import StoryPhotos from '../components/StoryPhotos.astro';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
 import { storyChapters } from '../data/storyData';
@@ -114,6 +115,8 @@ const eraFilters = [
               <p>{p}</p>
             ))}
           </div>
+
+          {item.photos && <StoryPhotos photos={item.photos} />}
 
           <!-- Pull Quote -->
           {item.pullQuote && (
