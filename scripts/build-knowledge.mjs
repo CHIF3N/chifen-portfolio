@@ -51,7 +51,7 @@ const projects = dir('src/content/work').map((f) => {
     liveUrl: data.liveUrl,
     metrics: data.metrics ?? [],
     note: data.note,
-    details: prose(body, 1400),
+    details: prose(body, 900),
   };
 });
 
@@ -66,7 +66,7 @@ const research = dir('src/content/research').map((f) => {
     supervisor: data.supervisor,
     year: data.year,
     summary: data.summary,
-    details: prose(body, 3500),
+    details: prose(body, 1800),
   };
 });
 
