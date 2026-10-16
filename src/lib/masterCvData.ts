@@ -144,24 +144,6 @@ export const masterCvData = {
       skills: ['DHIS2', 'Health Informatics', 'SQL Data Auditing', 'PMTCT Cohorts', 'Offline-First Workflows'],
     },
     {
-      role: 'Founding Board Member & Conference Lead (Volunteer)',
-      org: 'Cameroon Innovative Health Network (CAMIHN / HETEFA)',
-      location: 'Cameroon',
-      period: '2025 – 2026',
-      current: false,
-      track: 'community',
-      trackLabel: 'Volunteer / Community Initiative (Amber)',
-      impact: 'Co-founded the health-tech network; organized and moderated panels for the Cameroon Innovative Health Conference.',
-      effort: [
-        'Formulated youth health-tech programs and organized keynote panels at the Cameroon Innovative Health Conference.',
-        'Connected clinical health workers with digital health researchers across regional health boards.',
-      ],
-      value: [
-        'Built a structured community channel for translating health technology research into clinical practice guidelines.',
-      ],
-      skills: ['Digital Health Advocacy', 'Conference Leadership', 'Health Informatics'],
-    },
-    {
       role: 'Digital Health Field Volunteer (Community Gig)',
       org: 'Vision in Action Cameroon (VIAC)',
       location: 'South West Region, Cameroon',
