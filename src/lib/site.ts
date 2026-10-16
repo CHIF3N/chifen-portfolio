@@ -48,33 +48,38 @@ export const site = {
       { slug: 'video', label: 'Video call', duration: '30 min' },
     ],
   },
+  /** Primary navigation. Kept short; everything else is one click away in /more. */
   nav: [
-    { label: 'Work', href: '/work' },
-    { label: 'About', href: '/about' },
-    { label: 'Writing', href: '/blog' },
-    { label: 'Speaking', href: '/talks' },
-    { label: 'CV', href: '/cv' },
-    { label: 'More', href: '/more' },
+    { label: 'Work', href: '/work', note: 'things I build' },
+    { label: 'About', href: '/about', note: 'the human' },
+    { label: 'Research', href: '/research', note: 'the science corner' },
+    { label: 'Experiments', href: '/experiments', note: 'side quests' },
+    { label: 'Writing', href: '/blog', note: 'notes from the build' },
+    { label: 'Contact', href: '/contact', note: 'say hi' },
   ],
 
   secondaryNav: [
     { label: 'Journey', href: '/journey' },
-    { label: 'Research', href: '/research' },
-    { label: 'Archive', href: '/archive' },
+    { label: 'Speaking', href: '/talks' },
     { label: 'Experience', href: '/experience' },
+    { label: 'Archive', href: '/archive' },
     { label: 'Services', href: '/services' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'Everything else', href: '/more' },
   ],
 
-  /** Per-page accent */
+  /** The résumé lives at /cv as a printable page (Save as PDF from the print dialog). */
+  resume: '/cv',
+
+  /** Per-page accent. Text-safe on paper; Base lightens it for the dark theme. */
   accents: {
-    home: '#08b9d4',
-    work: '#ff083d',
-    about: '#08b9d4',
-    journey: '#8b5cf6',
-    archive: '#f59e0b',
-    services: '#2fd643',
-    research: '#08b9d4',
-    cv: '#8b5cf6',
+    home: '#2f55f0',
+    work: '#c24a12',
+    about: '#2f55f0',
+    journey: '#6a44cc',
+    archive: '#c24a12',
+    services: '#3d7a16',
+    research: '#6a44cc',
+    experiments: '#c24a12',
+    cv: '#191919',
   },
 } as const;
