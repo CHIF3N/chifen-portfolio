@@ -39,8 +39,8 @@ That is not a rejection of the service. That is people telling you exactly where
 
 ## Screenshots
 
-![The Ayodah website open on a phone, showing the donor search screen](/chifen-portfolio/work/ayodah/ayodah-website.jpg)
-![The Ayodah app icon on a phone home screen, next to Facebook and LinkedIn](/chifen-portfolio/work/ayodah/ayodah-home-screen.jpg)
+![The Ayodah website open on a phone, showing the donor search screen](/work/ayodah/ayodah-website.jpg)
+![The Ayodah app icon on a phone home screen, next to Facebook and LinkedIn](/work/ayodah/ayodah-home-screen.jpg)
 
 ## Architecture
 

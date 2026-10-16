@@ -2,580 +2,909 @@
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import Hero from '../components/Hero.astro';
-import WorkCard from '../components/WorkCard.astro';
-import talksData from '../data/talks.json';
+import Wordmark from '../components/Wordmark.astro';
+import StatusStamp from '../components/StatusStamp.astro';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
-import storyPhoto from '../assets/photos/chifen-outdoor-1.jpg';
+import { storyChapters } from '../data/storyData';
+import portrait from '../assets/photos/chifen-portrait.jpg';
+import outdoor from '../assets/photos/chifen-outdoor-1.jpg';
+import signature from '../assets/photos/chifen-signature.jpg';
+import lifedropCover from '../assets/covers/lifedrop.png';
+import coastclearCover from '../assets/covers/coastclear.png';
+import lockedinCover from '../assets/covers/lockedin.jpg';
+import maternalCover from '../assets/covers/maternal-health-risk.png';
 
-// Fetch and curate Work items
-const allWork = await getCollection('work');
+const allWork = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const byId = (id: string) => allWork.find((w) => w.id === id)!;
 
-const prioritySlugs = [
-  'lifedrop',
-  'coastclear',
-  'viac-chatbots',
-  'ai-clinical-decision-research',
-  'maternal-health-risk',
-  'lockedin',
-];
+const lifedrop = byId('lifedrop');
+const research = byId('ai-clinical-decision-research');
+const coastclear = byId('coastclear');
+const viac = byId('viac-chatbots');
+const lockedin = byId('lockedin');
+const maternal = byId('maternal-health-risk');
 
-const featuredProjects = prioritySlugs
-  .map((slug) => allWork.find((w) => w.id === slug || w.id === `${slug}.md` || w.id === `${slug}.mdx`))
-  .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+const study = (await getCollection('research'))[0];
 
-// Fetch latest writing
-const latestPosts = (await getCollection('blog'))
-  .filter((post) => !post.data.draft)
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3);
 
-const dateFormat = new Intl.DateTimeFormat('en-GB', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
+const dateFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-// Selected Talks from data
-const featuredTalks = talksData.slice(0, 2);
-
-// Simplified compact experience timeline
-const experience = [
+const folders = [
   {
-    role: 'Lead Architect & Systems Developer',
-    org: 'LifeDrop (Emergency Blood Donor Dispatch on WhatsApp)',
-    period: '2025 – Present',
-    note: 'Matching heuristics, WhatsApp Cloud API webhooks, MTN MoMo integration.',
+    label: 'Work',
+    tab: '01 · serious stuff',
+    note: "things I'm building",
+    href: '/work',
+    tone: '',
+    r: -1.5,
+    sheet: allWork.slice(0, 4).map((w) => w.data.title),
+    count: `${allWork.length} projects`,
   },
   {
-    role: 'Lead Engineer',
-    org: 'CoastClear (Coastal Waste Logistics & Edge AI)',
-    period: '2025 – Present',
-    note: 'Built for Ocean Hack 2025 (NatGeo & TNC) with trilingual English/French/Pidgin UI.',
+    label: 'Research Lab',
+    tab: '02 · the science corner',
+    note: 'questions with data',
+    href: '/research',
+    tone: 'folder--lavender',
+    r: 1.2,
+    sheet: ['AI readiness study', '387 respondents', 'Maternal health risk'],
+    count: 'BSc dissertation + analysis',
   },
   {
-    role: 'Co-Founder & CEO',
-    org: 'INKWAVE (Digital Systems & Storytelling)',
-    period: '2023 – Present',
-    note: 'Digital products, web architectures, and client CMS handovers at zero maintenance cost.',
+    label: 'About Me',
+    tab: '03 · the human',
+    note: 'the human behind the screen',
+    href: '/about',
+    tone: 'folder--paper',
+    r: -0.6,
+    sheet: ['nurse', 'self-taught engineer', 'researcher', 'founder'],
+    count: 'story, awards, skills',
   },
   {
-    role: 'District Data Manager & PMTCT Lead',
-    org: 'Kumba South District Health Service',
-    period: '2025 – 2026',
-    note: 'Maintained >95% data completeness across rural clinical health registries in DHIS2.',
+    label: 'Side Quests',
+    tab: '04 · random experiments',
+    note: 'open when curious',
+    href: '/experiments',
+    tone: 'folder--orange',
+    r: 1.6,
+    sheet: ['an Agrobot', 'an air sanitizer', 'a focus app', 'a plastic tile press'],
+    count: 'prototypes & detours',
   },
   {
-    role: 'Co-Founder & CTO',
-    org: 'Ayodah Blood Donor Platform',
-    period: '2020 – 2023',
-    note: 'Mediated 310+ donations across 3 partner hospitals; precursor to LifeDrop.',
+    label: 'Writing',
+    tab: '05 · notes from the build',
+    note: 'what broke, what I learned',
+    href: '/blog',
+    tone: 'folder--cobalt',
+    r: -1.1,
+    sheet: posts.map((p) => p.data.title),
+    count: 'technical posts',
+  },
+  {
+    label: 'Contact',
+    tab: '06 · say hi',
+    note: 'the door is open',
+    href: '/contact',
+    tone: 'folder--ink',
+    r: 0.8,
+    sheet: [site.emails[0], 'WhatsApp', 'LinkedIn'],
+    count: 'email, WhatsApp, socials',
   },
 ];
 
-const services = [
-  {
-    title: 'Health-Tech Product Development',
-    summary: 'Clinical workflows and donor applications engineered for environments with unreliable power, scarce connectivity, and zero margin for error.',
-    stack: 'Next.js, Python, PostgreSQL, Offline-First',
-  },
-  {
-    title: 'WhatsApp & Low-Bandwidth Automation',
-    summary: 'Automated triage bots, emergency alerts, and messaging pipelines built directly where African patients and families already communicate.',
-    stack: 'WhatsApp Cloud API, ManyChat, Webhooks, MoMo',
-  },
-  {
-    title: 'Clinical Data & Analytics',
-    summary: 'Healthcare registry management, DHIS2 audit trails, data completeness pipelines, and statistical research for evidence-backed decisions.',
-    stack: 'DHIS2, SPSS, Python, KoboToolbox',
-  },
-  {
-    title: 'Digital Systems & Offline-First Apps',
-    summary: 'Full-stack web applications, local SQLite synchronization, and self-hosted open-source infrastructure that keeps running through blackouts.',
-    stack: 'React Native, SQLite, Docker, Nginx',
-  },
+const deskFiles = [
+  { name: 'résumé', ext: 'cv', href: site.resume, note: 'printable' },
+  { name: 'journey', ext: 'txt', href: '/journey', note: '14 chapters' },
+  { name: 'talks', ext: 'key', href: '/talks', note: 'PyCon 2026' },
+  { name: 'archive', ext: '/', href: '/archive', note: 'photos & artefacts' },
 ];
+
+/* Milestones that appear, with sources, on /about and /journey. */
+const milestones = [
+  { year: '2020', text: 'Co-founded Ayodah, a blood donor platform.' },
+  { year: '2022', text: 'Ayodah won the Silicon Mountain Challenge.' },
+  { year: '2022–25', text: 'HND Nursing. Best Overall Student, Best Nursing Student.' },
+  { year: '2025–26', text: 'District Data Manager & PMTCT Head, Kumba South.' },
+  { year: '2026', text: 'BSc Nursing. Defended a 387-respondent AI study.' },
+  { year: '2026', text: 'LifeDrop placed 3rd at MTN YaMo Pitch Season 4.' },
+  { year: '2026', text: 'Spoke at PyCon & UbuCon Cameroon.' },
+  { year: 'now', text: 'M.Tech Data Science, COLTECH (University of Bamenda).' },
+];
+
+/* Side quests pulled from the journey chapters, not invented here. */
+const questIds = ['hats-graiye-agrobot', 'air-sanitizer-2020', 'genius-academy-and-africa', 'aircraft-and-drones'];
+const quests = questIds
+  .map((id) => storyChapters.find((c) => c.id === id))
+  .filter((c): c is NonNullable<typeof c> => Boolean(c));
+const questTones = ['sticky-note--paper', 'sticky-note--orange', 'sticky-note--lavender', ''];
 ---
 
 <Base
-  title="The Nurse Who Codes"
-  description="Chifen Sama Nduma (CHIF3N) — Registered nurse and self-taught developer building practical health technology, WhatsApp automations, and clinical AI across Africa."
+  description="Chifen Sama Nduma (CHIF3N), The Nurse Who Codes. Registered nurse and self-taught software engineer in Buea, Cameroon, building blood donor networks on WhatsApp, clinical AI research and tools for low-bandwidth health systems."
   accent={site.accents.home}
+  profile
 >
-  <!-- 1. HERO: Understandable in 5 Seconds -->
-  <Hero />
+  <!-- ================================================================
+       SCENE 1 · The desk. Who, what's different, where to go next.
+       ================================================================ -->
+  <section class="hero grid-paper" aria-labelledby="hero-title">
+    <div class="shell relative grid gap-10 pt-10 pb-16 sm:pt-14 lg:grid-cols-[1.25fr_0.85fr] lg:gap-6 lg:pb-24">
+      <div class="relative z-10">
+        <p class="hand hero-hey enter text-[2.4rem] sm:text-[3rem]" style="--d:.05s">
+          hey, I'm Chifen
+          <svg class="scribble draw hero-hey-arrow" viewBox="0 0 120 60" aria-hidden="true" style="--len:160;--d:1.1s">
+            <path d="M6 10 C 40 6, 80 14, 96 40 M 84 36 L 97 42 L 99 28" />
+          </svg>
+        </p>
 
-  <!-- 2. WORK: The Centerpiece of the Site (4-6 Large Visual Cards) -->
-  <section id="featured-work" class="shell pt-16 sm:pt-24 pb-16">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 sm:mb-14">
+        <h1 id="hero-title" class="mt-1">
+          <span class="sr-only">Chifen Sama Nduma, also known as CHIF3N. The Nurse Who Codes.</span>
+          <Wordmark size="lg" class="hero-wordmark" />
+          <span aria-hidden="true" class="enter mt-3 block font-display text-[clamp(1.9rem,5vw,3.4rem)] leading-none font-semibold" style="--d:.55s">
+            The Nurse <span class="serif-i font-normal">Who</span> <span class="mark">Codes.</span>
+          </span>
+        </h1>
+
+        <p class="enter mt-6 max-w-xl text-lg leading-relaxed text-slate sm:text-xl" style="--d:.7s">
+          Registered nurse, self-taught software engineer and researcher in {site.location.split(' / ')[0]}, Cameroon.
+          Nursing showed me what breaks at two in the morning. Software gave me a way to fix some of it
+          instead of charting it and moving on.
+        </p>
+
+        <div class="enter mt-8 flex flex-wrap items-center gap-3" style="--d:.85s">
+          <a href={withBase('/work')} class="btn btn-ink">See the work <span aria-hidden="true">→</span></a>
+          <a href={withBase('/about')} class="btn btn-ghost">Read my story</a>
+          <a href={withBase(site.resume)} class="btn btn-accent">Résumé</a>
+        </div>
+        <p class="enter mt-5 text-sm text-slate" style="--d:1s">
+          Or skip the tour: <a class="ink-link font-semibold" href={`mailto:${site.emails[0]}`}>{site.emails[0]}</a>
+        </p>
+      </div>
+
+      <!-- The pinned portrait and the notes stuck around it. -->
+      <div class="hero-board relative" data-desk>
+        <figure class="polaroid hero-photo enter-drop" style="--r:3deg;--d:.35s" data-parallax="6">
+          <span class="tape" style="top:-0.7rem;left:34%;--tr:-6deg" aria-hidden="true"></span>
+          <Image
+            src={portrait}
+            alt="Chifen Sama Nduma in a black shirt, arms folded, against a dark background."
+            widths={[320, 480, 640]}
+            sizes="(max-width: 1024px) 70vw, 30vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+          <figcaption>that's me ↑</figcaption>
+        </figure>
+
+        <div class="hero-notes">
+          <div class="sticky-note note-a enter-drop" style="--r:-4deg;--d:1.05s" data-drag>
+            <p class="eyebrow !text-[#191919]/60">currently</p>
+            <p class="hand mt-1 text-[1.45rem]">M.Tech Data Science at COLTECH, University of Bamenda</p>
+          </div>
+          <div class="sticky-note sticky-note--lavender note-b enter-drop" style="--r:3deg;--d:1.2s" data-drag>
+            <p class="eyebrow !text-[#191919]/60">research note</p>
+            <p class="hand mt-1 text-[1.45rem]">Asked 387 health workers about AI. Not resistant. Under-trained.</p>
+          </div>
+          <div class="sticky-note sticky-note--orange note-c enter-drop" style="--r:-2deg;--d:1.35s" data-drag>
+            <p class="eyebrow !text-[#191919]/60">LifeDrop</p>
+            <p class="hand mt-1 text-[1.45rem]">3rd place, MTN YaMo Pitch Season 4</p>
+          </div>
+        </div>
+
+        <button type="button" class="tidy-btn hidden" data-tidy>
+          <span class="hand text-lg">tidy the desk</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="hand start-here enter" style="--d:1.5s" aria-hidden="true">
+      start here
+      <svg class="scribble draw" viewBox="0 0 40 70" style="--len:120;--d:1.7s"><path d="M20 4 C 10 24, 30 40, 20 64 M 10 54 L 20 66 L 30 54" /></svg>
+    </p>
+  </section>
+
+  <!-- ================================================================
+       SCENE 2 · The desktop of ideas. Every folder is a real page.
+       ================================================================ -->
+  <section id="desktop" class="shell pt-16 sm:pt-20" aria-labelledby="desktop-title">
+    <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-2">
-          Selected Systems &amp; Case Studies
-        </p>
-        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-ink">
-          What I Build.
-        </h2>
-        <p class="mt-2 text-sm sm:text-base text-slate max-w-xl">
-          Emergency blood dispatch, bilingual clinical bots, empirical AI baselines, and conservation logistics. Built for real people with zero margin for failure.
-        </p>
+        <p class="eyebrow">The desktop</p>
+        <h2 id="desktop-title" class="display-section mt-2">Open a folder.</h2>
       </div>
-
-      <a
-        href={withBase('/work')}
-        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-ink hover:text-accent transition-colors shrink-0 group"
-      >
-        <span>View all projects ({allWork.length})</span>
-        <span aria-hidden="true" class="transition-transform group-hover:translate-x-1">&rarr;</span>
-      </a>
+      <p class="hand max-w-xs text-2xl text-slate sm:text-right">everything's labelled, promise. it only looks messy.</p>
     </div>
 
-    <!-- 2-Column Responsive Large Visual Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+    <ul class="folders mt-10" role="list">
       {
-        featuredProjects.map((entry, idx) => (
-          <WorkCard entry={entry} index={idx} />
-        ))
-      }
-    </div>
-
-    <div class="mt-12 text-center">
-      <a
-        href={withBase('/work')}
-        class="inline-flex items-center gap-2 rounded-full border border-line bg-paper px-6 py-3 text-sm font-semibold text-ink transition-all hover:border-ink hover:bg-paper-dim"
-      >
-        <span>Explore All Work &amp; Case Studies</span>
-        <span aria-hidden="true">&rarr;</span>
-      </a>
-    </div>
-  </section>
-
-  <!-- 3. THE NUMBERS: Contextual Evidence, Not a Wall of Stats -->
-  <section class="border-y border-line bg-paper-dim py-14 sm:py-20 transition-colors">
-    <div class="shell">
-      <div class="max-w-2xl mb-10 sm:mb-12">
-        <p class="text-xs font-mono uppercase tracking-widest text-slate font-semibold mb-2">
-          Measurable Impact
-        </p>
-        <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight text-ink">
-          Verified Evidence.
-        </h2>
-        <p class="mt-2 text-sm sm:text-base text-slate">
-          Every number represents real patients, healthcare workers, or deployed code &mdash; not hypothetical projections.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-        <!-- Metric 1 -->
-        <div class="p-6 rounded-2xl border border-line bg-paper shadow-xs">
-          <span class="font-display text-4xl sm:text-5xl font-bold text-ink tabular-nums block">
-            5,000<span class="text-accent">+</span>
-          </span>
-          <p class="mt-2 font-semibold text-sm text-ink">Lives reached &amp; impacted</p>
-          <p class="mt-1 text-xs text-slate leading-relaxed">
-            Through LifeDrop blood dispatch, district PMTCT registries, and clinical bedside triage across Cameroon.
-          </p>
-        </div>
-
-        <!-- Metric 2 -->
-        <div class="p-6 rounded-2xl border border-line bg-paper shadow-xs">
-          <span class="font-display text-4xl sm:text-5xl font-bold text-ink tabular-nums block">
-            8,500<span class="text-accent">+</span>
-          </span>
-          <p class="mt-2 font-semibold text-sm text-ink">Platform reach across built tech</p>
-          <p class="mt-1 text-xs text-slate leading-relaxed">
-            Registered donors, coastal cleanup crews, remote STEM students, and developers across platforms and automations.
-          </p>
-        </div>
-
-        <!-- Metric 3 -->
-        <div class="p-6 rounded-2xl border border-line bg-paper shadow-xs">
-          <span class="font-display text-4xl sm:text-5xl font-bold text-ink tabular-nums block">
-            387
-          </span>
-          <p class="mt-2 font-semibold text-sm text-ink">Hospital clinicians surveyed</p>
-          <p class="mt-1 text-xs text-slate leading-relaxed">
-            First hospital-wide empirical baseline across 6 professional cadres at Buea Regional Hospital (92.4% response rate).
-          </p>
-        </div>
-
-        <!-- Metric 4 -->
-        <div class="p-6 rounded-2xl border border-line bg-paper shadow-xs">
-          <span class="font-display text-4xl sm:text-5xl font-bold text-ink tabular-nums block">
-            4
-          </span>
-          <p class="mt-2 font-semibold text-sm text-ink">African countries reached</p>
-          <p class="mt-1 text-xs text-slate leading-relaxed">
-            Software deployments, health tech activations, and open-source contributions in Cameroon, Nigeria, Ghana, and Kenya.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4. ABOUT / THE STORY: Human, Authentic, Nurse to Developer -->
-  <section class="shell py-16 sm:py-24">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-      <!-- Story Photo Card (5 cols) -->
-      <div class="lg:col-span-5 order-2 lg:order-1">
-        <div class="relative rounded-2xl overflow-hidden border border-line bg-paper-dim p-2.5 shadow-xl group">
-          <div class="aspect-[3/4] rounded-xl overflow-hidden bg-ink relative">
-            <Image
-              src={storyPhoto}
-              alt="Chifen Sama Nduma — The Nurse Who Codes working at the intersection of healthcare, automation, and clinical systems"
-              widths={[400, 700, 960]}
-              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 480px)"
-              loading="lazy"
-              class="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-            />
-            <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
-              <span class="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-semibold block">
-                The Nurse Who Codes
+        folders.map((f, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <a href={withBase(f.href)} class:list={['folder', f.tone]} style={`--r:${f.r}deg`}>
+              <span class="folder-tab">{f.tab}</span>
+              <span class="folder-back" aria-hidden="true" />
+              <span class="folder-sheet" aria-hidden="true">
+                {f.sheet.slice(0, 4).map((s) => (
+                  <span class="block truncate">· {s}</span>
+                ))}
               </span>
-              <p class="text-xs font-medium text-white/95 mt-0.5 leading-snug">
-                Chifen Sama Nduma &bull; Healthcare &amp; Engineering Integration
-              </p>
-            </div>
-          </div>
-          <div class="p-3 text-xs font-mono text-slate flex justify-between items-center">
-            <span>Future of Care &bull; Nurse Tech</span>
-            <span class="text-ink font-semibold">100% Self-Taught Dev</span>
-          </div>
-        </div>
-      </div>
+              <span class="folder-front">
+                <span class="block font-display text-[1.3rem] leading-none font-semibold sm:text-[1.7rem]">{f.label}</span>
+                <span class="hand mt-1 block text-[1.15rem] leading-tight opacity-80 sm:text-[1.35rem]">{f.note}</span>
+                <span class="mt-3 flex items-center justify-between gap-2 text-xs font-semibold opacity-75 sm:mt-4">
+                  <span>{f.count}</span>
+                  <span aria-hidden="true" class="folder-arrow hidden sm:inline">open →</span>
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
 
-      <!-- Narrative Text (7 cols) -->
-      <div class="lg:col-span-7 order-1 lg:order-2 space-y-6">
-        <div>
-          <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-2">
-            The Trajectory
-          </p>
-          <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-ink leading-tight">
-            I didn't start as a developer. I started in healthcare.
-          </h2>
-        </div>
-
-        <div class="space-y-4 text-base sm:text-lg text-slate leading-relaxed">
-          <p>
-            Then I started seeing problems that medicine alone couldn't solve: families walking door-to-door at two in the morning searching for blood that was already sitting five kilometers away in a stranger's veins.
-          </p>
-          <p>
-            So I taught myself to code. Not for theoretical exercises, but because the hospital ward gave me an immediate, unyielding feedback loop.
-          </p>
-          <p class="text-ink font-medium">
-            Now I build technology from the other side of the table &mdash; with an intimate understanding of what actually happens inside clinical care when connectivity dies, power cuts, and every second counts.
-          </p>
-        </div>
-
-        <!-- Credential Markers (Clean unboxed metadata) -->
-        <div class="pt-4 border-t border-line grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-          <div>
-            <span class="block text-slate-light uppercase font-mono text-[10px]">Clinical</span>
-            <span class="font-semibold text-ink">BSc Nursing Science</span>
-          </div>
-          <div>
-            <span class="block text-slate-light uppercase font-mono text-[10px]">Engineering</span>
-            <span class="font-semibold text-ink">Self-Taught Developer</span>
-          </div>
-          <div>
-            <span class="block text-slate-light uppercase font-mono text-[10px]">Postgraduate</span>
-            <span class="font-semibold text-ink">M.Tech Data Science (UBa)</span>
-          </div>
-        </div>
-
-        <div class="pt-2">
-          <a
-            href={withBase('/about')}
-            class="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-paper transition-all hover:bg-ink-700 hover:scale-[1.02]"
-          >
-            <span>READ MY STORY</span>
-            <span aria-hidden="true">&rarr;</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5. SERVICES: Practical, Commercial, Concise -->
-  <section class="border-t border-line bg-paper-dim py-16 sm:py-24 transition-colors">
-    <div class="shell">
-      <div class="max-w-2xl mb-10 sm:mb-14">
-        <p class="text-xs font-mono uppercase tracking-widest text-slate font-semibold mb-2">
-          Technical Capabilities
-        </p>
-        <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight text-ink">
-          How I Can Help.
-        </h2>
-        <p class="mt-2 text-sm sm:text-base text-slate">
-          Commercial engineering and advisory services focused on healthcare, offline-first mobile apps, and low-bandwidth communications.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-        {
-          services.map((svc) => (
-            <div class="p-7 rounded-2xl border border-line bg-paper shadow-xs flex flex-col justify-between">
-              <div>
-                <h3 class="font-display text-xl sm:text-2xl font-bold text-ink uppercase tracking-tight">
-                  {svc.title}
-                </h3>
-                <p class="mt-3 text-sm text-slate leading-relaxed">
-                  {svc.summary}
-                </p>
-              </div>
-              <div class="mt-6 pt-4 border-t border-line/60 flex items-center justify-between text-xs">
-                <span class="font-mono text-slate-light">{svc.stack}</span>
-                <a href={withBase('/contact')} class="font-semibold text-accent hover:underline">
-                  Inquire &rarr;
-                </a>
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- 6. EXPERIENCE: Compact Editorial Timeline -->
-  <section class="shell py-16 sm:py-24">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 sm:mb-12">
-      <div>
-        <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-2">
-          Career &amp; Tenures
-        </p>
-        <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight text-ink">
-          Experience.
-        </h2>
-        <p class="mt-2 text-sm text-slate">
-          Health data management, technical founder roles, and clinical engineering tenures.
-        </p>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <a
-          href={withBase('/experience')}
-          class="text-xs sm:text-sm font-semibold text-ink hover:text-accent transition-colors"
-        >
-          View full timeline &rarr;
-        </a>
-        <span class="text-line" aria-hidden="true">&bull;</span>
-        <a
-          href={withBase('/cv')}
-          class="text-xs sm:text-sm font-semibold text-accent hover:underline"
-        >
-          View CV &rarr;
-        </a>
-      </div>
-    </div>
-
-    <div class="divide-y divide-line border-y border-line">
+    <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4" data-reveal>
+      <span class="eyebrow">Loose files</span>
       {
-        experience.map((item) => (
-          <div class="py-5 sm:py-6 grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-4 items-baseline">
-            <span class="md:col-span-3 text-xs font-mono uppercase tracking-wider text-slate">
-              {item.period}
+        deskFiles.map((file) => (
+          <a href={withBase(file.href)} class="desk-file">
+            <span class="desk-file-icon" aria-hidden="true">{file.ext}</span>
+            <span>
+              <span class="block text-sm font-semibold">{file.name}</span>
+              <span class="block text-xs text-slate">{file.note}</span>
             </span>
-            <div class="md:col-span-5">
-              <h3 class="text-base sm:text-lg font-semibold text-ink">
-                {item.role}
-              </h3>
-              <p class="text-xs sm:text-sm text-slate">{item.org}</p>
-            </div>
-            <p class="md:col-span-4 text-xs sm:text-sm text-slate-light leading-relaxed">
-              {item.note}
-            </p>
-          </div>
+          </a>
         ))
       }
     </div>
   </section>
 
-  <!-- 7. WRITING & SPEAKING: Selected Articles & Talks -->
-  <section class="border-t border-line bg-paper-dim py-16 sm:py-24 transition-colors">
-    <div class="shell">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-        <!-- Writing Column -->
-        <div>
-          <div class="flex items-baseline justify-between mb-6 pb-3 border-b border-line">
-            <div>
-              <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold">Technical Articles</p>
-              <h2 class="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-ink mt-1">
-                Latest Writing.
-              </h2>
-            </div>
-            <a href={withBase('/blog')} class="text-xs font-semibold text-ink hover:text-accent transition-colors">
-              View all &rarr;
-            </a>
-          </div>
+  <!-- ================================================================
+       SCENE 3 · Selected work. Each project gets the frame it deserves.
+       ================================================================ -->
+  <section id="work" class="shell pt-24 sm:pt-32" aria-labelledby="work-title">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="eyebrow">Selected work</p>
+        <h2 id="work-title" class="display-section mt-2">
+          Things I built, <span class="serif-i font-normal">and what they taught me.</span>
+        </h2>
+      </div>
+      <a href={withBase('/work')} class="btn btn-ghost btn-sm">All {allWork.length} projects →</a>
+    </div>
 
-          <div class="space-y-4">
-            {
-              latestPosts.map((post) => (
-                <article class="p-5 rounded-xl border border-line bg-paper hover:border-ink/20 transition-all">
-                  <div class="flex items-center gap-2 text-[11px] font-mono text-slate mb-2">
-                    <time datetime={post.data.pubDate.toISOString()}>
-                      {dateFormat.format(post.data.pubDate)}
-                    </time>
-                    <span aria-hidden="true">&middot;</span>
-                    <span>{post.data.tags.slice(0, 2).join(' · ')}</span>
-                  </div>
-                  <h3 class="text-base font-semibold text-ink leading-snug hover:text-accent transition-colors">
-                    <a href={withBase(`/blog/${post.id.replace(/\.(md|mdx)$/, '')}`)}>
-                      {post.data.title}
-                    </a>
-                  </h3>
-                  <p class="mt-2 text-xs text-slate line-clamp-2 leading-relaxed">
-                    {post.data.description}
-                  </p>
-                </article>
-              ))
-            }
-          </div>
-        </div>
-
-        <!-- Speaking Column -->
-        <div>
-          <div class="flex items-baseline justify-between mb-6 pb-3 border-b border-line">
-            <div>
-              <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold">Keynotes &amp; Demos</p>
-              <h2 class="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-ink mt-1">
-                Selected Talks.
-              </h2>
-            </div>
-            <a href={withBase('/talks')} class="text-xs font-semibold text-ink hover:text-accent transition-colors">
-              View all &rarr;
-            </a>
-          </div>
-
-          <div class="space-y-4">
-            {
-              featuredTalks.map((talk) => (
-                <div class="p-5 rounded-xl border border-line bg-paper hover:border-ink/20 transition-all flex flex-col justify-between">
-                  <div>
-                    <div class="flex items-center justify-between text-[11px] font-mono text-slate mb-2">
-                      <span class="font-semibold text-accent">{talk.event}</span>
-                      <span>{talk.date}</span>
-                    </div>
-                    <h3 class="text-base font-semibold text-ink leading-snug">
-                      {talk.title}
-                    </h3>
-                    <p class="mt-2 text-xs text-slate line-clamp-2 leading-relaxed">
-                      {talk.abstract}
-                    </p>
-                  </div>
-                  <div class="mt-4 pt-3 border-t border-line/60 flex items-center justify-between text-xs">
-                    <span class="text-slate-light font-mono text-[11px]">{talk.location}</span>
-                    <a href={withBase('/talks')} class="font-semibold text-ink hover:text-accent">
-                      View slides &rarr;
-                    </a>
-                  </div>
-                </div>
-              ))
-            }
-          </div>
+    <!-- LifeDrop: the product window -->
+    <article class="work-row mt-14 grid items-center gap-8 lg:grid-cols-[1.35fr_1fr] lg:gap-12" data-reveal>
+      <a href={withBase(`/work/${lifedrop.id}`)} class="window lift block" style="--r:-1deg" aria-label={`${lifedrop.data.title} case study`}>
+        <span class="window-bar"><span class="window-dots"><i /><i /><i /></span><span class="window-url">lifedropcam.netlify.app</span></span>
+        <Image src={lifedropCover} alt="The LifeDrop website: 'Be their hero today' beside a WhatsApp conversation matching a donor." widths={[600, 900, 1200]} sizes="(max-width: 1024px) 92vw, 56vw" loading="lazy" class="block w-full" />
+      </a>
+      <div>
+        <div class="flex flex-wrap items-center gap-3"><StatusStamp status={lifedrop.data.status} /><span class="text-sm text-slate">{lifedrop.data.year} · {lifedrop.data.role}</span></div>
+        <h3 class="mt-3 font-display text-4xl font-semibold"><a class="hover:text-accent" href={withBase(`/work/${lifedrop.id}`)}>{lifedrop.data.title}</a></h3>
+        <p class="mt-3 text-lg leading-relaxed text-slate">{lifedrop.data.summary}</p>
+        <ul class="mt-5 space-y-2 text-sm font-semibold">
+          {lifedrop.data.metrics.map((m) => <li class="flex gap-2"><span class="text-accent" aria-hidden="true">✓</span>{m}</li>)}
+        </ul>
+        <p class="hand mt-5 text-2xl text-slate">no install screen this time. <span class="text-base">(see Ayodah)</span></p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <a href={withBase(`/work/${lifedrop.id}`)} class="btn btn-ink btn-sm">Read the case study</a>
+          {lifedrop.data.liveUrl && <a href={lifedrop.data.liveUrl} target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">Visit live site ↗</a>}
         </div>
       </div>
+    </article>
+
+    <!-- Research: the field notebook -->
+    <article class="work-row mt-24 grid items-start gap-8 lg:grid-cols-[1fr_1.2fr] lg:gap-12" data-reveal>
+      <div class="lg:order-2">
+        <div class="notebook paper lift relative p-6 pl-14 sm:p-8 sm:pl-16" style="--r:1.2deg">
+          <span class="tape" style="top:-0.8rem;right:2rem;--tr:5deg" aria-hidden="true"></span>
+          <p class="eyebrow">Field notebook · {study.data.site}</p>
+          <dl class="mt-5 grid grid-cols-2 gap-x-6 gap-y-5">
+            <div><dt class="text-xs font-semibold text-slate">respondents</dt><dd class="font-display text-5xl font-semibold">387</dd></div>
+            <div><dt class="text-xs font-semibold text-slate">response rate</dt><dd class="font-display text-5xl font-semibold">92.4<span class="text-2xl">%</span></dd></div>
+            <div><dt class="text-xs font-semibold text-slate">questionnaires out</dt><dd class="font-display text-3xl font-semibold">419</dd></div>
+            <div><dt class="text-xs font-semibold text-slate">professional cadres</dt><dd class="font-display text-3xl font-semibold">6</dd></div>
+          </dl>
+          <p class="hand mt-6 text-[1.7rem] leading-tight">
+            → not resistant to AI.<br /><span class="mark">under-trained and under-equipped.</span>
+          </p>
+        </div>
+      </div>
+      <div class="lg:order-1 lg:pt-6">
+        <div class="flex flex-wrap items-center gap-3"><StatusStamp status={research.data.status} /><span class="text-sm text-slate">{research.data.year} · {research.data.role}</span></div>
+        <h3 class="mt-3 font-display text-4xl font-semibold"><a class="hover:text-accent" href={withBase(`/work/${research.id}`)}>{research.data.title}</a></h3>
+        <p class="mt-3 text-lg leading-relaxed text-slate">{research.data.summary}</p>
+        <p class="mt-4 text-sm text-slate">A cross-sectional study for my BSc dissertation. Evidence about readiness, not a clinical product.</p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <a href={withBase(`/research/${study.id}`)} class="btn btn-ink btn-sm">Open the study</a>
+          <a href={withBase(`/work/${research.id}`)} class="btn btn-ghost btn-sm">Project write-up</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- A loose spread: CoastClear clipping, LockedIn phone, MORIA index card, maternal figure -->
+    <div class="spread mt-24 grid gap-10 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+      <article class="lg:col-span-7" data-reveal>
+        <a href={withBase(`/work/${coastclear.id}`)} class="paper lift block overflow-hidden p-3" style="--r:-1.4deg">
+          <span class="pin" style="top:.5rem;left:50%" aria-hidden="true"></span>
+          <Image src={coastclearCover} alt="CoastClear welcome screen offering English, Français and Pidgin." widths={[500, 800]} sizes="(max-width: 1024px) 92vw, 50vw" loading="lazy" class="block w-full rounded-[3px]" />
+          <span class="block px-2 pt-4 pb-2">
+            <span class="flex flex-wrap items-center gap-3"><StatusStamp status={coastclear.data.status} /><span class="text-sm text-slate">{coastclear.data.year} · ocean conservation</span></span>
+            <span class="mt-2 block font-display text-3xl font-semibold">{coastclear.data.title}</span>
+            <span class="mt-2 block text-slate">{coastclear.data.summary}</span>
+          </span>
+        </a>
+      </article>
+
+      <article class="lg:col-span-5 lg:pt-16" data-reveal style="--reveal-delay:120ms">
+        <a href={withBase(`/work/${lockedin.id}`)} class="group flex items-center gap-6">
+          <span class="phone lift" style="--r:4deg">
+            <Image src={lockedinCover} alt="LockedIn v1's focus timer screen." widths={[240, 360]} sizes="180px" loading="lazy" class="block h-full w-full object-cover" />
+          </span>
+          <span class="min-w-0">
+            <StatusStamp status={lockedin.data.status} />
+            <span class="mt-2 block font-display text-3xl font-semibold group-hover:text-accent">{lockedin.data.title}</span>
+            <span class="mt-2 block text-slate">{lockedin.data.summary}</span>
+            <span class="hand mt-2 block text-xl text-slate">that's v1. v2 is in the oven.</span>
+          </span>
+        </a>
+      </article>
+
+      <article class="lg:col-span-5" data-reveal>
+        <a href={withBase(`/work/${viac.id}`)} class="index-card lift block" style="--r:1.5deg">
+          <span class="flex items-center justify-between gap-3"><span class="eyebrow">{viac.data.role}</span></span>
+          <span class="mt-3 block font-display text-3xl font-semibold">{viac.data.title}</span>
+          <span class="mt-2 block text-slate">{viac.data.summary}</span>
+          <span class="mt-4 grid grid-cols-2 gap-3">
+            {viac.data.metrics.slice(0, 4).map((m) => <span class="rounded border border-dashed border-line px-3 py-2 text-sm font-semibold">{m}</span>)}
+          </span>
+        </a>
+      </article>
+
+      <article class="lg:col-span-7" data-reveal style="--reveal-delay:120ms">
+        <a href={withBase(`/work/${maternal.id}`)} class="block">
+          <span class="relative block">
+            <span class="tape" style="top:-0.6rem;left:1.5rem;--tr:-8deg" aria-hidden="true"></span>
+            <span class="tape" style="bottom:-0.6rem;right:1.5rem;--tr:6deg" aria-hidden="true"></span>
+            <Image src={maternalCover} alt="Bar chart of maternal health risk levels from the analysis." widths={[500, 800]} sizes="(max-width: 1024px) 92vw, 55vw" loading="lazy" class="paper block w-full p-2" style="--r:-0.8deg" />
+          </span>
+          <span class="mt-5 block">
+            <span class="eyebrow">Fig. 1 · {maternal.data.role}</span>
+            <span class="mt-1 block font-display text-3xl font-semibold">{maternal.data.title}</span>
+            <span class="mt-2 block text-slate">{maternal.data.summary}</span>
+          </span>
+        </a>
+      </article>
     </div>
   </section>
 
-  <!-- 7.5 MORE CONTENT HUB: Direct In-Page Access to Secondary Archives -->
-  <section class="shell py-12 sm:py-16">
-    <div class="rounded-2xl border border-line bg-paper-dim/60 p-6 sm:p-10 transition-colors">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div class="max-w-xl">
-          <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-2">
-            <span>Secondary Archives &bull; Deep Dives</span>
-          </div>
-          <h2 class="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-ink">
-            Looking for the Full Story?
-          </h2>
-          <p class="mt-2 text-sm sm:text-base text-slate leading-relaxed">
-            Beyond the homepage trailer, explore the 14-chapter trajectory timeline, hospital clinical AI research, full career tenures, and verified evidence archive.
+  <!-- ================================================================
+       SCENE 4 · The human behind the work.
+       ================================================================ -->
+  <section id="human" class="human mt-28 border-y-[1.5px] border-ink py-20 sm:py-28" aria-labelledby="human-title">
+    <div class="shell grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+      <div class="relative mx-auto w-full max-w-sm lg:mx-0">
+        <figure class="polaroid" style="--r:-3deg" data-reveal>
+          <span class="tape" style="top:-0.7rem;left:30%" aria-hidden="true"></span>
+          <Image src={outdoor} alt="Chifen outdoors in a white polo shirt, cap and headphones, looking off to the side." widths={[360, 520]} sizes="(max-width: 1024px) 80vw, 28vw" loading="lazy" />
+          <figcaption>somewhere around Buea</figcaption>
+        </figure>
+        <figure class="signature paper p-1.5" style="--r:5deg" data-reveal>
+          <Image src={signature} alt="Black-and-white portrait of Chifen with the handwritten CHIF3N signature." widths={[200, 300]} sizes="160px" loading="lazy" class="block w-full rounded-[3px]" />
+        </figure>
+      </div>
+
+      <div>
+        <p class="eyebrow">The human behind the screen</p>
+        <h2 id="human-title" class="display-section mt-2">I didn't start as a developer. <span class="serif-i font-normal">I started in healthcare.</span></h2>
+        <div class="mt-6 max-w-2xl space-y-4 text-lg leading-relaxed text-slate">
+          <p>
+            I trained as a nurse before I learned to build software, and that order matters. The gap between what a
+            health product claims to do and what happens on a ward is invisible to people who have never worked one.
+          </p>
+          <p>
+            Most health software assumes reliable power, fast internet and spare phone storage. I build for what is
+            actually there: low data, unreliable power, a phone rather than a laptop.
           </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-          <a
-            href={withBase('/journey')}
-            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
-          >
-            <span>📖 Journey</span>
-          </a>
-          <a
-            href={withBase('/research')}
-            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
-          >
-            <span>🔬 Research</span>
-          </a>
-          <a
-            href={withBase('/experience')}
-            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
-          >
-            <span>🏢 Experience</span>
-          </a>
-          <a
-            href={withBase('/services')}
-            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
-          >
-            <span>⚡ Services</span>
-          </a>
-          <a
-            href={withBase('/archive')}
-            class="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-all shadow-xs"
-          >
-            <span>🖼️ Archive</span>
-          </a>
-          <a
-            href={withBase('/more')}
-            class="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-xs font-semibold text-paper hover:bg-ink-700 transition-all hover:scale-[1.02] shadow-sm ml-1"
-          >
-            <span>View All More Content</span>
-            <span aria-hidden="true">&rarr;</span>
-          </a>
+        <ol class="milestones mt-10" aria-label="Milestones">
+          {
+            milestones.map((m, i) => (
+              <li data-reveal style={`--reveal-delay:${i * 50}ms`}>
+                <span class="milestone-year">{m.year}</span>
+                <span>{m.text}</span>
+              </li>
+            ))
+          }
+        </ol>
+
+        <div class="mt-10 flex flex-wrap items-center gap-3">
+          <a href={withBase('/about')} class="btn btn-ink">The full story</a>
+          <a href={withBase('/journey')} class="btn btn-ghost">All 14 chapters</a>
+          <a href={withBase(site.resume)} class="btn btn-ghost">Résumé</a>
         </div>
+        <p class="sticky-note sticky-note--lavender mt-10 inline-block max-w-sm" style="--r:-2deg">
+          <span class="eyebrow block !text-[#191919]/60">off duty</span>
+          <span class="hand mt-1 block text-[1.4rem]">chess, anime, a new language for the fun of it, music, travel.</span>
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- 8. CONTACT CTA: Memorable, Direct, Authentic -->
-  <section class="shell py-20 sm:py-28">
-    <div class="rounded-3xl border border-line bg-ink text-paper p-8 sm:p-14 lg:p-16 relative overflow-hidden shadow-2xl">
-      <div class="max-w-2xl relative z-10">
-        <p class="text-xs font-mono uppercase tracking-widest text-accent font-semibold mb-3">
-          Get In Touch
+  <!-- ================================================================
+       SCENE 5 · The research & healthcare lab.
+       ================================================================ -->
+  <section id="lab" class="shell pt-24 sm:pt-32" aria-labelledby="lab-title">
+    <div class="grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
+      <div>
+        <p class="eyebrow">Research lab</p>
+        <h2 id="lab-title" class="display-section mt-2">Evidence before <span class="serif-i font-normal">enthusiasm.</span></h2>
+        <p class="mt-5 max-w-lg text-lg leading-relaxed text-slate">
+          Before anyone puts AI into clinical decisions at Buea Regional Hospital, it helps to know what the people
+          making those decisions know, think and need. So I asked them.
         </p>
-        <h2 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight text-paper leading-[0.92]">
-          Got a real problem?<br />
-          <span class="text-paper/60">Tell me what you're trying to fix.</span>
-        </h2>
-        <p class="mt-6 text-base sm:text-lg text-paper/75 leading-relaxed">
-          Whether it's a healthcare workflow with too many steps, an offline field challenge, or a WhatsApp system that needs to be built right.
-        </p>
-
-        <div class="mt-8 sm:mt-10 flex flex-wrap items-center gap-4">
-          <a
-            href={withBase('/contact')}
-            class="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-sm font-bold text-ink shadow-lg shadow-accent/20 transition-all hover:bg-accent/90 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <span>Let's talk</span>
-            <span aria-hidden="true">&rarr;</span>
-          </a>
-
-          <a
-            href="mailto:chifensama0@gmail.com"
-            class="inline-flex items-center gap-2 rounded-full border border-paper/20 bg-paper/5 px-6 py-4 text-sm font-semibold text-paper transition-all hover:bg-paper/10 hover:border-paper/40"
-          >
-            <span>chifensama0@gmail.com</span>
-          </a>
-        </div>
+        <a href={withBase('/research')} class="btn btn-ghost mt-7">Into the lab →</a>
       </div>
 
-      <!-- Subtle background graphic watermark / geometric accent -->
-      <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none select-none hidden lg:block">
-        <span class="font-display text-[16rem] font-bold uppercase leading-none text-paper">
-          +
-        </span>
+      <article class="window" data-reveal>
+        <div class="window-bar"><span class="window-dots"><i /><i /><i /></span><span class="window-url">research / {study.data.kind.toLowerCase()}.pdf</span></div>
+        <div class="p-6 sm:p-8">
+          <p class="eyebrow">{study.data.kind} · {study.data.year}</p>
+          <h3 class="mt-3 font-display text-xl leading-snug font-semibold sm:text-2xl">{study.data.title}</h3>
+          <dl class="mt-6 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+            <div><dt class="text-slate">Site</dt><dd class="font-semibold">{study.data.site}</dd></div>
+            <div><dt class="text-slate">Institution</dt><dd class="font-semibold">{study.data.institution}</dd></div>
+            {study.data.supervisor && <div><dt class="text-slate">Supervisor</dt><dd class="font-semibold">{study.data.supervisor}</dd></div>}
+            <div><dt class="text-slate">Design</dt><dd class="font-semibold">Cross-sectional, 387 of 419 (92.4%)</dd></div>
+          </dl>
+          <p class="mt-6 border-l-[3px] border-lime pl-4 font-serif text-xl italic leading-snug">{study.data.summary}</p>
+          <a href={withBase(`/research/${study.id}`)} class="ink-link mt-6 inline-block font-semibold">Read the findings →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       SCENE 6 · Side quests. The drawer nobody expects to find.
+       ================================================================ -->
+  <section id="side-quests" class="shell pt-24 sm:pt-32" aria-labelledby="quests-title">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="eyebrow">Side quests</p>
+        <h2 id="quests-title" class="display-section mt-2">Open when curious.</h2>
+      </div>
+      <p class="hand max-w-sm text-2xl text-slate sm:text-right">before the health tech, there were drones, a tractor robot and a plastic shredder.</p>
+    </div>
+
+    <ul class="quests mt-12" role="list">
+      {
+        quests.map((q, i) => (
+          <li data-reveal style={`--reveal-delay:${i * 80}ms`}>
+            <a href={withBase(`/journey#${q.id}`)} class:list={['sticky-note lift block h-full', questTones[i]]} style={`--r:${[-2.5, 1.8, -1.2, 2.4][i]}deg`}>
+              <span class="eyebrow block !text-[#191919]/60">{q.year}</span>
+              <span class="mt-2 block font-display text-xl leading-tight font-semibold">{q.title}</span>
+              <span class="mt-2 block text-sm leading-relaxed opacity-80">{q.headline}</span>
+              {q.status && <span class="mt-3 block text-[0.68rem] font-bold tracking-[0.12em] uppercase opacity-70">{q.status === 'EXPERIMENT' ? 'Experiment' : 'Archived'}</span>}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="mt-10 flex flex-wrap gap-3">
+      <a href={withBase('/experiments')} class="btn btn-ink">Open the whole drawer</a>
+      <a href={withBase('/archive')} class="btn btn-ghost">Photo archive</a>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       Writing, briefly.
+       ================================================================ -->
+  {
+    posts.length > 0 && (
+      <section class="shell pt-24 sm:pt-32" aria-labelledby="writing-title">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="eyebrow">Notes from the build</p>
+            <h2 id="writing-title" class="display-section mt-2">Recent writing.</h2>
+          </div>
+          <a href={withBase('/blog')} class="btn btn-ghost btn-sm">All posts →</a>
+        </div>
+        <ul class="mt-10 grid gap-6 md:grid-cols-3" role="list">
+          {posts.map((p, i) => (
+            <li data-reveal style={`--reveal-delay:${i * 80}ms`}>
+              <a href={withBase(`/blog/${p.id}`)} class="paper lift flex h-full flex-col p-6" style={`--r:${[-0.8, 0.6, -0.4][i]}deg`}>
+                <time class="eyebrow" datetime={p.data.pubDate.toISOString()}>{dateFormat.format(p.data.pubDate)}</time>
+                <span class="mt-3 block font-display text-xl leading-snug font-semibold">{p.data.title}</span>
+                <span class="mt-2 line-clamp-3 text-sm text-slate">{p.data.description}</span>
+                <span class="mt-auto pt-5 text-sm font-semibold text-accent">Read →</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <!-- ================================================================
+       SCENE 7 · The closing scene.
+       ================================================================ -->
+  <section class="shell pt-24 sm:pt-32" aria-labelledby="closing-title">
+    <div class="closing window" data-reveal>
+      <div class="window-bar"><span class="window-dots"><i /><i /><i /></span><span class="window-url">new message</span></div>
+      <div class="grid gap-10 p-6 sm:p-10 lg:grid-cols-[1.2fr_1fr]">
+        <div>
+          <h2 id="closing-title" class="font-display text-[clamp(2.2rem,5.5vw,4rem)] leading-[0.95] font-semibold">
+            Have a good problem? An odd idea? <span class="mark">Something worth building?</span>
+          </h2>
+          <p class="mt-5 max-w-lg text-lg text-slate">
+            Hiring, collaborating, inviting me to speak, or poking at the research. Pick the channel that suits you.
+          </p>
+        </div>
+        <div class="flex flex-col gap-3">
+          <a href={`mailto:${site.emails[0]}`} class="contact-line"><span class="eyebrow">Email</span><span>{site.emails[0]}</span></a>
+          <a href={site.whatsapp[0].href} class="contact-line"><span class="eyebrow">WhatsApp</span><span>{site.whatsapp[0].label}</span></a>
+          <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="contact-line"><span class="eyebrow">LinkedIn</span><span>/in/chif3n ↗</span></a>
+          <a href={site.github} target="_blank" rel="noopener noreferrer" class="contact-line"><span class="eyebrow">GitHub</span><span>{site.github.replace('https://github.com/', '@')} ↗</span></a>
+          <a href={withBase('/contact')} class="btn btn-ink mt-2 self-start">Go to the contact page</a>
+        </div>
       </div>
     </div>
   </section>
 </Base>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1.5px dashed var(--color-line);
+  }
+  .hero-hey {
+    position: relative;
+    display: inline-block;
+    color: var(--color-accent);
+    rotate: -3deg;
+  }
+  .hero-hey-arrow {
+    position: absolute;
+    left: 100%;
+    top: 40%;
+    width: 5.5rem;
+    color: var(--color-slate);
+  }
+  .hero-board {
+    min-height: 22rem;
+  }
+  .hero-photo {
+    width: min(19rem, 72vw);
+    margin-inline: auto;
+  }
+  .hero-notes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .hero-notes .sticky-note {
+    flex: 1 1 12rem;
+    max-width: 16rem;
+  }
+  .start-here {
+    display: none;
+  }
+  .tidy-btn {
+    position: absolute;
+    right: 0;
+    bottom: -2.2rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    border: 1.5px dashed var(--color-slate);
+    color: var(--color-slate);
+  }
+  .tidy-btn:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+
+  /* On a wide screen the notes leave the stack and get stuck around the photo. */
+  @media (min-width: 1024px) {
+    .hero-board {
+      min-height: 34rem;
+    }
+    .hero-photo {
+      position: absolute;
+      top: 1rem;
+      right: 2.5rem;
+      width: 19rem;
+    }
+    .hero-notes {
+      display: block;
+      margin: 0;
+    }
+    .hero-notes .sticky-note {
+      position: absolute;
+      width: 13.5rem;
+      max-width: none;
+      z-index: 4;
+    }
+    .note-a {
+      top: 19rem;
+      left: -1rem;
+    }
+    .note-b {
+      top: 24.5rem;
+      right: -1.5rem;
+    }
+    .note-c {
+      top: -0.5rem;
+      left: 0;
+    }
+    .start-here {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: absolute;
+      left: 50%;
+      bottom: 0.4rem;
+      font-size: 1.5rem;
+      color: var(--color-slate);
+    }
+    .start-here svg {
+      width: 1.6rem;
+      height: 3rem;
+    }
+  }
+  :global(.has-drag) [data-drag] {
+    cursor: grab;
+    touch-action: none;
+  }
+  :global(.has-drag) [data-drag].is-dragging {
+    cursor: grabbing;
+    z-index: 20 !important;
+    box-shadow: var(--shadow-lift);
+  }
+
+  .folders {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.2rem 1rem;
+  }
+  @media (min-width: 768px) {
+    .folders {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 3rem 2rem;
+    }
+  }
+  @media (max-width: 420px) {
+    .folders :global(.folder-tab) {
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      padding-inline: 0.55rem;
+    }
+  }
+  .folder-arrow {
+    transition: transform 0.3s var(--ease-paper);
+  }
+  .folders a:hover .folder-arrow {
+    transform: translateX(4px);
+  }
+
+  .desk-file {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0.6rem 0.35rem 0.35rem;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+  }
+  .desk-file:hover {
+    background: var(--sheet);
+  }
+  .desk-file-icon {
+    display: grid;
+    place-items: end center;
+    width: 2.4rem;
+    height: 2.9rem;
+    padding-bottom: 0.3rem;
+    background: var(--sheet);
+    border: 1.5px solid var(--color-ink);
+    border-radius: 3px 12px 3px 3px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .phone {
+    flex-shrink: 0;
+    display: block;
+    width: 8.5rem;
+    aspect-ratio: 9 / 18.5;
+    overflow: hidden;
+    border: 6px solid #191919;
+    border-radius: 1.6rem;
+    background: #191919;
+    rotate: var(--r);
+    box-shadow: var(--shadow-lift);
+  }
+  @media (min-width: 640px) {
+    .phone {
+      width: 10.5rem;
+    }
+  }
+  .index-card {
+    position: relative;
+    padding: 1.5rem;
+    background:
+      linear-gradient(transparent 2.6rem, color-mix(in oklab, var(--orange) 55%, transparent) 2.6rem, color-mix(in oklab, var(--orange) 55%, transparent) calc(2.6rem + 1.5px), transparent calc(2.6rem + 1.5px)),
+      var(--sheet);
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    box-shadow: var(--shadow-paper);
+    rotate: var(--r);
+  }
+
+  .human {
+    background: var(--paper-dim);
+  }
+  .signature {
+    position: absolute;
+    width: 6.5rem;
+    right: -0.25rem;
+    bottom: -4rem;
+    z-index: 3;
+  }
+  @media (min-width: 640px) {
+    .signature {
+      width: 8.5rem;
+      bottom: -2.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .signature {
+      right: -3rem;
+    }
+  }
+  .milestones {
+    display: grid;
+    gap: 0;
+    border-top: 1.5px dashed var(--color-line);
+  }
+  .milestones li {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1.5px dashed var(--color-line);
+    font-weight: 500;
+  }
+  .milestone-year {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 1.35rem;
+    line-height: 1.1;
+    color: var(--color-accent);
+  }
+
+  .quests {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .quests {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .quests {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .contact-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1.5px solid var(--color-ink);
+    border-radius: 10px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    transition: background-color 0.2s ease, transform 0.25s var(--ease-paper);
+  }
+  .contact-line:hover {
+    background: var(--lime);
+    color: #191919;
+    transform: translateX(4px) rotate(-0.5deg);
+  }
+  .contact-line:hover .eyebrow {
+    color: #191919;
+  }
+</style>
+
+<script>
+  const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // The wordmark leans gently toward the pointer. Desktop only, never on text you read.
+  const hero = document.querySelector<HTMLElement>('.hero');
+  const letters = hero ? Array.from(hero.querySelectorAll<HTMLElement>('.hero-wordmark .wm-l, .hero-wordmark .wm-three')) : [];
+  const parallax = hero ? Array.from(hero.querySelectorAll<HTMLElement>('[data-parallax]')) : [];
+
+  if (hero && fine && !calm) {
+    let frame = 0;
+    hero.addEventListener('pointermove', (e) => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const rect = hero.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width - 0.5;
+        const ny = (e.clientY - rect.top) / rect.height - 0.5;
+        letters.forEach((el, i) => {
+          const b = el.getBoundingClientRect();
+          const dx = e.clientX - (b.left + b.width / 2);
+          const dy = e.clientY - (b.top + b.height / 2);
+          const pull = Math.max(0, 1 - Math.hypot(dx, dy) / 420);
+          el.style.setProperty('--py', `${(-pull * 10).toFixed(1)}px`);
+          el.style.setProperty('--pr', `${(pull * (i % 2 ? 4 : -4)).toFixed(1)}deg`);
+        });
+        parallax.forEach((el) => {
+          const depth = Number(el.dataset.parallax ?? 4);
+          el.style.translate = `${(nx * depth * 2).toFixed(1)}px ${(ny * depth * 2).toFixed(1)}px`;
+        });
+      });
+    });
+    hero.addEventListener('pointerleave', () => {
+      letters.forEach((el) => {
+        el.style.setProperty('--py', '0px');
+        el.style.setProperty('--pr', '0deg');
+      });
+      parallax.forEach((el) => (el.style.translate = ''));
+    });
+  }
+
+  // Optional: the sticky notes can be pushed around on desktop. They are never
+  // needed to reach anything, and "tidy the desk" puts them back.
+  const desk = document.querySelector<HTMLElement>('[data-desk]');
+  const tidy = document.querySelector<HTMLButtonElement>('[data-tidy]');
+  if (desk && fine && matchMedia('(min-width: 1024px)').matches) {
+    document.documentElement.classList.add('has-drag');
+    const notes = Array.from(desk.querySelectorAll<HTMLElement>('[data-drag]'));
+    notes.forEach((note) => {
+      let sx = 0, sy = 0, ox = 0, oy = 0;
+      note.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        note.setPointerCapture(e.pointerId);
+        note.classList.add('is-dragging');
+        const [cx, cy] = (note.style.translate || '0px 0px').split(' ').map((v) => parseFloat(v) || 0);
+        ox = cx; oy = cy; sx = e.clientX; sy = e.clientY;
+      });
+      note.addEventListener('pointermove', (e) => {
+        if (!note.classList.contains('is-dragging')) return;
+        const x = Math.max(-260, Math.min(260, ox + e.clientX - sx));
+        const y = Math.max(-200, Math.min(200, oy + e.clientY - sy));
+        note.style.translate = `${x}px ${y}px`;
+      });
+      const end = () => {
+        if (!note.classList.contains('is-dragging')) return;
+        note.classList.remove('is-dragging');
+        tidy?.classList.remove('hidden');
+      };
+      note.addEventListener('pointerup', end);
+      note.addEventListener('pointercancel', end);
+    });
+    tidy?.addEventListener('click', () => {
+      notes.forEach((n) => {
+        n.style.transition = 'translate .5s cubic-bezier(.34,1.36,.64,1)';
+        n.style.translate = '';
+        setTimeout(() => (n.style.transition = ''), 520);
+      });
+      tidy.classList.add('hidden');
+    });
+  }
+</script>

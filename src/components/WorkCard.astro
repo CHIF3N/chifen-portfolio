@@ -1,163 +1,95 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
+import StatusStamp from './StatusStamp.astro';
 import { withBase } from '../lib/url';
 
 interface Props {
   entry: CollectionEntry<'work'>;
   index?: number;
-  delay?: number;
-  featuredHighlight?: string;
 }
 
-const { entry, index, delay, featuredHighlight } = Astro.props;
-const { title, summary, tags, status, year, liveUrl, metrics, role, cover } = entry.data;
+const { entry, index = 0 } = Astro.props;
+const { title, summary, tags, status, year, metrics, role, cover, liveUrl } = entry.data;
+const href = withBase(`/work/${entry.id}`);
+/* Phone screenshots sit whole inside the coloured card instead of being cropped. */
+const portrait = cover ? cover.height > cover.width : false;
 
-const ordinal = index !== undefined ? String(index + 1).padStart(2, '0') : null;
-
-const statusLabel: Record<string, string> = {
-  live: 'Live in Production',
-  shipped: 'Shipped',
-  'in-progress': 'Building',
-  concept: 'Research / Prototype',
-};
-
-// Select the primary proof achievement: either passed in or first metric
-const primaryAchievement = featuredHighlight || (metrics && metrics.length > 0 ? metrics[0] : null);
-
-// Clean one-sentence summary without clutter
-const punchySummary = summary.split('.')[0] + '.';
-
-// Determine practice domain
-const id = entry.id;
-const isClinical = id === 'ai-clinical-decision-research' || id === 'nurse-intern-assistant' || id === 'abortion-safety-georegistry' || (tags || []).includes('research');
-const isHealthTech = id === 'lifedrop' || id === 'ayodah' || id === 'maternal-health-risk' || id === 'viac-chatbots' || (tags || []).includes('health-tech');
-
-const domainInfo = isClinical
-  ? { id: 'clinical', label: '🩺 Clinical Practice', badgeClass: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30' }
-  : isHealthTech
-  ? { id: 'health-tech', label: '🏥 Health Tech', badgeClass: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30' }
-  : { id: 'tech', label: '💻 Software', badgeClass: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/30' };
+/* A little controlled irregularity: tilt and tape alternate, never random. */
+const tilt = [-0.8, 0.6, -0.4, 0.9, -0.6, 0.3][index % 6];
+const tones = ['var(--lime)', 'var(--lavender)', '#ffb48c', '#c9d4ff'];
+const tone = tones[index % tones.length];
 ---
 
-<article class="group relative flex flex-col rounded-2xl border border-line bg-paper overflow-hidden shadow-sm transition-all duration-300 hover:shadow-xl hover:border-ink/20">
-  <!-- Visual Media Frame -->
-  <div class="relative aspect-[16/10] w-full overflow-hidden bg-paper-dim border-b border-line/60">
+<article class="paper lift work-card flex h-full flex-col" style={`--r:${tilt}deg`}>
+  {index % 3 === 0 && <span class="tape" style="top:-0.7rem;left:1.25rem;--tr:-5deg" aria-hidden="true" />}
+  <div class="work-card-visual" style={`--tone:${tone}`}>
     {
       cover ? (
         <Image
           src={cover}
-          alt={`Screenshot and visual interface of ${title}`}
-          widths={[500, 800, 1100]}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          alt=""
+          widths={[420, 640, 900]}
+          sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw"
           loading="lazy"
-          decoding="async"
-          class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          class:list={['h-full w-full', portrait ? 'object-contain py-3 drop-shadow-lg' : 'object-cover object-top']}
         />
       ) : (
-        <div class="h-full w-full flex flex-col justify-between p-6 bg-gradient-to-br from-paper-dim to-line/40 text-ink">
-          <div class="flex items-center justify-between text-xs font-mono text-slate">
-            <span>{statusLabel[status] || 'Case Study'}</span>
-            <span>{year}</span>
-          </div>
-          <div>
-            <span class="block font-display text-4xl sm:text-5xl font-bold tracking-tight text-ink/80 uppercase">
-              {title}
-            </span>
-            <span class="text-xs font-mono text-slate mt-1 block">Clinical &bull; Health Technology &bull; Africa</span>
-          </div>
-        </div>
+        <span class="work-card-type" aria-hidden="true">
+          <span class="font-display text-[clamp(1.8rem,4vw,2.4rem)] leading-[0.95] font-semibold">{title}</span>
+          <span class="hand mt-2 text-lg">{tags.slice(0, 2).join(' · ')}</span>
+        </span>
       )
     }
-
-    <!-- Status pill / indicator overlaid cleanly on top-left -->
-    <div class="absolute top-3 left-3 flex items-center gap-2">
-      <span class="inline-flex items-center gap-1.5 rounded-full bg-paper/90 backdrop-blur-md px-3 py-1 text-[11px] font-mono font-semibold text-ink border border-line/80 shadow-xs">
-        {status === 'live' && (
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-        )}
-        {statusLabel[status] || status}
-      </span>
-    </div>
-
-    <!-- Year on top right -->
-    <div class="absolute top-3 right-3">
-      <span class="rounded-full bg-paper/90 backdrop-blur-md px-2.5 py-1 text-[11px] font-mono font-semibold text-slate border border-line/80">
-        {year}
-      </span>
-    </div>
   </div>
 
-  <!-- Content & Metadata Container -->
-  <div class="flex grow flex-col p-6 sm:p-7 justify-between">
-    <div>
-      <!-- Role and Category Tags: Clean Unboxed Text with Separators -->
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-slate uppercase tracking-wider">
-          <span class="text-ink font-semibold">{role}</span>
-          {tags && tags.length > 0 && (
-            <>
-              <span class="text-line" aria-hidden="true">&middot;</span>
-              <span>{tags.slice(0, 2).join(' · ')}</span>
-            </>
-          )}
-        </div>
-        <span class={`text-[10px] font-mono font-bold uppercase tracking-wider rounded-full border px-2.5 py-0.5 shadow-2xs ${domainInfo.badgeClass}`}>
-          {domainInfo.label}
-        </span>
-      </div>
-
-      <!-- Project Name -->
-      <h3 class="mt-3 font-display text-2xl sm:text-3xl font-bold text-ink tracking-tight uppercase group-hover:text-accent transition-colors">
-        <a href={withBase(`/work/${entry.id}`)} class="focus:outline-none">
-          {title}
-        </a>
-      </h3>
-
-      <!-- One-Sentence Explanation -->
-      <p class="mt-2 text-sm sm:text-base text-slate leading-relaxed">
-        {punchySummary}
-      </p>
-
-      <!-- Key Result / Proof Achievement Highlight -->
-      {
-        primaryAchievement && (
-          <div class="mt-4 pt-3.5 border-t border-line/80 flex items-baseline gap-2">
-            <span class="text-xs font-mono uppercase tracking-wider text-slate-light font-medium">Result:</span>
-            <span class="text-xs sm:text-sm font-semibold text-ink font-sans">
-              {primaryAchievement}
-            </span>
-          </div>
-        )
-      }
+  <div class="flex grow flex-col p-5 sm:p-6">
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <StatusStamp status={status} />
+      <span class="text-xs font-semibold text-slate">{year}</span>
     </div>
-
-    <!-- Action Buttons -->
-    <div class="mt-6 pt-4 border-t border-line flex items-center justify-between gap-3">
-      <a
-        href={withBase(`/work/${entry.id}`)}
-        class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink transition-colors hover:text-accent group-hover:underline underline-offset-4"
-      >
-        <span>VIEW CASE STUDY</span>
-        <span aria-hidden="true" class="transition-transform group-hover:translate-x-1">&rarr;</span>
-      </a>
-
-      {
-        liveUrl && (
-          <a
-            href={liveUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-xs font-mono font-medium text-slate hover:text-accent transition-colors flex items-center gap-1"
-          >
-            <span>Live System</span>
-            <span aria-hidden="true">&nearr;</span>
-          </a>
-        )
-      }
+    <h3 class="mt-3 font-display text-2xl font-semibold">
+      <a href={href} class="work-card-link">{title}</a>
+    </h3>
+    <p class="mt-1 text-xs font-semibold tracking-wide text-slate uppercase">{role}</p>
+    <p class="mt-3 text-[0.95rem] leading-relaxed text-slate">{summary}</p>
+    {metrics[0] && <p class="mt-4 border-t border-dashed border-line pt-3 text-sm font-semibold"><span class="hand mr-1 text-lg text-accent">proof:</span>{metrics[0]}</p>}
+    <div class="mt-auto flex items-center justify-between gap-3 pt-5 text-sm font-semibold">
+      <span class="text-accent" aria-hidden="true">Case study →</span>
+      {liveUrl && <a href={liveUrl} target="_blank" rel="noopener noreferrer" class="relative z-[2] ink-link">Live ↗</a>}
     </div>
   </div>
 </article>
+
+<style>
+  .work-card {
+    overflow: visible;
+  }
+  .work-card-visual {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    margin: 0.6rem 0.6rem 0;
+    overflow: hidden;
+    border-radius: 3px;
+    border: 1px solid var(--color-line);
+    background: var(--tone);
+  }
+  .work-card-type {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    padding: 1.1rem;
+    color: #191919;
+  }
+  /* The whole card is clickable through the title link's stretched hit area. */
+  .work-card-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .work-card:hover h3 {
+    color: var(--color-accent);
+  }
+</style>

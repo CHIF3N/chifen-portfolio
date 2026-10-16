@@ -1,0 +1,263 @@
+---
+/**
+ * Optional quick-jump palette. Opens with Ctrl/Cmd + K, "/" or any
+ * [data-open-palette] button. It is a native <dialog>, so focus is trapped and
+ * Escape closes it without extra code. Everything in it is also reachable
+ * through the normal navigation.
+ */
+import { getCollection } from 'astro:content';
+import { site } from '../lib/site';
+import { withBase } from '../lib/url';
+
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const research = await getCollection('research');
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+type Item = { group: string; label: string; hint?: string; href: string; external?: boolean; keywords?: string };
+
+const items: Item[] = [
+  { group: 'Pages', label: 'Home', hint: 'the desk', href: withBase('/') },
+  ...site.nav.map((n) => ({ group: 'Pages', label: n.label, hint: n.note, href: withBase(n.href) })),
+  { group: 'Pages', label: 'Résumé / CV', hint: 'printable', href: withBase(site.resume) },
+  ...site.secondaryNav.map((n) => ({ group: 'Pages', label: n.label, href: withBase(n.href) })),
+  ...work.map((w) => ({ group: 'Projects', label: w.data.title, hint: w.data.role, href: withBase(`/work/${w.id}`), keywords: `${w.data.summary} ${w.data.tags.join(' ')}` })),
+  ...research.map((r) => ({ group: 'Research', label: r.data.kind, hint: r.data.title, href: withBase(`/research/${r.id}`) })),
+  ...posts.slice(0, 6).map((p) => ({ group: 'Writing', label: p.data.title, href: withBase(`/blog/${p.id}`), keywords: p.data.tags.join(' ') })),
+  { group: 'Elsewhere', label: 'Email me', hint: site.emails[0], href: `mailto:${site.emails[0]}`, external: true },
+  { group: 'Elsewhere', label: 'LinkedIn', href: site.linkedin, external: true },
+  { group: 'Elsewhere', label: 'GitHub', href: site.github, external: true },
+];
+---
+
+<dialog id="palette" class="palette" aria-labelledby="palette-title">
+  <div class="palette-sheet">
+    <div class="flex items-center justify-between gap-3 px-4 pt-3">
+      <h2 id="palette-title" class="hand text-2xl">where to?</h2>
+      <button type="button" class="palette-close" data-close-palette aria-label="Close quick jump">
+        <span aria-hidden="true">✕</span>
+      </button>
+    </div>
+    <div class="px-4 pt-2">
+      <label for="palette-input" class="sr-only">Type to filter pages and projects</label>
+      <input
+        id="palette-input"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="palette-list"
+        aria-autocomplete="list"
+        placeholder="Type a page, project or topic…"
+        class="w-full rounded-lg border-[1.5px] border-ink bg-sheet px-3.5 py-3 text-base outline-none placeholder:text-slate-light"
+      />
+    </div>
+    <ul id="palette-list" role="listbox" aria-label="Results" class="palette-list">
+      {
+        items.map((item, i) => (
+          <li role="option" id={`pal-${i}`} aria-selected="false" data-group={item.group} data-text={`${item.label} ${item.hint ?? ''} ${item.group} ${item.keywords ?? ''}`.toLowerCase()}>
+            <a href={item.href} tabindex="-1" {...(item.external && !item.href.startsWith('mailto:') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+              <span class="palette-group">{item.group}</span>
+              <span class="palette-label">{item.label}</span>
+              {item.hint && <span class="palette-hint">{item.hint}</span>}
+            </a>
+          </li>
+        ))
+      }
+      <li role="option" id="pal-search" aria-selected="false" data-always>
+        <a href={withBase('/search')} tabindex="-1" id="palette-search-link">
+          <span class="palette-group">Search</span>
+          <span class="palette-label">Search the whole site<span id="palette-q"></span></span>
+        </a>
+      </li>
+    </ul>
+    <p class="border-t border-dashed border-line px-4 py-2.5 text-xs text-slate">
+      <span class="kbd">↑</span><span class="kbd">↓</span> to move · <span class="kbd">Enter</span> to open · <span class="kbd">Esc</span> to close
+    </p>
+  </div>
+</dialog>
+
+<style>
+  .palette {
+    margin: 12vh auto auto;
+    width: min(36rem, calc(100vw - 2rem));
+    max-height: 72vh;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-ink);
+    overflow: visible;
+  }
+  .palette::backdrop {
+    background: rgba(25, 22, 18, 0.45);
+  }
+  .palette-sheet {
+    display: flex;
+    flex-direction: column;
+    max-height: 72vh;
+    background: var(--sheet);
+    border: 1.5px solid var(--color-ink);
+    border-radius: 14px;
+    box-shadow: 6px 6px 0 var(--color-ink);
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .palette[open] .palette-sheet {
+      animation: palette-in 0.32s var(--ease-paper);
+    }
+  }
+  @keyframes palette-in {
+    from {
+      opacity: 0;
+      transform: translateY(-14px) rotate(-1deg);
+    }
+  }
+  .palette-close {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--color-ink);
+  }
+  .palette-close:hover {
+    background: var(--lime);
+    color: #191919;
+  }
+  .palette-list {
+    margin-top: 0.6rem;
+    padding: 0 0.5rem 0.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .palette-list li[hidden] {
+    display: none;
+  }
+  .palette-list a {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: 0 0.75rem;
+    align-items: baseline;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+  .palette-list [aria-selected='true'] a,
+  .palette-list a:hover {
+    background: var(--lime);
+    color: #191919;
+  }
+  .palette-group {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+  .palette-label {
+    font-weight: 600;
+  }
+  .palette-hint {
+    grid-column: 2;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  const dialog = document.getElementById('palette') as HTMLDialogElement | null;
+  const input = document.getElementById('palette-input') as HTMLInputElement | null;
+  const list = document.getElementById('palette-list');
+  const q = document.getElementById('palette-q');
+  const searchLink = document.getElementById('palette-search-link') as HTMLAnchorElement | null;
+
+  // Show the right shortcut on Macs.
+  if (/Mac|iPhone|iPad/.test(navigator.platform)) {
+    document.querySelectorAll('.find-btn .kbd').forEach((k) => (k.textContent = '⌘ K'));
+  }
+
+  if (dialog && input && list) {
+    const options = Array.from(list.querySelectorAll<HTMLLIElement>('li[role="option"]'));
+    let active = 0;
+    let opener: HTMLElement | null = null;
+
+    const visible = () => options.filter((o) => !o.hidden);
+
+    const setActive = (index: number) => {
+      const shown = visible();
+      if (!shown.length) return;
+      active = (index + shown.length) % shown.length;
+      options.forEach((o) => o.setAttribute('aria-selected', 'false'));
+      const el = shown[active];
+      el.setAttribute('aria-selected', 'true');
+      input.setAttribute('aria-activedescendant', el.id);
+      el.scrollIntoView({ block: 'nearest' });
+    };
+
+    const filter = () => {
+      const term = input.value.trim().toLowerCase();
+      const words = term.split(/\s+/).filter(Boolean);
+      options.forEach((o) => {
+        if (o.hasAttribute('data-always')) return;
+        const text = o.dataset.text ?? '';
+        o.hidden = words.length > 0 && !words.every((w) => text.includes(w));
+      });
+      if (q) q.textContent = term ? ` for “${input.value.trim()}”` : '';
+      if (searchLink) {
+        const base = searchLink.getAttribute('href')!.split('?')[0];
+        searchLink.href = term ? `${base}?q=${encodeURIComponent(input.value.trim())}` : base;
+      }
+      setActive(0);
+    };
+
+    const open = (from?: HTMLElement | null) => {
+      if (dialog.open) return;
+      opener = from ?? (document.activeElement as HTMLElement | null);
+      input.value = '';
+      filter();
+      dialog.showModal();
+      input.focus();
+    };
+
+    dialog.addEventListener('close', () => opener?.focus?.());
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.querySelectorAll('[data-close-palette]').forEach((b) => b.addEventListener('click', () => dialog.close()));
+
+    input.addEventListener('input', filter);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setActive(active + 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActive(active - 1);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        visible()[active]?.querySelector('a')?.click();
+      }
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-open-palette]').forEach((btn) =>
+      btn.addEventListener('click', () => open(btn))
+    );
+
+    document.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement;
+      const typing = target.closest('input, textarea, select, [contenteditable="true"]');
+      if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        dialog.open ? dialog.close() : open();
+      } else if (e.key === '/' && !typing && !dialog.open) {
+        e.preventDefault();
+        open();
+      }
+    });
+  }
+</script>

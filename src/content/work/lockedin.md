@@ -34,8 +34,8 @@ Verifying that a focus session actually happened, rather than trusting a self-re
 
 These are from v1, a simpler Forest-style focus timer with Firebase behind it. It shipped, then got retired in favour of the quest-and-stats rebuild described on the rest of this page.
 
-![LockedIn v1 home screen, with the Start Focus button](/chifen-portfolio/work/lockedin/v1-home.jpg)
-![LockedIn v1 timer screen, mid focus session](/chifen-portfolio/work/lockedin/v1-timer.jpg)
+![LockedIn v1 home screen, with the Start Focus button](/work/lockedin/v1-home.jpg)
+![LockedIn v1 timer screen, mid focus session](/work/lockedin/v1-timer.jpg)
 
 v2 has no screenshots yet. It is not released, so there is nothing built to show.
 
