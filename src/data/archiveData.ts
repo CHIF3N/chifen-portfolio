@@ -359,3 +359,15 @@ export const archiveItems: ArchiveItem[] = [
     tags: ['Identity', 'Illustration'],
   },
 ];
+
+/**
+ * Changes whenever the archive data changes. A copy saved in the browser by
+ * /admin is only used while its stamp matches, so old saved copies (with old
+ * image paths) can never hide newer photos.
+ */
+export const archiveVersion = (() => {
+  const text = JSON.stringify([archiveItems, archiveCategories]);
+  let h = 0;
+  for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+})();

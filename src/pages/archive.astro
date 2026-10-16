@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { site } from '../lib/site';
 import { withBase } from '../lib/url';
-import { archiveItems, archiveCategories } from '../data/archiveData';
+import { archiveItems, archiveCategories, archiveVersion } from '../data/archiveData';
 
 const itemsWithCount = archiveCategories.map((cat) => {
   const count =
@@ -62,7 +62,7 @@ const itemsWithCount = archiveCategories.map((cat) => {
 
   <!-- Gallery Grid -->
   <section class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-16">
-    <div id="archive-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div id="archive-grid" data-archive-version={archiveVersion} class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {archiveItems.map((item, i) => (
         <article
           data-category={item.category}
@@ -270,9 +270,14 @@ const itemsWithCount = archiveCategories.map((cat) => {
     let currentImages: string[] = [];
     let currentImageIndex = 0;
 
+    // Old saved copies used source paths that never existed on the live site.
     function sanitizeSrc(src: string): string {
       if (!src) return '';
-      return src.startsWith('/src') ? src.replace('/src', '') : src;
+      return src
+        .replace(/^\/src\/assets\/photos\//, '/photos/')
+        .replace(/^\/assets\/photos\//, '/photos/')
+        .replace(/^\/src\/assets\/covers\//, '/covers/')
+        .replace(/^\/src\//, '/');
     }
 
     function showImageAtIndex(idx: number) {
@@ -441,6 +446,8 @@ const itemsWithCount = archiveCategories.map((cat) => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (!stored) return;
         const parsed = JSON.parse(stored);
+        // A copy saved before the archive last changed is stale: keep the live data.
+        if (!grid || parsed.archiveVersion !== grid.dataset.archiveVersion) return;
         const customItems = parsed.archiveItems;
         const customCategories = parsed.archiveCategories;
 
