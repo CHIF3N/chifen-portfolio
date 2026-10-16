@@ -96,14 +96,16 @@ async function listModels({ url, key }) {
   return (data?.data ?? []).filter((m) => m.active !== false).map((m) => m.id).filter((id) => !SKIP.test(id));
 }
 
-async function pickModel(provider) {
+/** Every usable model, best first: preference matches, then the rest. */
+async function candidates(provider) {
   const ids = await listModels(provider);
+  const ordered = [];
   for (const pattern of PREFERENCES[provider.name] ?? []) {
-    const hit = ids.find((id) => pattern.test(id));
-    if (hit) return hit;
+    for (const id of ids) if (pattern.test(id) && !ordered.includes(id)) ordered.push(id);
   }
-  if (!ids.length) throw new Error('no chat models');
-  return ids[0];
+  if (!ordered.length) ordered.push(...ids.slice(0, 3));
+  if (!ordered.length) throw new Error('no chat models');
+  return ordered;
 }
 
 async function complete({ url, key }, model, messages) {
@@ -126,24 +128,30 @@ async function complete({ url, key }, model, messages) {
 }
 
 async function callModel(provider, messages) {
-  const first = provider.model ?? chosen.get(provider.name) ?? (await pickModel(provider));
-  try {
-    const answer = await complete(provider, first, messages);
-    chosen.set(provider.name, first);
-    return answer;
-  } catch (err) {
-    // Retired or unknown model: look up what the provider has now and try once more.
-    if ([400, 404, 410].includes(err.status) && !provider.model) {
-      chosen.delete(provider.name);
-      const next = await pickModel(provider);
-      if (next !== first) {
-        const answer = await complete(provider, next, messages);
-        chosen.set(provider.name, next);
-        return answer;
-      }
+  if (provider.model) return complete(provider, provider.model, messages);
+  const remembered = chosen.get(provider.name);
+  const list = remembered ? [remembered] : [];
+  let lastErr;
+  // A key may be able to list a model it cannot call (404/410/400/403), so try a few.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt === list.length) {
+      const more = (await candidates(provider)).filter((m) => !list.includes(m));
+      if (!more.length) break;
+      list.push(...more.slice(0, 4 - list.length));
     }
-    throw err;
+    const model = list[attempt];
+    if (!model) break;
+    try {
+      const answer = await complete(provider, model, messages);
+      chosen.set(provider.name, model);
+      return answer;
+    } catch (err) {
+      lastErr = err;
+      if (![400, 403, 404, 410, 422].includes(err.status)) throw err;
+      if (model === remembered) chosen.delete(provider.name);
+    }
   }
+  throw lastErr ?? new Error('no model worked');
 }
 
 export default async function handler(req, res) {
