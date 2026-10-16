@@ -276,7 +276,7 @@ const schemas = noindex ? [] : [personSchema, websiteSchema, ...(profile ? [prof
          (the script path does not exist on GitHub Pages or in dev). Admin is excluded. */
       import.meta.env.PROD && !noindex && (
         <script is:inline>
-          if (!/github\.io$|localhost|127\.0\.0\.1/.test(location.hostname)) {
+          if (/\.vercel\.app$/.test(location.hostname)) {
             window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
             var va = document.createElement('script');
             va.defer = true;
