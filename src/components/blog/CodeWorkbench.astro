@@ -1,4 +1,6 @@
 ---
+import { codeToTokens } from 'shiki';
+import { paperLight, paperDark } from '../../lib/shiki-paper.mjs';
 /**
  * CodeWorkbench.astro
  * ───────────────────────────────────────────────────────────────────────────
@@ -81,82 +83,41 @@ function esc(s: string): string {
 }
 
 /**
- * Lightweight, zero-dependency multi-color syntax highlighter.
- * Generates VS Code Dark+ theme token spans server-side.
+ * Build-time highlighting with Shiki and the site's paper themes, so the
+ * workbench and plain markdown fences share one colour scheme. Each token
+ * carries --shiki-light / --shiki-dark; code-ide.css picks the right one.
  */
-function highlightLine(rawLine: string, lang: string): string {
-  if (!rawLine.trim()) return '&nbsp;';
+const shikiLangAlias: Record<string, string> = {
+  py: 'python', ts: 'typescript', js: 'javascript', sh: 'bash', shell: 'bash',
+  yml: 'yaml', docker: 'dockerfile', postgresql: 'sql', md: 'markdown', text: 'text', txt: 'text',
+};
 
-  // 1. Separate line comments
-  let line = rawLine;
-  let commentHtml = '';
-  
-  const isHashComment = ['python', 'py', 'yaml', 'yml', 'bash', 'sh', 'shell', 'dockerfile', 'docker', 'nginx'].includes(lang);
-  const isDashComment = ['sql', 'postgresql'].includes(lang);
-
-  if (isHashComment) {
-    const hashIdx = line.indexOf('#');
-    if (hashIdx !== -1) {
-      commentHtml = `<span class="cwb-tok-com">${esc(line.slice(hashIdx))}</span>`;
-      line = line.slice(0, hashIdx);
-    }
-  } else if (isDashComment) {
-    const dashIdx = line.indexOf('--');
-    if (dashIdx !== -1) {
-      commentHtml = `<span class="cwb-tok-com">${esc(line.slice(dashIdx))}</span>`;
-      line = line.slice(0, dashIdx);
-    }
-  } else {
-    // JS / TS / CSS / JSON / C style
-    const slashIdx = line.indexOf('//');
-    if (slashIdx !== -1) {
-      commentHtml = `<span class="cwb-tok-com">${esc(line.slice(slashIdx))}</span>`;
-      line = line.slice(0, slashIdx);
-    }
-  }
-
-  // 2. Extract string literals to protect from keyword matching
-  const strings: string[] = [];
-  const stringRegex = /(".*?"|'.*?'|`.*?`)/g;
-  let codeWithoutStrings = line.replace(stringRegex, (match) => {
-    const placeholder = `___STR_${strings.length}___`;
-    strings.push(match);
-    return placeholder;
-  });
-
-  // 3. Escape HTML entities in code portion
-  let out = esc(codeWithoutStrings);
-
-  // 4. Highlight keywords
-  const kwRegex = /\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|new|class|extends|super|this|import|export|from|default|as|async|await|yield|type|interface|enum|public|private|protected|readonly|static|implements|package|typeof|instanceof|void|delete|in|of|SELECT|FROM|WHERE|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|DROP|ALTER|JOIN|LEFT|RIGHT|INNER|GROUP|BY|ORDER|ASC|DESC|LIMIT|OFFSET|AND|OR|NOT|PRIMARY|KEY|FOREIGN|REFERENCES|DEFAULT|events|server|http|location|proxy_pass|listen|def|class|lambda|with|elif)\b/g;
-  out = out.replace(kwRegex, '<span class="cwb-tok-kw">$1</span>');
-
-  // 5. Highlight types & builtins
-  const typeRegex = /\b(string|number|boolean|any|unknown|never|Promise|Record|Array|Set|Map|Date|Object|Function|UUID|TEXT|INTEGER|BOOLEAN|TIMESTAMP|VARCHAR|JSONB|SERIAL|INT|FLOAT|true|false|null|undefined|None|True|False)\b/g;
-  out = out.replace(typeRegex, '<span class="cwb-tok-type">$1</span>');
-
-  // 6. Highlight function calls
-  const fnRegex = /\b([a-zA-Z_$][a-zA-Z0-9_$]*)(?=\s*\()/g;
-  out = out.replace(fnRegex, '<span class="cwb-tok-fn">$1</span>');
-
-  // 7. Highlight numeric literals
-  const numRegex = /\b(\d+(\.\d+)?)\b/g;
-  out = out.replace(numRegex, '<span class="cwb-tok-num">$1</span>');
-
-  // 8. Re-insert strings wrapped with styling
-  strings.forEach((str, idx) => {
-    const token = `___STR_${idx}___`;
-    out = out.replace(token, `<span class="cwb-tok-str">${esc(str)}</span>`);
-  });
-
-  return out + commentHtml;
+function styleAttr(style: Record<string, string> | string | undefined): string {
+  if (!style) return '';
+  if (typeof style === 'string') return style;
+  return Object.entries(style).map(([k, v]) => `${k}:${v}`).join(';');
 }
 
-function renderCodeLines(code: string, lang: string): string {
-  return code.split('\n').map((line, ln) => {
-    const highlighted = highlightLine(line, lang);
-    return `<div class="cwb-line" data-line="${ln + 1}"><span class="cwb-ln" aria-hidden="true">${ln + 1}</span><span class="cwb-lc">${highlighted}</span></div>`;
-  }).join('');
+async function renderCodeLines(code: string, lang: string): Promise<string> {
+  const shikiLang = shikiLangAlias[lang] ?? lang;
+  let tokens: Awaited<ReturnType<typeof codeToTokens>>['tokens'];
+  try {
+    ({ tokens } = await codeToTokens(code.replace(/\n$/, ''), {
+      lang: shikiLang as any,
+      themes: { light: paperLight as any, dark: paperDark as any },
+      defaultColor: false,
+    }));
+  } catch {
+    tokens = code.split('\n').map((l) => [{ content: l, offset: 0 } as any]);
+  }
+  return tokens
+    .map((line, ln) => {
+      const html = line.length
+        ? line.map((t: any) => `<span style="${esc(styleAttr(t.htmlStyle))}">${esc(t.content)}</span>`).join('')
+        : '&nbsp;';
+      return `<div class="cwb-line" data-line="${ln + 1}"><span class="cwb-ln" aria-hidden="true">${ln + 1}</span><span class="cwb-lc astro-code">${html}</span></div>`;
+    })
+    .join('');
 }
 
 // Build folder/file tree
@@ -217,6 +178,7 @@ function buildTree(fileList: typeof files): (FolderNode | FileNode)[] {
   return roots;
 }
 
+const renderedPanels = await Promise.all(files.map((f) => renderCodeLines(f.code, f.lang)));
 const fileTree = buildTree(files);
 
 function renderTree(nodes: (FolderNode | FileNode)[], depth = 0): string {
@@ -361,11 +323,17 @@ const renderedTreeHtml = renderTree(fileTree);
           hidden={i !== 0}
         >
           <div class="cwb-code-scroller">
-            <div class="cwb-code-content" set:html={renderCodeLines(f.code, f.lang)} />
+            <div class="cwb-code-content" set:html={renderedPanels[i]} />
           </div>
         </div>
       ))}
     </div>
+  </div>
+  <div class="cwb-status" aria-live="polite">
+    <span>{files.length} {files.length === 1 ? 'file' : 'files'}</span>
+    <span>{project}</span>
+    <span class="push" data-cwb-pos>Click a line</span>
+    <span>UTF-8</span>
   </div>
 </div>
 
@@ -529,9 +497,22 @@ const renderedTreeHtml = renderTree(fileTree);
 
     // Toggle sidebar collapse
     toggleSidebar?.addEventListener('click', () => {
-      if (sidebar) {
-        sidebar.classList.toggle('cwb-sidebar--collapsed');
-      }
+      if (!sidebar) return;
+      // Phones: the explorer is an overlay that starts closed. Wider: it collapses.
+      if (matchMedia('(max-width: 640px)').matches) sidebar.classList.toggle('cwb-sidebar--open');
+      else sidebar.classList.toggle('cwb-sidebar--collapsed');
+    });
+    // Close the phone overlay after picking a file.
+    fileButtons.forEach((b) => b.addEventListener('click', () => sidebar?.classList.remove('cwb-sidebar--open')));
+
+    // Click a line to select it; the status bar shows where you are.
+    const status = wb.querySelector<HTMLElement>('[data-cwb-pos]');
+    wb.querySelectorAll<HTMLElement>('.cwb-line').forEach((line) => {
+      line.addEventListener('click', () => {
+        line.parentElement?.querySelectorAll('.cwb-line.is-active').forEach((l) => l.classList.remove('is-active'));
+        line.classList.add('is-active');
+        if (status) status.textContent = `Ln ${line.dataset.line}`;
+      });
     });
   }
 
@@ -540,236 +521,213 @@ const renderedTreeHtml = renderTree(fileTree);
 </script>
 
 <style>
+  /* Paper IDE skin. Colours come from the shared --ide-* tokens in code-ide.css. */
   .cwb {
-    --cwb-bg:         #0d1117;
-    --cwb-bar-bg:     #161b22;
-    --cwb-sidebar-bg: #0d1117;
-    --cwb-border:     rgba(255, 255, 255, 0.08);
-    --cwb-text:       #e6edf3;
-    --cwb-muted:      #7d8590;
-    --cwb-accent:     var(--color-accent, #38bdf8);
-    --cwb-ln-color:   #484f58;
-    --cwb-font:       'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
-    --cwb-font-size:  0.8125rem;
-
+    position: relative;
     display: flex;
     flex-direction: column;
+    margin-block: 2.25rem;
+    border: 1.5px solid var(--ide-frame);
     border-radius: 12px;
-    border: 1px solid var(--cwb-border);
-    background: var(--cwb-bg);
+    background: var(--ide-bg);
+    color: var(--ide-text);
+    box-shadow: 6px 6px 0 var(--ide-frame);
     overflow: hidden;
-    margin-block: 2rem;
-    font-family: var(--cwb-font);
-    font-size: var(--cwb-font-size);
+    font-size: 0.8125rem;
     line-height: 1.6;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 12px 36px rgba(0, 0, 0, 0.55);
+    rotate: -0.2deg;
   }
 
-  /* Title bar */
   .cwb-titlebar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.6rem 0.85rem;
-    background: var(--cwb-bar-bg);
-    border-bottom: 1px solid var(--cwb-border);
-    user-select: none;
     gap: 0.75rem;
+    padding: 0.45rem 0.6rem 0.45rem 0.75rem;
+    background: var(--ide-bar);
+    border-bottom: 1.5px solid var(--ide-frame);
+    font-family: var(--font-sans);
+    user-select: none;
   }
-
   .cwb-title-left {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.65rem;
+    min-width: 0;
     overflow: hidden;
   }
-
   .cwb-dots {
     display: flex;
-    gap: 5px;
-    align-items: center;
+    gap: 0.3rem;
     flex-shrink: 0;
   }
-
   .cwb-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 99px;
+    border: 1.2px solid var(--ide-frame);
   }
-  .cwb-dot--red    { background: #ff5f56; }
-  .cwb-dot--yellow { background: #ffbd2e; }
-  .cwb-dot--green  { background: #27c93f; }
-
+  .cwb-dot--red { background: var(--orange); }
+  .cwb-dot--yellow { background: var(--lime); }
+  .cwb-dot--green { background: var(--lavender); }
   .cwb-sidebar-toggle {
-    background: transparent;
-    border: none;
-    color: var(--cwb-muted);
-    cursor: pointer;
     display: grid;
     place-items: center;
-    padding: 0.2rem;
-    border-radius: 4px;
-    transition: color 0.15s, background 0.15s;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 6px;
+    border: 1.2px solid transparent;
+    background: transparent;
+    color: var(--ide-muted);
+    cursor: pointer;
   }
   .cwb-sidebar-toggle:hover {
-    color: var(--cwb-text);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--ide-frame);
+    color: var(--ide-text);
   }
-
   .cwb-breadcrumb {
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    color: var(--cwb-muted);
-    font-size: 0.75rem;
+    min-width: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ide-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  .cwb-bc-project {
-    color: #c9d1d9;
-    font-weight: 600;
-  }
-
   .cwb-bc-file {
-    color: var(--cwb-accent);
-    font-weight: 500;
+    color: var(--ide-text);
   }
-
   .cwb-actions {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    gap: 0.35rem;
     flex-shrink: 0;
   }
-
   .cwb-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.38rem;
-    padding: 0.28rem 0.65rem;
-    border-radius: 6px;
-    border: 1px solid var(--cwb-border);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--cwb-muted);
-    font-family: inherit;
+    gap: 0.35rem;
+    min-height: 1.9rem;
+    padding: 0 0.6rem;
+    border: 1.2px solid var(--ide-frame);
+    border-radius: 999px;
+    background: var(--ide-bg);
+    color: var(--ide-text);
+    font-family: var(--font-sans);
     font-size: 0.72rem;
     font-weight: 600;
-    cursor: pointer;
     white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.18s ease;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.15s ease;
   }
-  .cwb-btn:hover {
-    color: var(--cwb-text);
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(255, 255, 255, 0.22);
-  }
-  .cwb-download {
-    background: rgba(56, 189, 248, 0.06);
-    border-color: rgba(56, 189, 248, 0.2);
-    color: #93c5fd;
-  }
-  .cwb-download:hover {
-    background: rgba(56, 189, 248, 0.14);
-    border-color: rgba(56, 189, 248, 0.4);
-    color: #e0f2fe;
-  }
+  .cwb-btn:hover,
   .cwb-btn--ok {
-    color: #3fb950 !important;
-    border-color: rgba(63, 185, 80, 0.4) !important;
-    background: rgba(63, 185, 80, 0.12) !important;
+    background: var(--lime);
+    color: #191919;
+    transform: translateY(-1px);
+  }
+  @media (max-width: 560px) {
+    .cwb-copy-label,
+    .cwb-download-label {
+      display: none;
+    }
   }
 
-  /* Tab strip */
   .cwb-tabs {
     display: flex;
-    background: #0d1117;
-    border-bottom: 1px solid var(--cwb-border);
+    background: var(--ide-tab);
+    border-bottom: 1px solid var(--ide-line);
     overflow-x: auto;
     scrollbar-width: none;
+    font-family: var(--font-sans);
   }
   .cwb-tabs::-webkit-scrollbar {
     display: none;
   }
-
   .cwb-tab {
     display: flex;
     align-items: center;
     gap: 0.45rem;
-    padding: 0.5rem 0.85rem;
+    padding: 0.45rem 0.9rem;
+    border: 0;
+    border-right: 1px solid var(--ide-line);
     background: transparent;
-    border: none;
-    border-right: 1px solid var(--cwb-border);
-    color: var(--cwb-muted);
-    font-family: inherit;
+    color: var(--ide-muted);
     font-size: 0.75rem;
-    cursor: pointer;
+    font-weight: 600;
     white-space: nowrap;
-    transition: all 0.15s;
-    border-top: 2px solid transparent;
+    cursor: pointer;
   }
   .cwb-tab:hover {
-    color: var(--cwb-text);
-    background: rgba(255, 255, 255, 0.03);
+    color: var(--ide-text);
+    background: var(--ide-hover);
   }
   .cwb-tab--active {
-    color: var(--cwb-text);
-    background: var(--cwb-bar-bg);
-    border-top-color: var(--cwb-accent);
-    font-weight: 600;
+    background: var(--ide-tab-active);
+    color: var(--ide-text);
+    box-shadow: inset 0 2px 0 var(--cobalt);
   }
-
   .cwb-tab-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 99px;
     flex-shrink: 0;
   }
-
   .cwb-tab-badge {
-    font-size: 0.625rem;
-    color: var(--cwb-muted);
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 3px;
-    padding: 0.1rem 0.3rem;
+    padding: 0 0.3rem;
+    border: 1px solid var(--ide-line);
+    border-radius: 4px;
+    font-size: 0.6rem;
+    color: var(--ide-muted);
   }
 
-  /* Body: Sidebar + Panels */
   .cwb-body {
-    display: flex;
-    min-height: 380px;
-    max-height: 600px;
     position: relative;
+    display: flex;
+    min-height: 340px;
+    max-height: 600px;
     overflow: hidden;
   }
-
-  /* Sidebar */
   .cwb-sidebar {
-    width: 230px;
-    flex-shrink: 0;
-    background: var(--cwb-sidebar-bg);
-    border-right: 1px solid var(--cwb-border);
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    transition: width 0.2s ease, margin-left 0.2s ease;
+    width: 220px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    background: var(--ide-side);
+    border-right: 1px solid var(--ide-line);
+    font-family: var(--font-sans);
+    transition: width 0.25s ease;
   }
   .cwb-sidebar--collapsed {
     width: 0;
-    margin-left: -1px;
-    border-right: none;
+    border-right: 0;
     overflow: hidden;
   }
-
+  /* On phones the explorer starts closed and opens as an overlay. */
+  @media (max-width: 640px) {
+    .cwb-sidebar {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 75%;
+      z-index: 3;
+      box-shadow: 6px 0 18px -10px rgba(0, 0, 0, 0.5);
+    }
+    .cwb-sidebar:not(.cwb-sidebar--open) {
+      width: 0;
+      border-right: 0;
+      overflow: hidden;
+    }
+  }
   .cwb-sidebar-head {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.68rem;
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px dashed var(--ide-line);
+    font-size: 0.66rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    color: var(--cwb-muted);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    letter-spacing: 0.08em;
+    color: var(--ide-muted);
     user-select: none;
   }
   .cwb-sidebar-title {
@@ -777,164 +735,152 @@ const renderedTreeHtml = renderTree(fileTree);
     align-items: center;
     gap: 0.45rem;
   }
-
-  .cwb-tree-root, .cwb-folder-children {
-    list-style: none;
+  .cwb-tree-root,
+  .cwb-tree-root :global(.cwb-folder-children) {
     margin: 0;
-    padding: 0;
+    padding: 0.2rem 0;
+    list-style: none;
   }
-
-  .cwb-folder-children {
-    display: block;
-  }
-  .cwb-folder--closed > .cwb-folder-children {
+  .cwb-tree-root :global(.cwb-folder--closed > .cwb-folder-children) {
     display: none;
   }
-  .cwb-folder--closed .cwb-chevron {
+  .cwb-tree-root :global(.cwb-chevron) {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  .cwb-tree-root :global(.cwb-folder--closed .cwb-chevron) {
     transform: rotate(-90deg);
   }
-
-  .cwb-folder-btn, .cwb-file-btn {
-    width: 100%;
+  .cwb-tree-root :global(.cwb-folder-btn),
+  .cwb-tree-root :global(.cwb-file-btn) {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    background: transparent;
-    border: none;
-    color: #c9d1d9;
-    font-family: inherit;
-    font-size: 0.75rem;
-    padding-block: 0.32rem;
+    width: 100%;
+    padding-block: 0.3rem;
     padding-right: 0.6rem;
-    cursor: pointer;
+    border: 0;
+    background: transparent;
+    color: var(--ide-text);
+    font-size: 0.75rem;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: background 0.12s, color 0.12s;
+    cursor: pointer;
   }
-  .cwb-folder-btn:hover, .cwb-file-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
+  .cwb-tree-root :global(.cwb-folder-btn:hover),
+  .cwb-tree-root :global(.cwb-file-btn:hover) {
+    background: var(--ide-hover);
   }
-  .cwb-file-btn--active {
-    background: rgba(56, 189, 248, 0.12) !important;
-    color: var(--cwb-accent) !important;
-    font-weight: 600;
+  .cwb-tree-root :global(.cwb-file-btn--active) {
+    background: var(--ide-active);
+    font-weight: 700;
   }
-
-  .cwb-chevron {
-    transition: transform 0.15s ease;
-    flex-shrink: 0;
-    color: var(--cwb-muted);
-  }
-
-  .cwb-folder-icon {
+  .cwb-tree-root :global(.cwb-folder-icon) {
     display: grid;
     place-items: center;
     flex-shrink: 0;
   }
-
-  .cwb-folder-title {
-    font-weight: 500;
+  .cwb-tree-root :global(.cwb-folder-title) {
+    font-weight: 600;
   }
-
-  .cwb-file-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
+  .cwb-tree-root :global(.cwb-file-dot) {
+    width: 0.4rem;
+    height: 0.4rem;
     margin-left: 2px;
+    border-radius: 99px;
+    flex-shrink: 0;
   }
-
-  .cwb-file-name {
+  .cwb-tree-root :global(.cwb-file-name) {
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  .cwb-file-badge {
-    font-size: 0.6rem;
-    color: var(--cwb-muted);
-    background: rgba(255, 255, 255, 0.05);
-    padding: 0.05rem 0.25rem;
+  .cwb-tree-root :global(.cwb-file-badge) {
+    padding: 0 0.25rem;
+    border: 1px solid var(--ide-line);
     border-radius: 3px;
+    font-size: 0.58rem;
+    color: var(--ide-muted);
     flex-shrink: 0;
   }
 
-  /* Panels & Code Editor */
   .cwb-panels {
+    display: flex;
     flex: 1;
     min-width: 0;
-    background: var(--cwb-bg);
     overflow: hidden;
-    display: flex;
   }
-
   .cwb-panel {
+    display: none;
     flex: 1;
     min-width: 0;
     height: 100%;
     overflow: hidden;
-    display: none;
   }
   .cwb-panel--active {
     display: flex;
   }
-
   .cwb-code-scroller {
     flex: 1;
     overflow: auto;
     padding-block: 0.75rem;
+    background: var(--ide-bg);
+    font-family: var(--ide-font);
+    scrollbar-width: thin;
+    scrollbar-color: var(--ide-ln) transparent;
   }
-
   .cwb-code-content {
     display: table;
     width: 100%;
     min-width: fit-content;
   }
-
-  .cwb-line {
+  .cwb-code-content :global(.cwb-line) {
     display: table-row;
-    transition: background 0.1s ease;
+    cursor: text;
   }
-  .cwb-line:hover {
-    background: rgba(255, 255, 255, 0.035);
+  .cwb-code-content :global(.cwb-line:hover) {
+    background: var(--ide-hover);
   }
-
-  .cwb-ln {
+  .cwb-code-content :global(.cwb-line.is-active) {
+    background: var(--ide-active);
+  }
+  .cwb-code-content :global(.cwb-ln) {
     display: table-cell;
-    padding-left: 1rem;
-    padding-right: 1.25rem;
+    width: 1%;
+    padding: 0 0.7rem 0 1rem;
+    border-right: 1px solid var(--ide-line);
     text-align: right;
-    color: var(--cwb-ln-color);
-    user-select: none;
     white-space: pre;
     font-size: 0.75rem;
-    width: 1%;
-    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--ide-ln);
+    user-select: none;
   }
-
-  .cwb-lc {
+  .cwb-code-content :global(.cwb-line.is-active .cwb-ln) {
+    color: var(--ide-ln-active);
+    font-weight: 700;
+  }
+  .cwb-code-content :global(.cwb-lc) {
     display: table-cell;
-    padding-left: 1.25rem;
-    padding-right: 1.5rem;
+    padding: 0 1.5rem 0 1rem;
     white-space: pre;
-    color: var(--cwb-text);
+    background: none !important;
   }
 
-  /* Syntax Highlighting Tokens (VS Code Dark+) */
-  :global(.cwb-tok-kw)   { color: #ff7b72 !important; font-weight: 500; }
-  :global(.cwb-tok-type) { color: #79c0ff !important; font-weight: 500; }
-  :global(.cwb-tok-str)  { color: #a5d6ff !important; }
-  :global(.cwb-tok-num)  { color: #ffa657 !important; }
-  :global(.cwb-tok-fn)   { color: #d2a8ff !important; }
-  :global(.cwb-tok-prop) { color: #7ee787 !important; }
-  :global(.cwb-tok-com)  { color: #8b949e !important; font-style: italic; }
-
-  @media (max-width: 640px) {
-    .cwb-sidebar {
-      width: 170px;
-    }
+  .cwb-status {
+    display: flex;
+    gap: 1rem;
+    padding: 0.2rem 0.75rem;
+    background: var(--ide-status);
+    color: var(--ide-status-ink);
+    font-family: var(--font-sans);
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .cwb-status .push {
+    margin-left: auto;
   }
 </style>

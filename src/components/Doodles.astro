@@ -1,0 +1,145 @@
+---
+/**
+ * Margin doodles: little hand-drawn marks scattered down the page edges, the
+ * way they'd end up in a notebook. Purely decorative (aria-hidden, no pointer
+ * events), drawn in when they scroll into view, and only shown where there is
+ * real margin space so they never sit on top of content.
+ *
+ * `set` picks a small, page-appropriate mix so not every page gets the same
+ * marks in the same places.
+ */
+interface Props {
+  set?: 'default' | 'home' | 'work' | 'blog' | 'about';
+}
+const { set = 'default' } = Astro.props;
+
+import { doodles as library } from '../lib/doodles';
+
+type Name = keyof typeof library;
+type Spot = { name: Name; side: 'l' | 'r'; top: string; size: number; rot: number; tone: string };
+
+const sets: Record<NonNullable<Props['set']>, Spot[]> = {
+  home: [
+    { name: 'sparkle', side: 'r', top: '6%', size: 44, rot: 8, tone: 'var(--cobalt)' },
+    { name: 'ecg', side: 'l', top: '14%', size: 70, rot: -6, tone: 'var(--orange)' },
+    { name: 'braces', side: 'r', top: '24%', size: 52, rot: 10, tone: 'var(--color-slate)' },
+    { name: 'star', side: 'l', top: '33%', size: 38, rot: -12, tone: '#b8a400' },
+    { name: 'pill', side: 'r', top: '44%', size: 46, rot: 18, tone: 'var(--orange)' },
+    { name: 'spiral', side: 'l', top: '53%', size: 50, rot: 0, tone: 'var(--cobalt)' },
+    { name: 'cup', side: 'r', top: '63%', size: 48, rot: -8, tone: 'var(--color-slate)' },
+    { name: 'heart', side: 'l', top: '72%', size: 40, rot: 10, tone: 'var(--orange)' },
+    { name: 'wifi', side: 'r', top: '82%', size: 50, rot: 6, tone: 'var(--cobalt)' },
+    { name: 'squiggle', side: 'l', top: '90%', size: 70, rot: -4, tone: 'var(--color-slate)' },
+  ],
+  work: [
+    { name: 'braces', side: 'l', top: '10%', size: 52, rot: -8, tone: 'var(--cobalt)' },
+    { name: 'arrow', side: 'r', top: '22%', size: 64, rot: 6, tone: 'var(--orange)' },
+    { name: 'star', side: 'l', top: '40%', size: 38, rot: 14, tone: '#b8a400' },
+    { name: 'wifi', side: 'r', top: '58%', size: 50, rot: -6, tone: 'var(--color-slate)' },
+    { name: 'sparkle', side: 'l', top: '76%', size: 42, rot: 0, tone: 'var(--cobalt)' },
+  ],
+  blog: [
+    { name: 'cup', side: 'l', top: '8%', size: 48, rot: -10, tone: 'var(--color-slate)' },
+    { name: 'squiggle', side: 'r', top: '20%', size: 70, rot: 4, tone: 'var(--orange)' },
+    { name: 'braces', side: 'l', top: '38%', size: 50, rot: 8, tone: 'var(--cobalt)' },
+    { name: 'spiral', side: 'r', top: '56%', size: 48, rot: 0, tone: 'var(--color-slate)' },
+    { name: 'star', side: 'l', top: '74%', size: 36, rot: -14, tone: '#b8a400' },
+  ],
+  about: [
+    { name: 'cross', side: 'r', top: '8%', size: 40, rot: 10, tone: 'var(--orange)' },
+    { name: 'heart', side: 'l', top: '22%', size: 42, rot: -8, tone: 'var(--orange)' },
+    { name: 'ecg', side: 'r', top: '38%', size: 70, rot: 4, tone: 'var(--cobalt)' },
+    { name: 'loop', side: 'l', top: '56%', size: 70, rot: -4, tone: 'var(--color-slate)' },
+    { name: 'sparkle', side: 'r', top: '74%', size: 40, rot: 0, tone: '#b8a400' },
+  ],
+  default: [
+    { name: 'sparkle', side: 'r', top: '12%', size: 40, rot: 6, tone: 'var(--cobalt)' },
+    { name: 'squiggle', side: 'l', top: '34%', size: 64, rot: -6, tone: 'var(--orange)' },
+    { name: 'star', side: 'r', top: '58%', size: 36, rot: 12, tone: '#b8a400' },
+    { name: 'spiral', side: 'l', top: '80%', size: 46, rot: 0, tone: 'var(--color-slate)' },
+  ],
+};
+
+const spots = sets[set];
+---
+
+<div class="doodles" aria-hidden="true" data-doodle>
+  {
+    spots.map((d, i) => (
+      <svg
+        class="doodle scribble"
+        viewBox="0 0 100 100"
+        style={`--top:${d.top};--size:${d.size}px;--rot:${d.rot}deg;color:${d.tone};--d:${(i % 4) * 0.15}s`}
+        data-side={d.side}
+        data-reveal-doodle
+      >
+        <path d={library[d.name]} pathLength="1" />
+      </svg>
+    ))
+  }
+</div>
+
+<style>
+  .doodles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .doodle {
+    position: absolute;
+    top: var(--top);
+    width: var(--size);
+    height: var(--size);
+    rotate: var(--rot);
+    opacity: 0.55;
+    display: none;
+  }
+  .doodle path {
+    stroke-width: 3.2;
+    vector-effect: non-scaling-stroke;
+  }
+  /* Only in the real margins beside the 1240px content column. */
+  @media (min-width: 1380px) {
+    .doodle {
+      display: block;
+    }
+    .doodle[data-side='l'] {
+      left: max(1rem, calc((100% - 1240px) / 2 - var(--size) - 1rem));
+    }
+    .doodle[data-side='r'] {
+      right: max(1rem, calc((100% - 1240px) / 2 - var(--size) - 1rem));
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .doodle path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 1.4s var(--ease-out-soft) var(--d);
+    }
+    :global(html.js) .doodle.is-drawn path {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>
+
+<script>
+  const doodles = document.querySelectorAll<SVGElement>('[data-reveal-doodle]');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-drawn');
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    doodles.forEach((d) => io.observe(d));
+  } else {
+    doodles.forEach((d) => d.classList.add('is-drawn'));
+  }
+</script>

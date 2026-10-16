@@ -8,84 +8,22 @@
   const ANALYTICS_KEY = 'chifen_visitor_analytics';
   const SESSION_FLAG_KEY = 'chifen_session_active';
 
-  // ── SEED ANALYTICS BASELINE ───────────────────────────────────────────────
+  // ── ANALYTICS BASELINE ────────────────────────────────────────────────────
+  // Starts empty. This only counts visits made in this browser; real site-wide
+  // numbers live in Vercel Web Analytics (vercel.com → project → Analytics).
   function getSeedAnalytics() {
     return {
-      totalVisitors: 1482,
-      totalPageviews: 5894,
-      avgDuration: '3m 42s',
-      recruiterSessions: 219,
-      pageViews: {
-        '/': { title: 'Home · Chifen Sama Nduma', count: 1842, domain: 'general' },
-        '/cv': { title: 'Curriculum Vitae (ATS Record)', count: 1290, domain: 'clinical' },
-        '/work/lifedrop': { title: 'LifeDrop: WhatsApp Emergency Blood Triage', count: 894, domain: 'health-tech' },
-        '/work/ai-clinical-decision-research': { title: 'AI Clinical Readiness Study (387 Clinicians)', count: 612, domain: 'clinical' },
-        '/work/maternal-health-risk': { title: 'Maternal Health Risk Predictor Endpoint', count: 420, domain: 'health-tech' },
-        '/talks': { title: 'Speaking & Decks · PyCon Cameroon & YaMo', count: 348, domain: 'tech' },
-        '/work/inkwave': { title: 'INKWAVE Brand & Engineering Platform', count: 280, domain: 'tech' },
-        '/archive': { title: 'Field Archive & Artifacts', count: 208, domain: 'clinical' }
-      },
-      domainBreakdown: {
-        clinical: 34,
-        healthTech: 42,
-        tech: 24
-      },
-      recentVisitors: [
-        {
-          id: 'vis-101',
-          time: '3 mins ago',
-          path: '/work/lifedrop',
-          title: 'LifeDrop: WhatsApp Emergency Blood Triage',
-          domain: '🏥 Health Tech',
-          referrer: 'LinkedIn / Health Innovation Lead',
-          device: 'Desktop (Chrome)',
-          location: 'Douala, CM 🇨🇲'
-        },
-        {
-          id: 'vis-102',
-          time: '18 mins ago',
-          path: '/cv',
-          title: 'Curriculum Vitae (ATS Record)',
-          domain: '🩺 Clinical Systems',
-          referrer: 'Direct / Regional Hospital Buea',
-          device: 'Tablet (iPad)',
-          location: 'Buea, CM 🇨🇲'
-        },
-        {
-          id: 'vis-103',
-          time: '42 mins ago',
-          path: '/work/ai-clinical-decision-research',
-          title: 'AI Clinician Decision-Making Research',
-          domain: '🩺 Clinical AI',
-          referrer: 'Google Scholar / PRISMA Citation',
-          device: 'Desktop (Firefox)',
-          location: 'Geneva, CH 🇨🇭'
-        },
-        {
-          id: 'vis-104',
-          time: '1 hr ago',
-          path: '/talks',
-          title: 'PyCon Cameroon 2026 Keynote Architecture',
-          domain: '💻 Platform Engineering',
-          referrer: 'github.com/CHIF3N',
-          device: 'Desktop (macOS)',
-          location: 'Nairobi, KE 🇰🇪'
-        },
-        {
-          id: 'vis-105',
-          time: '2 hrs ago',
-          path: '/work/maternal-health-risk',
-          title: 'Maternal Health Risk Predictor',
-          domain: '🏥 Health Tech',
-          referrer: 'Direct / Midwifery Tech Review',
-          device: 'Mobile (Android)',
-          location: 'Yaoundé, CM 🇨🇲'
-        }
-      ]
+      totalVisitors: 0,
+      totalPageviews: 0,
+      avgDuration: '–',
+      recruiterSessions: 0,
+      pageViews: {},
+      domainBreakdown: { clinical: 0, healthTech: 0, tech: 0 },
+      recentVisitors: [],
+      localOnly: true,
     };
   }
 
-  // ── ANALYTICS TRACKING ────────────────────────────────────────────────────
   function trackVisitorPageView() {
     const path = window.location.pathname;
     // Do not log visits on the admin editor itself
@@ -96,6 +34,7 @@
       const raw = localStorage.getItem(ANALYTICS_KEY);
       if (raw) {
         try { data = JSON.parse(raw); } catch (e) { data = getSeedAnalytics(); }
+        if (!data.localOnly) data = getSeedAnalytics();
       } else {
         data = getSeedAnalytics();
       }

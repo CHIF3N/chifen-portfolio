@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port 3000",
-    "build": "node scripts/collect-verify.mjs && astro build && pagefind --site dist",
+    "build": "node scripts/collect-verify.mjs && node scripts/build-knowledge.mjs && astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "astro check",

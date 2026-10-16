@@ -96,299 +96,299 @@ You can click folders to unfold subdirectories, select files to view syntax-high
       name: "src/matching/engine.ts",
       lang: "typescript",
       code: `import { getCompatibleDonorGroups } from './matrix';
-import { calculateTransitScore } from './sectors';
+  import { calculateTransitScore } from './sectors';
 
-export interface BloodRequest {
-  id: string;
-  hospitalId: string;
-  hospitalName: string;
-  recipientBloodGroup: string;
-  unitsRequired: number;
-  urgency: 'critical' | 'urgent' | 'scheduled';
-  wardBed: string;
-  doctorLicense: string;
-  createdAt: Date;
-}
+  export interface BloodRequest {
+    id: string;
+    hospitalId: string;
+    hospitalName: string;
+    recipientBloodGroup: string;
+    unitsRequired: number;
+    urgency: 'critical' | 'urgent' | 'scheduled';
+    wardBed: string;
+    doctorLicense: string;
+    createdAt: Date;
+  }
 
-export interface DonorCandidate {
-  id: string;
-  name: string;
-  phone: string;
-  bloodGroup: string;
-  gender: 'M' | 'F';
-  sector: string;
-  lastDonationDate: Date | null;
-  reliabilityRating: number; // 0.0 to 1.0
-  activeStatus: boolean;
-}
+  export interface DonorCandidate {
+    id: string;
+    name: string;
+    phone: string;
+    bloodGroup: string;
+    gender: 'M' | 'F';
+    sector: string;
+    lastDonationDate: Date | null;
+    reliabilityRating: number; // 0.0 to 1.0
+    activeStatus: boolean;
+  }
 
-export interface ScoredMatch {
-  donor: DonorCandidate;
-  compositeScore: number;
-  compatible: boolean;
-  transitMinutes: number;
-  cooldownEligible: boolean;
-}
+  export interface ScoredMatch {
+    donor: DonorCandidate;
+    compositeScore: number;
+    compatible: boolean;
+    transitMinutes: number;
+    cooldownEligible: boolean;
+  }
 
-/**
- * Evaluates the entire donor pool against clinical constraints
- * and returns ranked candidate donors for WhatsApp dispatch.
- */
-export function matchDonorsForRequest(
-  request: BloodRequest,
-  donorPool: DonorCandidate[]
-): ScoredMatch[] {
-  const compatibleTypes = getCompatibleDonorGroups(request.recipientBloodGroup);
-  const now = new Date();
+  /**
+   * Evaluates the entire donor pool against clinical constraints
+   * and returns ranked candidate donors for WhatsApp dispatch.
+   */
+  export function matchDonorsForRequest(
+    request: BloodRequest,
+    donorPool: DonorCandidate[]
+  ): ScoredMatch[] {
+    const compatibleTypes = getCompatibleDonorGroups(request.recipientBloodGroup);
+    const now = new Date();
 
-  const evaluated: ScoredMatch[] = donorPool
-    .filter(donor => donor.activeStatus)
-    .map(donor => {
-      // 1. Immunological Check
-      const compatible = compatibleTypes.includes(donor.bloodGroup);
+    const evaluated: ScoredMatch[] = donorPool
+      .filter(donor => donor.activeStatus)
+      .map(donor => {
+        // 1. Immunological Check
+        const compatible = compatibleTypes.includes(donor.bloodGroup);
 
-      // 2. Clinical Cooldown Gate
-      const minCooldownDays = donor.gender === 'M' ? 90 : 120;
-      let cooldownEligible = true;
-      if (donor.lastDonationDate) {
-        const daysSinceLast = (now.getTime() - donor.lastDonationDate.getTime()) / (1000 * 3600 * 24);
-        cooldownEligible = daysSinceLast >= minCooldownDays;
-      }
+        // 2. Clinical Cooldown Gate
+        const minCooldownDays = donor.gender === 'M' ? 90 : 120;
+        let cooldownEligible = true;
+        if (donor.lastDonationDate) {
+          const daysSinceLast = (now.getTime() - donor.lastDonationDate.getTime()) / (1000 * 3600 * 24);
+          cooldownEligible = daysSinceLast >= minCooldownDays;
+        }
 
-      // Hard gate: Incompatible or in cooldown cannot be dispatched
-      if (!compatible || !cooldownEligible) {
+        // Hard gate: Incompatible or in cooldown cannot be dispatched
+        if (!compatible || !cooldownEligible) {
+          return {
+            donor,
+            compositeScore: 0,
+            compatible,
+            transitMinutes: 999,
+            cooldownEligible,
+          };
+        }
+
+        // 3. Proximity Scoring (Buea Sectors)
+        const { transitMinutes, proximityScore } = calculateTransitScore(
+          donor.sector,
+          request.hospitalName
+        );
+
+        // 4. Urgency and Compatibility Weighting
+        // Critical emergency prioritizes identical blood match and nearest donor
+        const isExactMatch = donor.bloodGroup === request.recipientBloodGroup;
+        const compatibilityScore = isExactMatch ? 1.0 : 0.85;
+
+        const compositeScore =
+          compatibilityScore * 0.40 +
+          proximityScore * 0.35 +
+          donor.reliabilityRating * 0.25;
+
         return {
           donor,
-          compositeScore: 0,
-          compatible,
-          transitMinutes: 999,
-          cooldownEligible,
+          compositeScore: parseFloat(compositeScore.toFixed(3)),
+          compatible: true,
+          transitMinutes,
+          cooldownEligible: true,
         };
-      }
+      })
+      .filter(m => m.compositeScore > 0)
+      .sort((a, b) => b.compositeScore - a.compositeScore);
 
-      // 3. Proximity Scoring (Buea Sectors)
-      const { transitMinutes, proximityScore } = calculateTransitScore(
-        donor.sector,
-        request.hospitalName
-      );
+    return evaluated;
+  }
 
-      // 4. Urgency and Compatibility Weighting
-      // Critical emergency prioritizes identical blood match and nearest donor
-      const isExactMatch = donor.bloodGroup === request.recipientBloodGroup;
-      const compatibilityScore = isExactMatch ? 1.0 : 0.85;
-
-      const compositeScore =
-        compatibilityScore * 0.40 +
-        proximityScore * 0.35 +
-        donor.reliabilityRating * 0.25;
-
-      return {
-        donor,
-        compositeScore: parseFloat(compositeScore.toFixed(3)),
-        compatible: true,
-        transitMinutes,
-        cooldownEligible: true,
-      };
-    })
-    .filter(m => m.compositeScore > 0)
-    .sort((a, b) => b.compositeScore - a.compositeScore);
-
-  return evaluated;
-}
-
-/**
- * Returns the top N donors for the initial WhatsApp dispatch wave.
- */
-export function getDispatchWave(matches: ScoredMatch[], waveSize = 3): ScoredMatch[] {
-  return matches.slice(0, waveSize);
-}`
+  /**
+   * Returns the top N donors for the initial WhatsApp dispatch wave.
+   */
+  export function getDispatchWave(matches: ScoredMatch[], waveSize = 3): ScoredMatch[] {
+    return matches.slice(0, waveSize);
+  }`
     },
     {
       name: "src/matching/matrix.ts",
       lang: "typescript",
       code: `/**
- * ABO and Rh blood group compatibility lookup table.
- * Derived from standard clinical transfusion protocols.
- */
+   * ABO and Rh blood group compatibility lookup table.
+   * Derived from standard clinical transfusion protocols.
+   */
 
-export type BloodGroup = 'O-' | 'O+' | 'A-' | 'A+' | 'B-' | 'B+' | 'AB-' | 'AB+';
+  export type BloodGroup = 'O-' | 'O+' | 'A-' | 'A+' | 'B-' | 'B+' | 'AB-' | 'AB+';
 
-export const COMPATIBILITY_TABLE: Record<BloodGroup, BloodGroup[]> = {
-  // O- can only receive from O-
-  'O-': ['O-'],
+  export const COMPATIBILITY_TABLE: Record<BloodGroup, BloodGroup[]> = {
+    // O- can only receive from O-
+    'O-': ['O-'],
 
-  // O+ can receive from O- and O+
-  'O+': ['O-', 'O+'],
+    // O+ can receive from O- and O+
+    'O+': ['O-', 'O+'],
 
-  // A- can receive from O- and A-
-  'A-': ['O-', 'A-'],
+    // A- can receive from O- and A-
+    'A-': ['O-', 'A-'],
 
-  // A+ can receive from O-, O+, A-, A+
-  'A+': ['O-', 'O+', 'A-', 'A+'],
+    // A+ can receive from O-, O+, A-, A+
+    'A+': ['O-', 'O+', 'A-', 'A+'],
 
-  // B- can receive from O- and B-
-  'B-': ['O-', 'B-'],
+    // B- can receive from O- and B-
+    'B-': ['O-', 'B-'],
 
-  // B+ can receive from O-, O+, B-, B+
-  'B+': ['O-', 'O+', 'B-', 'B+'],
+    // B+ can receive from O-, O+, B-, B+
+    'B+': ['O-', 'O+', 'B-', 'B+'],
 
-  // AB- can receive from O-, A-, B-, AB-
-  'AB-': ['O-', 'A-', 'B-', 'AB-'],
+    // AB- can receive from O-, A-, B-, AB-
+    'AB-': ['O-', 'A-', 'B-', 'AB-'],
 
-  // AB+ is universal recipient for red blood cells
-  'AB+': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']
-};
+    // AB+ is universal recipient for red blood cells
+    'AB+': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']
+  };
 
-export function getCompatibleDonorGroups(recipientGroup: string): BloodGroup[] {
-  const normalized = recipientGroup.toUpperCase().trim() as BloodGroup;
-  return COMPATIBILITY_TABLE[normalized] ?? ['O-'];
-}`
+  export function getCompatibleDonorGroups(recipientGroup: string): BloodGroup[] {
+    const normalized = recipientGroup.toUpperCase().trim() as BloodGroup;
+    return COMPATIBILITY_TABLE[normalized] ?? ['O-'];
+  }`
     },
     {
       name: "src/services/whatsapp.ts",
       lang: "typescript",
       code: `/**
- * LifeDrop WhatsApp Bot Dispatch Service
- * Interfaces with Meta Cloud WhatsApp API to send interactive quick-reply templates.
- */
+   * LifeDrop WhatsApp Bot Dispatch Service
+   * Interfaces with Meta Cloud WhatsApp API to send interactive quick-reply templates.
+   */
 
-interface DispatchPayload {
-  toPhoneNumber: string;
-  donorName: string;
-  hospitalName: string;
-  bloodGroup: string;
-  transitEstimate: string;
-  requestId: string;
-}
+  interface DispatchPayload {
+    toPhoneNumber: string;
+    donorName: string;
+    hospitalName: string;
+    bloodGroup: string;
+    transitEstimate: string;
+    requestId: string;
+  }
 
-export async function sendEmergencyDonorAlert(payload: DispatchPayload): Promise<boolean> {
-  const WHATSAPP_API_URL = \`https://graph.facebook.com/v18.0/\${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages\`;
+  export async function sendEmergencyDonorAlert(payload: DispatchPayload): Promise<boolean> {
+    const WHATSAPP_API_URL = \`https://graph.facebook.com/v18.0/\${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages\`;
 
-  const body = {
-    messaging_product: 'whatsapp',
-    recipient_type: 'individual',
-    to: payload.toPhoneNumber,
-    type: 'interactive',
-    interactive: {
-      type: 'button',
-      header: {
-        type: 'text',
-        text: '🩸 LifeDrop Emergency Alert'
-      },
-      body: {
-        text: \`Hello \${payload.donorName}. An urgent blood need has been verified at \${payload.hospitalName}.\\n\\nNeeded: *\${payload.bloodGroup}*\\nEstimated distance: \${payload.transitEstimate}\\n\\nCan you make it to the blood bank within the next 45 minutes?\`
-      },
-      footer: {
-        text: 'Zero fees • Free transport voucher provided'
-      },
-      action: {
-        buttons: [
-          {
-            type: 'reply',
-            reply: {
-              id: \`ACCEPT_\${payload.requestId}\`,
-              title: '✅ Yes, I can donate'
+    const body = {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: payload.toPhoneNumber,
+      type: 'interactive',
+      interactive: {
+        type: 'button',
+        header: {
+          type: 'text',
+          text: '🩸 LifeDrop Emergency Alert'
+        },
+        body: {
+          text: \`Hello \${payload.donorName}. An urgent blood need has been verified at \${payload.hospitalName}.\\n\\nNeeded: *\${payload.bloodGroup}*\\nEstimated distance: \${payload.transitEstimate}\\n\\nCan you make it to the blood bank within the next 45 minutes?\`
+        },
+        footer: {
+          text: 'Zero fees • Free transport voucher provided'
+        },
+        action: {
+          buttons: [
+            {
+              type: 'reply',
+              reply: {
+                id: \`ACCEPT_\${payload.requestId}\`,
+                title: '✅ Yes, I can donate'
+              }
+            },
+            {
+              type: 'reply',
+              reply: {
+                id: \`DECLINE_\${payload.requestId}\`,
+                title: '❌ Unavailable'
+              }
             }
-          },
-          {
-            type: 'reply',
-            reply: {
-              id: \`DECLINE_\${payload.requestId}\`,
-              title: '❌ Unavailable'
-            }
-          }
-        ]
+          ]
+        }
       }
-    }
-  };
+    };
 
-  const response = await fetch(WHATSAPP_API_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': \`Bearer \${process.env.WHATSAPP_ACCESS_TOKEN}\`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  });
+    const response = await fetch(WHATSAPP_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': \`Bearer \${process.env.WHATSAPP_ACCESS_TOKEN}\`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
 
-  return response.ok;
-}`
+    return response.ok;
+  }`
     },
     {
       name: "database/schema.sql",
       lang: "sql",
       code: `-- LifeDrop Database Schema: Blood Donor & Request Tracking
-CREATE TABLE donors (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  full_name VARCHAR(120) NOT NULL,
-  phone VARCHAR(20) UNIQUE NOT NULL,
-  blood_group VARCHAR(5) NOT NULL,
-  gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
-  sector VARCHAR(80) NOT NULL,
-  last_donation_date TIMESTAMP WITH TIME ZONE,
-  reliability_score NUMERIC(3, 2) DEFAULT 1.00,
-  active_status BOOLEAN DEFAULT true,
-  registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+  CREATE TABLE donors (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    full_name VARCHAR(120) NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    blood_group VARCHAR(5) NOT NULL,
+    gender CHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
+    sector VARCHAR(80) NOT NULL,
+    last_donation_date TIMESTAMP WITH TIME ZONE,
+    reliability_score NUMERIC(3, 2) DEFAULT 1.00,
+    active_status BOOLEAN DEFAULT true,
+    registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  );
 
-CREATE TABLE blood_requests (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  hospital_id VARCHAR(50) NOT NULL,
-  hospital_name VARCHAR(120) NOT NULL,
-  recipient_blood_group VARCHAR(5) NOT NULL,
-  units_required INT NOT NULL DEFAULT 1,
-  urgency_tier VARCHAR(20) NOT NULL CHECK (urgency_tier IN ('critical', 'urgent', 'scheduled')),
-  ward_bed VARCHAR(40) NOT NULL,
-  doctor_license VARCHAR(60) NOT NULL,
-  status VARCHAR(20) DEFAULT 'dispatched' CHECK (status IN ('dispatched', 'matched', 'fulfilled', 'cancelled')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+  CREATE TABLE blood_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    hospital_id VARCHAR(50) NOT NULL,
+    hospital_name VARCHAR(120) NOT NULL,
+    recipient_blood_group VARCHAR(5) NOT NULL,
+    units_required INT NOT NULL DEFAULT 1,
+    urgency_tier VARCHAR(20) NOT NULL CHECK (urgency_tier IN ('critical', 'urgent', 'scheduled')),
+    ward_bed VARCHAR(40) NOT NULL,
+    doctor_license VARCHAR(60) NOT NULL,
+    status VARCHAR(20) DEFAULT 'dispatched' CHECK (status IN ('dispatched', 'matched', 'fulfilled', 'cancelled')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  );
 
-CREATE TABLE dispatch_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  request_id UUID REFERENCES blood_requests(id) ON DELETE CASCADE,
-  donor_id UUID REFERENCES donors(id) ON DELETE CASCADE,
-  wave_number INT NOT NULL DEFAULT 1,
-  dispatched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  response_status VARCHAR(20) DEFAULT 'pending' CHECK (response_status IN ('pending', 'accepted', 'declined', 'timeout')),
-  responded_at TIMESTAMP WITH TIME ZONE
-);
+  CREATE TABLE dispatch_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    request_id UUID REFERENCES blood_requests(id) ON DELETE CASCADE,
+    donor_id UUID REFERENCES donors(id) ON DELETE CASCADE,
+    wave_number INT NOT NULL DEFAULT 1,
+    dispatched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    response_status VARCHAR(20) DEFAULT 'pending' CHECK (response_status IN ('pending', 'accepted', 'declined', 'timeout')),
+    responded_at TIMESTAMP WITH TIME ZONE
+  );
 
-CREATE INDEX idx_donors_blood_group ON donors(blood_group, active_status);
-CREATE INDEX idx_requests_status ON blood_requests(status);`
+  CREATE INDEX idx_donors_blood_group ON donors(blood_group, active_status);
+  CREATE INDEX idx_requests_status ON blood_requests(status);`
     },
     {
       name: "config/buea-sectors.json",
       lang: "json",
       code: `{
-  "sectors": {
-    "molyko": {
-      "name": "Molyko",
-      "transitMinutesToRegionalHospital": 8,
-      "proximityScore": 0.95
-    },
-    "clerks_quarters": {
-      "name": "Clerks Quarters",
-      "transitMinutesToRegionalHospital": 5,
-      "proximityScore": 1.00
-    },
-    "mile_17": {
-      "name": "Mile 17 Motor Park",
-      "transitMinutesToRegionalHospital": 16,
-      "proximityScore": 0.70
-    },
-    "bokwango": {
-      "name": "Bokwango",
-      "transitMinutesToRegionalHospital": 12,
-      "proximityScore": 0.80
-    },
-    "buea_town": {
-      "name": "Buea Town",
-      "transitMinutesToRegionalHospital": 10,
-      "proximityScore": 0.85
+    "sectors": {
+      "molyko": {
+        "name": "Molyko",
+        "transitMinutesToRegionalHospital": 8,
+        "proximityScore": 0.95
+      },
+      "clerks_quarters": {
+        "name": "Clerks Quarters",
+        "transitMinutesToRegionalHospital": 5,
+        "proximityScore": 1.00
+      },
+      "mile_17": {
+        "name": "Mile 17 Motor Park",
+        "transitMinutesToRegionalHospital": 16,
+        "proximityScore": 0.70
+      },
+      "bokwango": {
+        "name": "Bokwango",
+        "transitMinutesToRegionalHospital": 12,
+        "proximityScore": 0.80
+      },
+      "buea_town": {
+        "name": "Buea Town",
+        "transitMinutesToRegionalHospital": 10,
+        "proximityScore": 0.85
+      }
     }
-  }
-}`
+  }`
     }
   ]}
 />
