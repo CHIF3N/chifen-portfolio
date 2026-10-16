@@ -385,6 +385,7 @@ const suggestions = [
   // Escape first, then link site paths and full URLs. Nothing else becomes HTML.
   const linkify = (s: string) =>
     esc(s)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
       .replace(/(^|[\s(])(\/(?:work|research|blog|about|contact|cv|experiments|journey|talks|archive|services|experience)(?:\/[a-z0-9-]+)?)/g, '$1<a href="$2">$2</a>')
       .replace(/([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/gi, '<a href="mailto:$1">$1</a>');
