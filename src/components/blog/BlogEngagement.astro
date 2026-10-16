@@ -67,7 +67,8 @@ const giscus = {
     const dark =
       document.documentElement.dataset.theme === 'dark' ||
       (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
-    return `${location.origin}/giscus/paper-${dark ? 'dark' : 'light'}.css`;
+    // Served from Vercel, which sends the CORS header giscus needs (GitHub Pages can't).
+    return `https://chifen-portfolio.vercel.app/giscus/paper-${dark ? 'dark' : 'light'}.css`;
   };
 
   const load = () => {
