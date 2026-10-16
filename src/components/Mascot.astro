@@ -435,7 +435,11 @@ const suggestions = [
     const send = form.querySelector('button') as HTMLButtonElement;
     send.disabled = true;
     try {
-      const res = await fetch('/api/ask', {
+      // The chat function lives on Vercel. Other hosts (GitHub Pages on chifen.is-a.dev)
+      // call it cross-origin; api/ask.js allows those origins.
+      const onVercel = /\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+      const endpoint = onVercel ? '/api/ask' : 'https://chifen-portfolio.vercel.app/api/ask';
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: history.slice(-8) }),
