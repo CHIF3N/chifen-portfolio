@@ -1,165 +1,175 @@
 ---
 import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import VerifyText from '../../components/VerifyText.astro';
+import StatusStamp from '../../components/StatusStamp.astro';
+import { site } from '../../lib/site';
 import { withBase } from '../../lib/url';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('work');
-  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  const entries = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+  return entries.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, all: entries, index: i },
+  }));
 }
 
-const { entry } = Astro.props;
-const { Content } = await render(entry);
-const { title, summary, role, tags, status, year, liveUrl, repoUrl, metrics, note } = entry.data;
+const { entry, all, index } = Astro.props;
+const { Content, headings } = await render(entry);
+const { title, summary, role, tags, status, year, liveUrl, repoUrl, metrics, note, cover, researchSlug } = entry.data;
 
-const statusLabel: Record<string, string> = {
-  live: 'Live in Production',
-  shipped: 'Shipped',
-  'in-progress': 'In progress / Active',
-  concept: 'Concept / Prototype',
-};
+const toc = headings.filter((h) => h.depth === 2);
+const next = all[(index + 1) % all.length];
+const prev = all[(index - 1 + all.length) % all.length];
 
+/* Related: the projects sharing the most tags with this one. */
+const related = all
+  .filter((e) => e.id !== entry.id)
+  .map((e) => ({ e, score: e.data.tags.filter((t) => tags.includes(t)).length }))
+  .filter((r) => r.score > 0)
+  .sort((a, b) => b.score - a.score || a.e.data.order - b.e.data.order)
+  .slice(0, 3)
+  .map((r) => r.e);
+
+const siteOrigin = (Astro.site?.toString() ?? 'https://chifen.is-a.dev').replace(/\/$/, '');
+const isSoftware = Boolean(liveUrl) && !tags.includes('research');
 const projectSchema = {
   '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
+  '@type': isSoftware ? 'SoftwareApplication' : 'CreativeWork',
   name: title,
   description: summary,
-  author: {
-    '@type': 'Person',
-    name: 'Chifen Sama Nduma',
-    url: 'https://chifen.is-a.dev',
-  },
-  applicationCategory: 'HealthApplication',
-  operatingSystem: 'Web, Android, WhatsApp',
+  url: `${siteOrigin}/work/${entry.id}`,
+  dateCreated: String(year),
+  creator: { '@id': `${siteOrigin}/#person` },
+  keywords: tags.join(', '),
+  ...(isSoftware ? { applicationCategory: tags.includes('health-tech') ? 'HealthApplication' : 'WebApplication', operatingSystem: 'Web', sameAs: liveUrl } : {}),
 };
 ---
 
-<Base title={title} description={summary} schema={projectSchema}>
+<Base title={`${title} · Case study`} description={summary} schema={projectSchema} accent={site.accents.work}>
   <article>
-    <header class="border-b border-ink/10 bg-ink text-paper">
-      <div class="mx-auto max-w-4xl px-5 pt-12 pb-14 sm:px-8 sm:pt-16 sm:pb-16">
-        <a
-          href={withBase('/work')}
-          class="group inline-flex items-center gap-1.5 text-sm text-paper/60 transition-colors hover:text-accent"
-        >
-          <span class="transition-transform duration-200 group-hover:-translate-x-0.5">&larr;</span>
-          All work
-        </a>
+    <header class="shell pt-8 sm:pt-12">
+      <nav aria-label="Breadcrumb" class="text-sm font-semibold text-slate">
+        <a href={withBase('/work')} class="ink-link">← All work</a>
+        <span class="mx-2" aria-hidden="true">/</span>
+        <span aria-current="page">{title}</span>
+      </nav>
 
-        <div class="mt-7 flex flex-wrap items-center gap-3">
-          <span class="rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold text-accent uppercase tracking-wider">
-            {statusLabel[status] ?? status}
-          </span>
-          <span class="text-sm text-paper/50">{year}</span>
-          <span class="text-xs text-paper/40">&middot;</span>
-          <span class="text-xs text-paper/60 uppercase tracking-wider">{role}</span>
-        </div>
-
-        <h1 class="mt-4 font-display text-4xl font-semibold sm:text-5xl">{title}</h1>
-        <p class="mt-4 max-w-2xl text-lg leading-relaxed text-paper/70">{summary}</p>
-
-        {
-          (liveUrl || repoUrl) && (
-            <div class="mt-7 flex flex-wrap gap-3">
-              {liveUrl && (
-                <a
-                  href={liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-ink transition-transform duration-200 hover:-translate-y-0.5"
-                >
-                  Visit live system &rarr;
-                </a>
-              )}
-              {repoUrl && (
-                <a
-                  href={repoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="rounded-full border border-paper/25 px-5 py-2.5 text-sm font-medium transition-colors hover:border-accent hover:text-accent"
-                >
-                  Inspect code repository &rarr;
-                </a>
-              )}
-            </div>
-          )
-        }
-
-        {
-          metrics.length > 0 && (
-            <div class="mt-10 border-t border-paper/15 pt-8">
-              <p class="text-xs font-bold uppercase tracking-wider text-accent">Documented Results &amp; Metrics</p>
-              <dl class="mt-4 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3">
-                {metrics.map((metric) => (
-                  <div class="rounded-lg bg-paper/5 p-3 border border-paper/10">
-                    <dd class="font-display text-base sm:text-lg leading-snug font-medium text-paper">
-                      <VerifyText text={metric} />
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          )
-        }
-      </div>
-    </header>
-
-    {
-      note && (
-        <div class="mx-auto max-w-4xl px-5 pt-8 sm:px-8">
-          <p class="rounded-xl border border-accent/40 bg-accent/10 px-5 py-4 text-sm leading-relaxed text-ink">
-            <strong class="font-semibold text-accent">Clinical / Engineering Note:</strong> {note}
-          </p>
-        </div>
-      )
-    }
-
-    <!-- Project Evidence Blueprint Card -->
-    <div class="mx-auto max-w-4xl px-5 pt-10 sm:px-8">
-      <div class="rounded-2xl border border-line bg-paper-dim/50 p-6 sm:p-7">
-        <h2 class="font-display text-xs font-bold tracking-widest text-accent uppercase">
-          Project Evidence Framework
-        </h2>
-        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-xs">
-          <div>
-            <span class="font-bold text-ink uppercase tracking-wider block">Role</span>
-            <span class="text-slate mt-0.5 block">{role}</span>
+      <div class="mt-8 grid items-center gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-14">
+        <div>
+          <div class="flex flex-wrap items-center gap-3">
+            <StatusStamp status={status} />
+            <span class="text-sm font-semibold text-slate">{year}</span>
+            <span class="text-sm text-slate">·</span>
+            <span class="text-sm font-semibold text-slate">{role}</span>
           </div>
-          <div>
-            <span class="font-bold text-ink uppercase tracking-wider block">Status</span>
-            <span class="text-slate mt-0.5 block">{statusLabel[status] ?? status}</span>
-          </div>
-          <div>
-            <span class="font-bold text-ink uppercase tracking-wider block">Year</span>
-            <span class="text-slate mt-0.5 block">{year}</span>
-          </div>
-          <div>
-            <span class="font-bold text-ink uppercase tracking-wider block">Domain</span>
-            <span class="text-slate mt-0.5 block">{tags.join(' · ')}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mx-auto max-w-4xl px-5 py-12 sm:px-8">
-      <div class="prose-body">
-        <Content />
-      </div>
-
-      <!-- Footer Tags and Navigation -->
-      <div class="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-ink/10 pt-8">
-        <div class="flex flex-wrap gap-2">
+          <h1 class="display-section mt-4">{title}</h1>
+          <p class="mt-5 max-w-xl text-xl leading-relaxed text-slate">{summary}</p>
           {
-            tags.map((tag) => (
-              <span class="rounded-full bg-ink/5 px-3 py-1 text-xs sm:text-sm text-slate">{tag}</span>
-            ))
+            (liveUrl || repoUrl || researchSlug) && (
+              <div class="mt-7 flex flex-wrap gap-3">
+                {liveUrl && <a href={liveUrl} target="_blank" rel="noopener noreferrer" class="btn btn-accent">Visit the live site ↗</a>}
+                {repoUrl && <a href={repoUrl} target="_blank" rel="noopener noreferrer" class="btn btn-ghost">View the code ↗</a>}
+                {researchSlug && <a href={withBase(`/research/${researchSlug}`)} class="btn btn-ghost">Read the study</a>}
+              </div>
+            )
           }
         </div>
-        <a href={withBase('/work')} class="text-sm font-semibold text-accent hover:underline">
-          &larr; Back to all projects
-        </a>
+
+        <div class="relative">
+          {
+            cover ? (
+              <div class="window" style="rotate:1deg">
+                <div class="window-bar">
+                  <span class="window-dots"><i /><i /><i /></span>
+                  <span class="window-url">{liveUrl ? liveUrl.replace(/^https?:\/\//, '').replace(/\/$/, '') : `${entry.id}.png`}</span>
+                </div>
+                <Image src={cover} alt={`${title}: screenshot.`} widths={[480, 800, 1100]} sizes="(max-width: 1024px) 92vw, 45vw" loading="eager" class="block max-h-[28rem] w-full object-cover object-top" />
+              </div>
+            ) : (
+              <div class="paper notebook relative p-8 pl-16" style="--r:1.5deg">
+                <span class="tape" style="top:-0.7rem;left:40%" aria-hidden="true" />
+                <p class="eyebrow">Project file</p>
+                <p class="mt-3 font-display text-4xl leading-none font-semibold">{title}</p>
+                <p class="hand mt-4 text-2xl">{tags.join(' · ')}</p>
+              </div>
+            )
+          }
+        </div>
+      </div>
+
+      {
+        metrics.length > 0 && (
+          <dl class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {metrics.map((m, i) => (
+              <div class="paper p-4" style={`--r:${[-0.8, 0.6, -0.4, 0.7][i % 4]}deg`}>
+                <dt class="sr-only">Result</dt>
+                <dd class="font-display text-lg leading-snug font-semibold">
+                  <VerifyText text={m} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+
+      {
+        note && (
+          <aside class="sticky-note sticky-note--orange mt-10 max-w-2xl" style="--r:-0.8deg" aria-label="Note">
+            <p class="text-[0.95rem] leading-relaxed"><strong>Worth knowing:</strong> {note}</p>
+          </aside>
+        )
+      }
+    </header>
+
+    <div class="shell mt-16 grid gap-12 lg:grid-cols-[15rem_1fr] lg:gap-16">
+      <aside class="lg:sticky lg:top-24 lg:self-start" aria-label="Project details">
+        {
+          toc.length > 0 && (
+            <nav aria-label="In this case study">
+              <p class="eyebrow">In this case study</p>
+              <ol class="mt-3 space-y-1.5 border-l-[1.5px] border-dashed border-line pl-4 text-sm font-semibold">
+                {toc.map((h) => <li><a class="text-slate hover:text-accent" href={`#${h.slug}`}>{h.text}</a></li>)}
+              </ol>
+            </nav>
+          )
+        }
+        <dl class="mt-8 space-y-3 text-sm">
+          <div><dt class="eyebrow">Role</dt><dd class="mt-0.5 font-semibold">{role}</dd></div>
+          <div><dt class="eyebrow">Year</dt><dd class="mt-0.5 font-semibold">{year}</dd></div>
+          <div><dt class="eyebrow">Tags</dt><dd class="mt-1 flex flex-wrap gap-1.5">{tags.map((t) => <span class="rounded-full border border-line px-2 py-0.5 text-xs font-semibold">{t}</span>)}</dd></div>
+        </dl>
+      </aside>
+
+      <div class="prose-body max-w-3xl">
+        <Content />
       </div>
     </div>
+
+    <footer class="shell mt-20">
+      {
+        related.length > 0 && (
+          <section aria-labelledby="related-title">
+            <h2 id="related-title" class="font-display text-2xl font-semibold">Related projects</h2>
+            <ul class="mt-5 grid gap-4 sm:grid-cols-3" role="list">
+              {related.map((r, i) => (
+                <li>
+                  <a href={withBase(`/work/${r.id}`)} class="paper lift block h-full p-5" style={`--r:${[-0.6, 0.5, -0.3][i]}deg`}>
+                    <StatusStamp status={r.data.status} />
+                    <span class="mt-2 block font-display text-xl font-semibold">{r.data.title}</span>
+                    <span class="mt-1 block text-sm text-slate">{r.data.summary}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+      <nav aria-label="More projects" class="mt-12 flex flex-col gap-3 border-t-[1.5px] border-dashed border-line pt-6 sm:flex-row sm:justify-between">
+        <a href={withBase(`/work/${prev.id}`)} class="group"><span class="eyebrow block">← Previous</span><span class="font-display text-xl font-semibold group-hover:text-accent">{prev.data.title}</span></a>
+        <a href={withBase(`/work/${next.id}`)} class="group sm:text-right"><span class="eyebrow block">Next →</span><span class="font-display text-xl font-semibold group-hover:text-accent">{next.data.title}</span></a>
+      </nav>
+    </footer>
   </article>
 </Base>

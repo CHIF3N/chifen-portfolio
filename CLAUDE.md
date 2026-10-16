@@ -46,6 +46,23 @@ These come from fanaka.pro and govern every page on this site:
 - `studio/app/api/admin/cv-tailor/route.ts` — Gemini API route (server-side, key never exposed)
 - `studio/app/admin/cv/page.tsx` — protected Admin CV Studio UI
 
+## Design system: "inside the CHIF3N mind" (Oct 2026 rebrand)
+
+- Tokens, textures and component classes live in `src/styles/global.css`. Warm paper (`--paper`), ink, and four fill accents
+  (`--lime`, `--cobalt`, `--orange`, `--lavender`). Fills are for folders, notes and highlights, never body text.
+- Type: Clash Display (headlines, wordmark), General Sans (body), Caveat via `.hand` (short notes and labels only,
+  never paragraphs or navigation), Instrument Serif italic via `.serif-i` (the odd emphasised word).
+- Reusable pieces: `.paper`, `.lift`, `.sticky-note`, `.polaroid`, `.tape`, `.pin`, `.window` + `.window-bar`,
+  `.folder` (+ `.folder-tab/back/sheet/front`), `.notebook`, `.grid-paper`, `.mark`, `.ink-link`, `.stamp`.
+  Do not name a class `.sticky`: it collides with Tailwind's `sticky` utility.
+- Component classes sit in `@layer components` so Tailwind utilities (`hidden`, `sm:inline-flex`) can override them.
+- Tailwind's zinc/slate/cyan/purple/amber scales are remapped onto the paper palette in `@theme`, so older pages inherit the look.
+- Components: `Wordmark.astro`, `StatusStamp.astro`, `CommandPalette.astro` (Ctrl/Cmd+K or "/").
+- Motion: CSS only. `[data-reveal]` for scroll reveals, `.enter` / `.enter-drop` with `--d` for load staggers,
+  `.draw` for self-drawing SVG strokes, cross-document View Transitions. Everything is off under reduced motion.
+- `/experiments` is built from `storyData.ts` chapters and side-build entries in the work collection. No new facts there.
+- The social image is `public/og/default.png` (1200x630). Regenerate it by hand if the brand changes.
+
 ## Commands
 
 ### Astro portfolio (root)

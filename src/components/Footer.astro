@@ -1,98 +1,63 @@
 ---
 import SocialIcon from './SocialIcon.astro';
+import Wordmark from './Wordmark.astro';
+import { site } from '../lib/site';
 import { withBase } from '../lib/url';
 
 const year = new Date().getFullYear();
-
-const primaryLinks = [
-  { label: 'Work', href: '/work' },
-  { label: 'About', href: '/about' },
-  { label: 'Writing', href: '/blog' },
-  { label: 'Speaking', href: '/talks' },
-  { label: 'CV', href: '/cv' },
-  { label: 'More Content Directory', href: '/more' },
-  { label: 'Contact', href: '/contact' },
-];
-
-const secondaryLinks = [
-  { label: 'Journey', href: '/journey' },
-  { label: 'Research', href: '/research' },
-  { label: 'Evidence Archive', href: '/archive' },
-  { label: 'Experience', href: '/experience' },
-  { label: 'Services', href: '/services' },
-];
-
-const footerSocials = [
-  { label: 'GitHub', href: 'https://github.com/CHIF3N' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/chif3n/' },
-  { label: 'Instagram', href: 'https://www.instagram.com/chif_3n' },
-  { label: 'X', href: 'https://x.com/sama_chifen' },
-  { label: 'WhatsApp', href: 'https://wa.me/237672835132' },
-];
+const email = site.emails[0];
 ---
 
-<footer class="mt-20 border-t border-line bg-paper-dim text-ink transition-colors">
-  <div class="shell py-14 sm:py-16">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12">
-      <!-- Brand & Persona (5 cols) -->
-      <div class="lg:col-span-5 flex flex-col justify-between space-y-4">
-        <div>
-          <a href={withBase('/')} class="inline-block group focus:outline-none">
-            <span class="font-display text-3xl font-bold tracking-tight text-ink group-hover:text-accent transition-colors">
-              CHIF<span class="text-accent">3</span>N
-            </span>
-          </a>
-          <p class="font-display text-lg font-semibold text-ink mt-1">
-            The Nurse Who Codes.
-          </p>
-          <p class="text-xs font-mono uppercase tracking-widest text-slate mt-1">
-            Buea / Yaoundé, Cameroon
-          </p>
-          <p class="text-sm text-slate mt-4 max-w-sm leading-relaxed">
-            Building practical technology for healthcare, communities, and real-world African problems &mdash; especially where connectivity and resources are thin.
-          </p>
+<footer class="site-footer mt-24">
+  <div class="shell pt-16 pb-10">
+    <div class="grid gap-12 lg:grid-cols-[1.25fr_1fr]">
+      <div>
+        <p class="hand text-2xl text-slate">you reached the bottom of the desk.</p>
+        <h2 class="mt-3 font-display text-[clamp(2.4rem,6vw,4.2rem)] leading-[0.95] font-semibold">
+          Got a good problem? <span class="serif-i font-normal">Let's</span> talk.
+        </h2>
+        <div class="mt-7 flex flex-wrap items-center gap-3">
+          <a href={`mailto:${email}`} class="btn btn-accent">{email}</a>
+          <button type="button" class="btn btn-ghost btn-sm" data-copy={email} aria-label={`Copy email address ${email}`}>
+            <span data-copy-label>Copy email</span>
+          </button>
         </div>
-
-        <div class="pt-2 text-xs font-mono text-slate">
-          <span>&bull; Registered Nurse (BSc)</span>
-          <span class="mx-1.5 text-line">/</span>
-          <span>&bull; Self-Taught Dev</span>
-          <span class="mx-1.5 text-line">/</span>
-          <span>&bull; M.Tech Data Science</span>
-        </div>
+        <p class="mt-4 text-sm text-slate">
+          Or WhatsApp <a class="ink-link font-semibold" href={site.whatsapp[0].href}>{site.whatsapp[0].label}</a>. Based in {site.location}.
+        </p>
       </div>
 
-      <!-- Navigation (3 cols) -->
-      <div class="lg:col-span-3">
-        <h3 class="text-xs font-mono uppercase tracking-widest text-slate font-semibold mb-4">
-          Navigation
-        </h3>
-        <ul class="space-y-2.5 text-sm font-medium">
-          {
-            primaryLinks.map((item) => (
-              <li>
-                <a
-                  href={withBase(item.href)}
-                  class="text-slate hover:text-ink hover:text-accent transition-colors block py-0.5"
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-
-        <div class="mt-6 pt-4 border-t border-line/60">
-          <p class="text-[11px] font-mono uppercase tracking-wider text-slate-light mb-2">More Content</p>
-          <ul class="space-y-1.5 text-xs">
+      <div class="grid grid-cols-2 gap-8 sm:grid-cols-3">
+        <div>
+          <h3 class="eyebrow">Explore</h3>
+          <ul class="mt-3 space-y-2 text-sm font-semibold">
+            <li><a class="ink-link" href={withBase('/')}>Home</a></li>
+            {site.nav.map((item) => <li><a class="ink-link" href={withBase(item.href)}>{item.label}</a></li>)}
+            <li><a class="ink-link" href={withBase(site.resume)}>Résumé / CV</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="eyebrow">More drawers</h3>
+          <ul class="mt-3 space-y-2 text-sm font-semibold">
+            {site.secondaryNav.map((item) => <li><a class="ink-link" href={withBase(item.href)}>{item.label}</a></li>)}
+            <li><a class="ink-link" href={withBase('/search')}>Search</a></li>
+            <li><a class="ink-link" href={withBase('/rss.xml')}>RSS</a></li>
+          </ul>
+        </div>
+        <div class="col-span-2 sm:col-span-1">
+          <h3 class="eyebrow">Elsewhere</h3>
+          <ul class="mt-3 space-y-2 text-sm font-semibold">
             {
-              secondaryLinks.map((item) => (
+              site.socials.map((social) => (
                 <li>
                   <a
-                    href={withBase(item.href)}
-                    class="text-slate-light hover:text-ink transition-colors"
+                    class="inline-flex items-center gap-2 hover:text-accent"
+                    href={social.href}
+                    target="_blank"
+                    rel={social.label === 'Signal' ? 'nofollow noopener noreferrer' : 'noopener noreferrer'}
                   >
-                    {item.label} &rarr;
+                    <SocialIcon label={social.label} size={14} />
+                    {social.label}
                   </a>
                 </li>
               ))
@@ -100,266 +65,45 @@ const footerSocials = [
           </ul>
         </div>
       </div>
-
-      <!-- Connect & Direct Contact (4 cols) -->
-      <div class="lg:col-span-4">
-        <h3 class="text-xs font-mono uppercase tracking-widest text-slate font-semibold mb-4">
-          Connect
-        </h3>
-        <ul class="space-y-2 text-sm">
-          {
-            footerSocials.map((social) => (
-              <li>
-                <a
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center gap-2.5 text-slate hover:text-accent transition-colors py-0.5 font-medium"
-                >
-                  <SocialIcon label={social.label} size={15} />
-                  <span>{social.label}</span>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-
-        <div class="mt-6 pt-4 border-t border-line/60 space-y-1 text-xs">
-          <p class="text-slate-light font-mono uppercase">Direct Inquiries</p>
-          <p>
-            <a href="mailto:chifensama0@gmail.com" class="font-medium text-ink hover:text-accent transition-colors">
-              chifensama0@gmail.com
-            </a>
-          </p>
-          <p>
-            <a href="https://wa.me/237672835132" class="font-medium text-ink hover:text-accent transition-colors">
-              +237 672 835 132 (WhatsApp)
-            </a>
-          </p>
-        </div>
-      </div>
     </div>
 
-    <!-- Bottom Bar -->
-    <div class="mt-14 pt-6 border-t border-line/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate">
-      <p>
-        &copy; {year} Chifen Sama Nduma. All rights reserved.
+    <div class="mt-14 flex flex-col gap-4 border-t-[1.5px] border-dashed border-line pt-6 sm:flex-row sm:items-end sm:justify-between">
+      <a href={withBase('/')} class="inline-flex items-end gap-3" aria-label="CHIF3N, back to the desk">
+        <Wordmark size="sm" />
+        <span class="pb-0.5 text-xs font-semibold text-slate">The Nurse Who Codes</span>
+      </a>
+      <p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate">
+        <span>&copy; {year} Chifen Sama Nduma</span>
+        <span>Built with Astro in Cameroon</span>
+        <span class="hidden sm:inline">Press <span class="kbd">/</span> to jump anywhere</span>
+        <a href={withBase('/admin')} rel="nofollow" class="opacity-60 hover:opacity-100">Studio</a>
       </p>
-
-      <div class="flex items-center gap-4">
-        <a href={withBase('/search')} class="hover:text-ink transition-colors">Search</a>
-        <a href={withBase('/rss.xml')} class="hover:text-ink transition-colors">RSS Feed</a>
-
-        <!-- Admin Studio Access Button -->
-        <button
-          id="footer-admin-btn"
-          type="button"
-          data-admin-url={withBase('/admin')}
-          class="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-2.5 py-0.5 text-[11px] font-mono text-purple-400 hover:bg-purple-500/20 hover:text-white transition-colors"
-          title="Studio Admin Access"
-        >
-          <span>🔒</span>
-          <span>Studio Admin</span>
-        </button>
-      </div>
     </div>
   </div>
-
-  <!-- Unique Password Verification Modal for Admin Studio -->
-  <div id="footer-admin-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-purple-500/30 bg-zinc-950 p-6 shadow-2xl text-zinc-100 space-y-4">
-      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
-        <div class="flex items-center gap-2">
-          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-          </span>
-          <h4 class="font-display text-sm font-bold uppercase tracking-wide text-white">Admin Studio Access</h4>
-        </div>
-        <button id="footer-modal-close" class="text-zinc-400 hover:text-white p-1" aria-label="Close">✕</button>
-      </div>
-
-      <p class="text-xs text-zinc-400 leading-relaxed">
-        Password protected workspace. Enter admin password to manage portfolio data and content.
-      </p>
-
-      <form id="footer-admin-form" class="space-y-3">
-        <div>
-          <div class="mb-1">
-            <label for="footer-admin-pass-input" class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-              Admin Password
-            </label>
-          </div>
-          <input
-            type="password"
-            id="footer-admin-pass-input"
-            required
-            autocomplete="current-password"
-            placeholder="Enter admin password..."
-            class="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
-          />
-          <p id="footer-admin-error" class="mt-1.5 hidden text-xs font-medium text-red-400 flex items-center gap-1">
-            <span>✕</span>
-            <span id="footer-admin-error-text">Incorrect password. Access denied.</span>
-          </p>
-        </div>
-
-        <div class="flex items-center justify-end gap-2 pt-2">
-          <button
-            type="button"
-            id="footer-modal-cancel"
-            class="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            id="footer-admin-submit-btn"
-            class="rounded-lg bg-purple-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-purple-500 disabled:opacity-50"
-          >
-            Unlock &amp; Enter &rarr;
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script is:inline>
-    (() => {
-      const AUTH_KEY = 'chifen_admin_authenticated';
-      const AUTH_EXPIRY_KEY = 'chifen_admin_auth_expiry';
-      const FAIL_COUNT_KEY = 'chifen_admin_fail_count';
-      const LOCKOUT_KEY = 'chifen_admin_lockout_until';
-      const CUSTOM_HASH_KEY = 'chifen_custom_admin_hash';
-
-      const VALID_HASHES = [
-        '8fcbaf09a81db37aa787815f86c3f68f879c23e62a9e57c69fde261fdd52fa0f', // chif3n
-        '29afb73904d6ed283e9b1789a031ec8c0a487b91d4699ad569b4430d446e2223', // CHIF3N
-        '9187057a23049993825a3089b4ecf9f69ee5137d9cf7df5ad0ec12da1dc0d9d7', // chifen
-        '5456005152ac4f1f7485ce16e27fd74a14df81cfbf91c9780a76471f157a6441', // chif3n2026
-        'fefae624ed8b9244b84cc4dbd60b88ada0fbdb600e886735e4bd670d6d52f6b8',
-        '5d69aa0e2e0b898f1b2973e5c091a92fdd8b245dca4cb004b517a4b8401fb271'
-      ];
-
-      const btn = document.getElementById('footer-admin-btn');
-      const modal = document.getElementById('footer-admin-modal');
-      const closeBtn = document.getElementById('footer-modal-close');
-      const cancelBtn = document.getElementById('footer-modal-cancel');
-      const form = document.getElementById('footer-admin-form');
-      const input = document.getElementById('footer-admin-pass-input');
-      const errorMsg = document.getElementById('footer-admin-error');
-      const errorText = document.getElementById('footer-admin-error-text');
-      const submitBtn = document.getElementById('footer-admin-submit-btn');
-      const adminUrl = btn?.getAttribute('data-admin-url') || '/admin';
-
-      function safeGetSession(key) {
-        try { return sessionStorage.getItem(key); } catch (e) { return null; }
-      }
-      function safeSetSession(key, val) {
-        try { sessionStorage.setItem(key, val); } catch (e) {}
-      }
-      function safeRemoveSession(key) {
-        try { sessionStorage.removeItem(key); } catch (e) {}
-      }
-      function safeGetLocal(key) {
-        try { return localStorage.getItem(key); } catch (e) { return null; }
-      }
-
-      async function sha256(str) {
-        try {
-          if (window.crypto && window.crypto.subtle) {
-            const buf = new TextEncoder().encode(str);
-            const digest = await window.crypto.subtle.digest('SHA-256', buf);
-            return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
-          }
-        } catch (e) {
-          console.warn('SubtleCrypto not available', e);
-        }
-        return '';
-      }
-
-      function isSessionValid() {
-        const authed = safeGetSession(AUTH_KEY) === 'true';
-        const expiry = parseInt(safeGetSession(AUTH_EXPIRY_KEY) || '0', 10);
-        return authed && expiry > Date.now();
-      }
-
-      function checkLockout() {
-        return false;
-      }
-
-      function openModal() {
-        if (isSessionValid()) {
-          window.location.href = adminUrl;
-          return;
-        }
-        if (modal) {
-          modal.classList.remove('hidden');
-          if (checkLockout()) return;
-          if (errorMsg) errorMsg.classList.add('hidden');
-          if (input) {
-            input.value = '';
-            setTimeout(() => input.focus(), 50);
-          }
-        }
-      }
-
-      function closeModal() {
-        if (modal) modal.classList.add('hidden');
-      }
-
-      btn?.addEventListener('click', openModal);
-      closeBtn?.addEventListener('click', closeModal);
-      cancelBtn?.addEventListener('click', closeModal);
-      modal?.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-      });
-
-      async function processFooterUnlock(enteredVal) {
-        const entered = (enteredVal || input?.value || '').trim();
-        if (!entered) return;
-
-        const normalized = entered.toLowerCase();
-        const validPlain = [
-          'chif3n',
-          'chifen',
-          'chif3n2026',
-          'chifen2026',
-          'chifen2026!',
-          'chif3n-admin-2026',
-          'admin'
-        ];
-
-        let isMatch = validPlain.includes(normalized) || validPlain.includes(entered);
-
-        if (!isMatch) {
-          const hashed = await sha256(entered);
-          const customHash = safeGetLocal(CUSTOM_HASH_KEY);
-          if ((hashed && VALID_HASHES.includes(hashed)) || (customHash && customHash === hashed)) {
-            isMatch = true;
-          }
-        }
-
-        if (isMatch) {
-          safeRemoveSession(FAIL_COUNT_KEY);
-          safeRemoveSession(LOCKOUT_KEY);
-          safeSetSession(AUTH_KEY, 'true');
-          safeSetSession(AUTH_EXPIRY_KEY, String(Date.now() + 8 * 60 * 60 * 1000));
-          window.location.href = adminUrl;
-        } else {
-          let fails = parseInt(safeGetSession(FAIL_COUNT_KEY) || '0', 10) + 1;
-          safeSetSession(FAIL_COUNT_KEY, String(fails));
-          if (errorText) errorText.textContent = 'Incorrect password. Access denied.';
-          if (errorMsg) errorMsg.classList.remove('hidden');
-          input?.focus();
-        }
-      }
-
-      form?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await processFooterUnlock();
-      });
-    })();
-  </script>
 </footer>
+
+<style>
+  .site-footer {
+    border-top: 1.5px solid var(--color-ink);
+    background-color: var(--paper-dim);
+    background-image: radial-gradient(color-mix(in oklab, var(--color-ink) 9%, transparent) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+</style>
+
+<script>
+  // Copy-to-clipboard buttons anywhere on the page.
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const label = btn.querySelector('[data-copy-label]') ?? btn;
+      const original = label.textContent;
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? '');
+        label.textContent = 'Copied ✓';
+      } catch {
+        label.textContent = 'Press Ctrl+C';
+      }
+      setTimeout(() => (label.textContent = original), 1800);
+    });
+  });
+</script>

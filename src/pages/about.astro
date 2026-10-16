@@ -90,7 +90,7 @@ const pillars = [
 <Base
   title="About"
   description="Chifen Sama Nduma is The Nurse Who Codes: registered nurse, software engineer, and health technology researcher based in Buea, Cameroon."
-  ogImage="/assets/photos/chifen-portrait.jpg"
+  
   schema={{
     '@context': 'https://schema.org',
     '@type': 'ProfilePage',
@@ -108,12 +108,12 @@ const pillars = [
   <section class="mx-auto max-w-5xl px-5 pt-12 pb-8 sm:px-8 sm:pt-16">
     <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p class="eyebrow text-accent">Personal Profile &amp; Documentary</p>
-        <h1 class="mt-2 font-display text-4xl font-semibold sm:text-6xl text-ink">
-          About Chifen
+        <p class="eyebrow">Folder 03 · the human behind the screen</p>
+        <h1 class="display-section mt-2 text-ink">
+          About <span class="serif-i font-normal">Chifen.</span>
         </h1>
-        <p class="mt-2 text-lg text-slate">
-          The Nurse Who Codes &mdash; Healthcare, Software, Research, and Community Innovation.
+        <p class="hand mt-3 text-2xl text-slate">
+          nurse, engineer, researcher. short version first, long version if you want it.
         </p>
       </div>
 
@@ -154,7 +154,7 @@ const pillars = [
         <!-- Executive Bio Summary -->
         <div class="rounded-2xl border border-line bg-paper-dim/60 p-6 sm:p-8">
           <p class="eyebrow text-accent">Executive Summary</p>
-          <p class="mt-3 font-display text-2xl font-semibold sm:text-3xl leading-snug text-ink">
+          <p class="mt-3 font-serif text-2xl leading-snug text-ink sm:text-[1.85rem]">
             {professionalBio.summary}
           </p>
         </div>
@@ -220,7 +220,8 @@ const pillars = [
 
       <!-- Right Column: Visual Portrait & Evidence Card -->
       <div class="space-y-6">
-        <div class="overflow-hidden rounded-2xl border border-line bg-paper-dim">
+        <div class="polaroid relative !pb-3" style="--r:2deg">
+          <span class="tape" style="top:-0.7rem;left:35%" aria-hidden="true"></span>
           <Image
             src={portrait}
             alt="Chifen Sama Nduma, registered nurse, software engineer, and health technology researcher in Cameroon."
@@ -229,9 +230,9 @@ const pillars = [
             loading="eager"
             class="w-full object-cover aspect-[4/5]"
           />
-          <div class="p-4 border-t border-line">
-            <p class="font-display text-base font-bold text-ink">Chifen Sama Nduma</p>
-            <p class="text-xs text-slate mt-0.5">
+          <div class="px-1 pt-3">
+            <p class="font-display text-base font-bold text-[#191919]">Chifen Sama Nduma</p>
+            <p class="text-xs text-[#57534d] mt-0.5">
               M.Tech Data Science (COLTECH UBa) · Self-Trained Software Dev · BSc Nursing
             </p>
           </div>

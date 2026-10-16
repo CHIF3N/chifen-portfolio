@@ -43,9 +43,9 @@ Not applicable. This is a statistical write-up, not a software product.
 
 Three variables came out strongly significant. Blood sugar was the sharpest discriminator, F(1, 806) = 637.55, p < .001. Blood pressure followed, χ²(1) = 253.82, p < .001. Age was significant but weaker, F(1, 806) = 91.43, p < .001.
 
-![Distribution of high-risk versus low-risk pregnancies in the dataset](/chifen-portfolio/work/maternal-health-risk/fig1_risk_distribution.png)
-![Blood sugar distribution by risk group, showing the sharp separation between groups](/chifen-portfolio/work/maternal-health-risk/fig4_bs_histogram.png)
-![Correlation matrix of the six clinical indicators](/chifen-portfolio/work/maternal-health-risk/fig5_correlation_heatmap.png)
+![Distribution of high-risk versus low-risk pregnancies in the dataset](/work/maternal-health-risk/fig1_risk_distribution.png)
+![Blood sugar distribution by risk group, showing the sharp separation between groups](/work/maternal-health-risk/fig4_bs_histogram.png)
+![Correlation matrix of the six clinical indicators](/work/maternal-health-risk/fig5_correlation_heatmap.png)
 
 ## Lessons learned
 
