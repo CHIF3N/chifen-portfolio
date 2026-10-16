@@ -6,7 +6,7 @@ import { masterCvData } from '../../lib/masterCvData';
 import { storyChapters, professionalBio } from '../../data/storyData';
 import { impactMetrics } from '../../data/metrics';
 import talksData from '../../data/talks.json';
-import { archiveItems, archiveCategories } from '../../data/archiveData';
+import { archiveItems, archiveCategories, archiveVersion } from '../../data/archiveData';
 import { withBase } from '../../lib/url';
 
 // Load all content collections
@@ -22,6 +22,7 @@ const initialMasterData = {
   storyChapters,
   impactMetrics,
   talks: talksData,
+  archiveVersion,
   archiveItems,
   archiveCategories,
   projects: workEntries.map(e => ({
@@ -1668,8 +1669,10 @@ const encodedInitialData = Buffer.from(JSON.stringify(initialMasterData)).toStri
               research: parsed.research || initialData.research || [],
               talks: parsed.talks || initialData.talks || [],
               storyChapters: parsed.storyChapters || initialData.storyChapters || [],
-              archiveItems: parsed.archiveItems || initialData.archiveItems || [],
-              archiveCategories: parsed.archiveCategories || initialData.archiveCategories || [],
+              // Saved archive edits only survive while they match the live archive data.
+              archiveVersion: initialData.archiveVersion,
+              archiveItems: (parsed.archiveVersion === initialData.archiveVersion && parsed.archiveItems) || initialData.archiveItems || [],
+              archiveCategories: (parsed.archiveVersion === initialData.archiveVersion && parsed.archiveCategories) || initialData.archiveCategories || [],
               impactMetrics: parsed.impactMetrics || initialData.impactMetrics || [],
               mediaAssets: parsed.mediaAssets || initialData.mediaAssets || [],
             };
