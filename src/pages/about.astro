@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import StoryPhotos from '../components/StoryPhotos.astro';
 import portrait from '../assets/photos/chifen-portrait.jpg';
 import { withBase } from '../lib/url';
 import { professionalBio, storyChapters } from '../data/storyData';
@@ -244,6 +245,12 @@ const pillars = [
           <figcaption>the nurse who codes, drawn</figcaption>
         </figure>
 
+        <figure class="polaroid relative" style="--r:2deg">
+          <span class="tape" style="top:-0.7rem;left:40%" aria-hidden="true"></span>
+          <img src={withBase('/photos/chifen-speaking-2.jpg')} alt="Chifen speaking to a seated audience, arms open, in front of a lit curtain." width="1600" height="1066" loading="lazy" decoding="async" />
+          <figcaption>mid-talk</figcaption>
+        </figure>
+
         <!-- Verification Snapshot -->
         <div class="rounded-xl border border-line bg-paper-dim/40 p-5 space-y-3">
           <p class="eyebrow text-slate">Evidence Bar</p>
@@ -341,6 +348,8 @@ const pillars = [
               <p>{p}</p>
             ))}
           </div>
+
+          {chapter.photos && <StoryPhotos photos={chapter.photos} />}
 
           <!-- What I Built vs What I Learned (Fanaka Principle) -->
           {(chapter.whatIBuilt || chapter.whatILearned || chapter.metric) && (
